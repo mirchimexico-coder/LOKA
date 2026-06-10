@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>LOKA Cafe — Dashboard</title>
+<style>
+:root{--bg:#0d1117;--card:#161b22;--border:#21262d;--accent:#f59e0b;--green:#22c55e;--red:#ef4444;--blue:#3b82f6;--purple:#a855f7;--orange:#f97316;--muted:#8b949e;--text:#e6edf3;--card2:#1c2128;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,sans-serif;padding:20px;max-width:1200px;margin:0 auto;}
+.header{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:18px;padding-bottom:14px;border-bottom:1px solid var(--border);}
+.header h1{font-size:1.4rem;color:var(--accent);}
+.header .meta{text-align:right;font-size:.72rem;color:var(--muted);line-height:1.8;}
+.live{display:inline-block;width:7px;height:7px;background:var(--green);border-radius:50%;margin-right:4px;animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.balance-banner{background:linear-gradient(135deg,#0d2818,#161b22);border:1px solid #22c55e;border-radius:12px;padding:18px 22px;margin-bottom:16px;display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:20px;}
+.balance-banner .blabel{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:4px;}
+.balance-banner .bval{font-size:2rem;font-weight:800;color:var(--green);}
+.balance-banner .bsub{font-size:.7rem;color:var(--muted);margin-top:3px;line-height:1.6;}
+.bb-wrap{display:flex;gap:18px;flex-wrap:wrap;}
+.bb-item .bbl{font-size:.63rem;color:var(--muted);text-transform:uppercase;}
+.bb-item .bbv{font-size:.85rem;font-weight:700;margin-top:2px;}
+.alerts{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+.alert{flex:1;min-width:190px;background:var(--card);border-radius:10px;padding:11px 13px;display:flex;align-items:center;gap:10px;border-left:3px solid;}
+.alert.red{border-color:var(--red);} .alert.amber{border-color:var(--accent);} .alert.purple{border-color:var(--purple);} .alert.green{border-color:var(--green);}
+.alert .ico{font-size:1.1rem;} .alert .alabel{font-size:.63rem;color:var(--muted);text-transform:uppercase;} .alert .aval{font-size:.82rem;font-weight:600;margin-top:2px;}
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:16px;}
+.kpi{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:15px;}
+.kpi .klabel{font-size:.63rem;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-bottom:7px;}
+.kpi .kval{font-size:1.5rem;font-weight:700;}
+.kpi .ksub{font-size:.67rem;color:var(--muted);margin-top:3px;} .kpi .kdelta{font-size:.67rem;margin-top:3px;font-weight:600;}
+.up{color:var(--green);} .down{color:var(--red);}
+.kpi.accent .kval{color:var(--accent);} .kpi.green .kval{color:var(--green);} .kpi.red .kval{color:var(--red);} .kpi.blue .kval{color:var(--blue);} .kpi.purple .kval{color:var(--purple);} .kpi.orange .kval{color:var(--orange);}
+.two-col{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;margin-bottom:16px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.card h3{font-size:.67rem;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);margin-bottom:12px;padding-bottom:7px;border-bottom:1px solid var(--border);}
+.bar-row{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.bar-day{font-size:.62rem;color:var(--muted);width:26px;flex-shrink:0;text-align:right;}
+.bar-track{flex:1;height:20px;background:var(--card2);border-radius:4px;overflow:hidden;position:relative;}
+.bar-fill{height:100%;border-radius:4px;display:flex;align-items:center;padding-left:6px;font-size:.62rem;font-weight:600;color:#fff;transition:width .6s ease;}
+.bar-fill.w1{background:linear-gradient(90deg,#1d4ed8,#3b82f6);}
+.bar-fill.w2{background:linear-gradient(90deg,#065f46,#22c55e);}
+.bar-fill.w3{background:linear-gradient(90deg,#7c2d12,#f97316);}
+.bar-fill.w4{background:linear-gradient(90deg,#4c1d95,#a855f7);}
+.bar-fill.su{background:var(--border);}
+.bar-fill.tbd{background:repeating-linear-gradient(45deg,#1c2128,#1c2128 4px,#2d3748 4px,#2d3748 8px);}
+.bar-amt{font-size:.62rem;color:var(--muted);width:48px;text-align:right;flex-shrink:0;}
+.bar-net{font-size:.6rem;width:64px;text-align:right;flex-shrink:0;font-weight:600;}
+.section-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.08em;color:var(--accent);padding:6px 0 3px;font-weight:600;}
+.exp-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.exp-label{font-size:.7rem;width:120px;flex-shrink:0;}
+.exp-track{flex:1;height:7px;background:var(--card2);border-radius:99px;overflow:hidden;}
+.exp-fill{height:100%;border-radius:99px;}
+.exp-val{font-size:.67rem;color:var(--muted);width:80px;text-align:right;flex-shrink:0;}
+.three-col{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px;margin-bottom:16px;}
+.week-compare{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.wk{background:var(--card2);border-radius:8px;padding:11px;}
+.wk .wk-label{font-size:.62rem;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+.wk .wk-rev{font-size:1.1rem;font-weight:700;}
+.wk .wk-row{display:flex;justify-content:space-between;font-size:.67rem;margin-top:4px;color:var(--muted);}
+.wk .wk-row span:last-child{font-weight:600;color:var(--text);}
+.staff-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border);}
+.staff-row:last-child{border-bottom:none;}
+.staff-name{font-size:.82rem;font-weight:600;} .staff-role{font-size:.64rem;color:var(--muted);}
+.badge{display:inline-block;padding:2px 8px;border-radius:99px;font-size:.63rem;font-weight:600;}
+.badge.active{background:#052e16;color:var(--green);}
+.badge.new{background:#172554;color:#60a5fa;}
+.badge.resigned{background:#2d1515;color:var(--red);}
+.stat-item{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border);font-size:.75rem;}
+.stat-item:last-child{border-bottom:none;}
+.stat-item .slabel{color:var(--muted);} .stat-item .sval{font-weight:600;}
+.own-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px;}
+.own-card{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:14px;}
+.own-card .oname{font-size:.9rem;font-weight:700;margin-bottom:2px;}
+.own-card .oshare{font-size:.68rem;color:var(--accent);margin-bottom:8px;}
+.own-bar-wrap{background:var(--card2);border-radius:99px;height:6px;margin:6px 0;overflow:hidden;}
+.own-bar{height:100%;border-radius:99px;}
+.own-row{display:flex;justify-content:space-between;font-size:.68rem;margin-top:4px;}
+.own-row .ol{color:var(--muted);} .own-row .ov{font-weight:600;}
+.acq-bar{background:var(--card2);border-radius:99px;height:12px;overflow:hidden;margin:8px 0;}
+.acq-fill{height:100%;background:linear-gradient(90deg,var(--green),#16a34a);border-radius:99px;display:flex;align-items:center;padding-left:8px;font-size:.58rem;color:#fff;font-weight:600;}
+.ledger-row{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-bottom:1px solid var(--border);font-size:.74rem;}
+.ledger-row:last-child{border-bottom:none;}
+.ledger-row .lr-desc{color:var(--muted);}
+.ledger-row .lr-spent{color:var(--red);font-weight:600;}
+.ledger-row .lr-recv{color:var(--green);font-weight:600;}
+.ledger-row .lr-bal{font-weight:700;}
+.bal-positive{color:var(--orange);}
+.bal-negative{color:var(--blue);}
+.tgt-row{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:.75rem;}
+.tgt-row:last-child{border-bottom:none;}
+.pill{display:inline-block;padding:1px 7px;border-radius:99px;font-size:.6rem;font-weight:600;}
+.pill.hit{background:#052e16;color:var(--green);}
+.pill.miss{background:#2d1515;color:var(--red);}
+.pill.tbd{background:#1c2128;color:var(--muted);}
+.updated{font-size:.65rem;color:var(--muted);text-align:right;padding-top:10px;border-top:1px solid var(--border);}
+.note{font-size:.65rem;color:var(--muted);font-style:italic;padding-top:5px;}
+@media(max-width:720px){.kpi-grid{grid-template-columns:repeat(2,1fr);}.two-col,.three-col,.own-grid{grid-template-columns:1fr;}.balance-banner{grid-template-columns:auto 1fr;}.bb-wrap{display:none;}}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>&#9749; LOKA Cafe Restaurante</h1>
+    <div style="font-size:.72rem;color:var(--muted);margin-top:4px;">Queretaro, Mexico &nbsp;|&nbsp; Financial Dashboard</div>
+  </div>
+  <div class="meta">
+    <span class="live"></span>Live Data &nbsp;|&nbsp; Week 4 — Jun 2026<br>
+    Updated: Tue 9 Jun 2026 &nbsp;|&nbsp; Income TBD today
+  </div>
+</div>
+
+<!-- BALANCE BANNER -->
+<div class="balance-banner">
+  <div>
+    <div class="blabel">Estimated Balance</div>
+    <div class="bval">$15,503</div>
+    <div class="bsub">Operating cash estimate<br>+$19,766 owed to Lohith (rent)</div>
+  </div>
+  <div></div>
+  <div class="bb-wrap">
+    <div class="bb-item"><div class="bbl">All-Time Revenue</div><div class="bbv" style="color:var(--green)">$77,949</div></div>
+    <div class="bb-item"><div class="bbl">All-Time Expenses</div><div class="bbv" style="color:var(--red)">$80,617</div></div>
+    <div class="bb-item"><div class="bbl">Commission Paid</div><div class="bbv" style="color:var(--accent)">$1,694</div></div>
+    <div class="bb-item"><div class="bbl">Break-Even / Day</div><div class="bbv" style="color:var(--blue)">$4,092</div></div>
+  </div>
+</div>
+
+<!-- ALERTS -->
+<div class="alerts">
+  <div class="alert amber"><div class="ico">&#128202;</div><div><div class="alabel">Today (9 Jun)</div><div class="aval">Income TBD &mdash; Expenses $1,947</div></div></div>
+  <div class="alert red"><div class="ico">&#127968;</div><div><div class="alabel">Acquisition Balance</div><div class="aval">$134,500 remaining (34.5%)</div></div></div>
+  <div class="alert green"><div class="ico">&#128105;&#8205;&#127859;</div><div><div class="alabel">Lohith Ledger</div><div class="aval">Restaurant owes Lohith $19,766</div></div></div>
+  <div class="alert purple"><div class="ico">&#128101;</div><div><div class="alabel">New Staff</div><div class="aval">Cesar + Samu joined 9 Jun 2026</div></div></div>
+</div>
+
+<!-- KPIs -->
+<div class="kpi-grid">
+  <div class="kpi green">
+    <div class="klabel">Total Revenue</div>
+    <div class="kval">$77,949</div>
+    <div class="ksub">23 days &bull; Wk4 partial</div>
+  </div>
+  <div class="kpi red">
+    <div class="klabel">Total Expenses</div>
+    <div class="kval">$80,617</div>
+    <div class="ksub">incl. rent $20k, payroll, stock</div>
+  </div>
+  <div class="kpi orange">
+    <div class="klabel">MP Commission</div>
+    <div class="kval">$1,694</div>
+    <div class="ksub">4.06% on card + transfer</div>
+  </div>
+  <div class="kpi blue">
+    <div class="klabel">Operating Net</div>
+    <div class="kval">+$18,296</div>
+    <div class="ksub">excl. one-time rent &amp; bulk stock</div>
+  </div>
+</div>
+
+<!-- DAILY BARS + WEEKLY COMPARE -->
+<div class="two-col">
+  <div class="card">
+    <h3>Daily Revenue — All 23 Days</h3>
+
+    <div class="bar-row">
+      <div class="bar-day">18-May</div>
+      <div class="bar-track"><div class="bar-fill w1" style="width:60%">$3,689</div></div>
+      <div class="bar-amt">$3,689</div>
+      <div class="bar-net up">+$1,060</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">19-May</div>
+      <div class="bar-track"><div class="bar-fill w1" style="width:63%">$3,854</div></div>
+      <div class="bar-amt">$3,854</div>
+      <div class="bar-net up">+$3,824</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">20-May</div>
+      <div class="bar-track"><div class="bar-fill w1" style="width:67%">$4,124</div></div>
+      <div class="bar-amt">$4,124</div>
+      <div class="bar-net up">+$347</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">21-May</div>
+      <div class="bar-track"><div class="bar-fill w1" style="width:77%">$4,733</div></div>
+      <div class="bar-amt">$4,733</div>
+      <div class="bar-net up">+$2,299</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">22-May</div>
+      <div class="bar-track"><div class="bar-fill w1" style="width:70%">$4,282</div></div>
+      <div class="bar-amt">$4,282</div>
+      <div class="bar-net up">+$2,825</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">23-May</div>
+      <div class="bar-track"><div class="bar-fill w1" style="width:62%">$3,802</div></div>
+      <div class="bar-amt">$3,802</div>
+      <div class="bar-net down">-$5,151</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">24-May</div>
+      <div class="bar-track"><div class="bar-fill su" style="width:19%">$1,198</div></div>
+      <div class="bar-amt">$1,198</div>
+      <div class="bar-net up">+$122</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">25-May</div>
+      <div class="bar-track"><div class="bar-fill w2" style="width:61%">$3,730</div></div>
+      <div class="bar-amt">$3,730</div>
+      <div class="bar-net up">+$709</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">26-May</div>
+      <div class="bar-track"><div class="bar-fill w2" style="width:70%">$4,264</div></div>
+      <div class="bar-amt">$4,264</div>
+      <div class="bar-net up">+$3,072</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">27-May</div>
+      <div class="bar-track"><div class="bar-fill w2" style="width:59%">$3,621</div></div>
+      <div class="bar-amt">$3,621</div>
+      <div class="bar-net up">+$2,548</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">28-May</div>
+      <div class="bar-track"><div class="bar-fill w2" style="width:66%">$4,070</div></div>
+      <div class="bar-amt">$4,070</div>
+      <div class="bar-net up">+$2,139</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">29-May</div>
+      <div class="bar-track"><div class="bar-fill w2" style="width:100%">$6,086</div></div>
+      <div class="bar-amt">$6,086</div>
+      <div class="bar-net up">+$5,829</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">30-May</div>
+      <div class="bar-track"><div class="bar-fill w2" style="width:75%">$4,603</div></div>
+      <div class="bar-amt">$4,603</div>
+      <div class="bar-net down">-$1,371</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">31-May</div>
+      <div class="bar-track"><div class="bar-fill su" style="width:14%"></div></div>
+      <div class="bar-amt">$893</div>
+      <div class="bar-net up">+$581</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">01-Jun</div>
+      <div class="bar-track"><div class="bar-fill w3" style="width:82%">$5,019</div></div>
+      <div class="bar-amt">$5,019</div>
+      <div class="bar-net down">-$1,011</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">02-Jun</div>
+      <div class="bar-track"><div class="bar-fill w3" style="width:30%">$1,843</div></div>
+      <div class="bar-amt">$1,843</div>
+      <div class="bar-net down">-$536</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">03-Jun</div>
+      <div class="bar-track"><div class="bar-fill w3" style="width:64%">$3,912</div></div>
+      <div class="bar-amt">$3,912</div>
+      <div class="bar-net down">-$122</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">04-Jun</div>
+      <div class="bar-track"><div class="bar-fill w3" style="width:61%">$3,757</div></div>
+      <div class="bar-amt">$3,757</div>
+      <div class="bar-net down">-$17,203</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">05-Jun</div>
+      <div class="bar-track"><div class="bar-fill w3" style="width:72%">$4,408</div></div>
+      <div class="bar-amt">$4,408</div>
+      <div class="bar-net up">+$3,530</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">06-Jun</div>
+      <div class="bar-track"><div class="bar-fill w3" style="width:38%">$2,334</div></div>
+      <div class="bar-amt">$2,334</div>
+      <div class="bar-net down">-$3,080</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">07-Jun</div>
+      <div class="bar-track"><div class="bar-fill su" style="width:0%"></div></div>
+      <div class="bar-amt">TBD</div>
+      <div class="bar-net down">—</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">08-Jun</div>
+      <div class="bar-track"><div class="bar-fill w4" style="width:61%">$3,727</div></div>
+      <div class="bar-amt">$3,727</div>
+      <div class="bar-net up">+$540</div>
+    </div>
+    <div class="bar-row">
+      <div class="bar-day">09-Jun</div>
+      <div class="bar-track"><div class="bar-fill tbd" style="width:0%"></div></div>
+      <div class="bar-amt">TBD</div>
+      <div class="bar-net down">—</div>
+    </div>
+    <div class="chart-legend" style="margin-top:10px;">
+      <span><span class="ldot" style="background:#3b82f6"></span>W1 May 18-24</span>
+      <span><span class="ldot" style="background:#22c55e"></span>W2 May 25-31</span>
+      <span><span class="ldot" style="background:#f97316"></span>W3 Jun 1-7</span>
+      <span><span class="ldot" style="background:#a855f7"></span>W4 Jun 8+</span>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Weekly Summary</h3>
+    <div class="week-compare">
+      <div class="wk">
+        <div class="wk-label">W1  18-24 May</div>
+        <div class="wk-rev" style="color:#3b82f6">$25,682</div>
+        <div style="background:var(--border);height:3px;border-radius:2px;margin:5px 0;overflow:hidden"><div style="width:94%;height:100%;background:#3b82f6"></div></div>
+        <div class="wk-row"><span>Expenses</span><span>$20,356</span></div>
+        <div class="wk-row"><span>Net</span><span class="up">+$5,326</span></div>
+      </div>
+      <div class="wk">
+        <div class="wk-label">W2  25-31 May</div>
+        <div class="wk-rev" style="color:#22c55e">$27,267</div>
+        <div style="background:var(--border);height:3px;border-radius:2px;margin:5px 0;overflow:hidden"><div style="width:100%;height:100%;background:#22c55e"></div></div>
+        <div class="wk-row"><span>Expenses</span><span>$13,761</span></div>
+        <div class="wk-row"><span>Net</span><span class="up">+$13,506</span></div>
+      </div>
+      <div class="wk">
+        <div class="wk-label">W3  01-07 Jun</div>
+        <div class="wk-rev" style="color:#f97316">$21,273</div>
+        <div style="background:var(--border);height:3px;border-radius:2px;margin:5px 0;overflow:hidden"><div style="width:78%;height:100%;background:#f97316"></div></div>
+        <div class="wk-row"><span>Expenses</span><span>$41,366</span></div>
+        <div class="wk-row"><span>Net</span><span class="down">$-20,093 *</span></div>
+      </div>
+      <div class="wk">
+        <div class="wk-label">W4  08-09 Jun</div>
+        <div class="wk-rev" style="color:#a855f7">$3,727</div>
+        <div style="background:var(--border);height:3px;border-radius:2px;margin:5px 0;overflow:hidden"><div style="width:13%;height:100%;background:#a855f7"></div></div>
+        <div class="wk-row"><span>Expenses</span><span>$5,134</span></div>
+        <div class="wk-row"><span>Net</span><span class="down">$-1,407 (partial)</span></div>
+      </div>
+    </div>
+    <p class="note" style="margin-top:10px;">* W3 net includes $20,000 rent (monthly lump). Operating net ex-rent: +$1,907</p>
+
+    <div style="margin-top:14px;">
+    <h3 style="margin-bottom:10px;">Revenue Mix (all-time)</h3>
+    <div class="exp-row"><div class="exp-label">Card (MP)</div><div class="exp-track"><div class="exp-fill" style="width:52%;background:var(--blue)"></div></div><div class="exp-val">$40,775 (52%)</div></div>
+    <div class="exp-row"><div class="exp-label">Cash</div><div class="exp-track"><div class="exp-fill" style="width:46%;background:var(--green)"></div></div><div class="exp-val">$36,227 (46%)</div></div>
+    <div class="exp-row"><div class="exp-label">Transfer</div><div class="exp-track"><div class="exp-fill" style="width:2%;background:var(--accent)"></div></div><div class="exp-val">$947 (2%)</div></div>
+    </div>
+  </div>
+</div>
+<!-- OWNERSHIP / ACQUISITION -->
+<div class="own-grid">
+  <div class="own-card">
+    <div class="oname">Lohith Reddy</div>
+    <div class="oshare">50% &bull; Managing Partner</div>
+    <div class="own-row"><div class="ol">Budget</div><div class="ov">$300,000</div></div>
+    <div class="own-bar-wrap"><div class="own-bar" style="width:10%;background:var(--blue)"></div></div>
+    <div class="own-row"><div class="ol">Deployed</div><div class="ov">$28,947</div></div>
+    <div class="own-row"><div class="ol">Remaining</div><div class="ov" style="color:var(--green)">$271,053</div></div>
+  </div>
+  <div class="own-card">
+    <div class="oname">Kashigoud Patil</div>
+    <div class="oshare">30% &bull; Partner</div>
+    <div class="own-row"><div class="ol">Budget</div><div class="ov">$180,000</div></div>
+    <div class="own-bar-wrap"><div class="own-bar" style="width:79%;background:var(--accent)"></div></div>
+    <div class="own-row"><div class="ol">Deployed</div><div class="ov">$141,568</div></div>
+    <div class="own-row"><div class="ol">Still Owes Lohith</div><div class="ov" style="color:var(--red)">$38,432</div></div>
+  </div>
+  <div class="own-card">
+    <div class="oname">Shashirekha B.</div>
+    <div class="oshare">20% &bull; Partner</div>
+    <div class="own-row"><div class="ol">Budget</div><div class="ov">$120,000</div></div>
+    <div class="own-bar-wrap"><div class="own-bar" style="width:89%;background:var(--purple)"></div></div>
+    <div class="own-row"><div class="ol">Deployed</div><div class="ov">$106,895</div></div>
+    <div class="own-row"><div class="ol">Still Owes Lohith</div><div class="ov" style="color:var(--red)">$13,105</div></div>
+  </div>
+</div>
+
+<!-- THREE COLUMNS: Acquisition + Staff + Break-Even -->
+<div class="three-col">
+
+  <!-- ACQUISITION -->
+  <div class="card">
+    <h3>&#127968; Acquisition Progress</h3>
+    <div style="text-align:center;padding:8px 0;">
+      <div style="font-size:2rem;font-weight:800;color:var(--green)">65.5%</div>
+      <div style="font-size:.7rem;color:var(--muted)">$255,500 of $390,000 paid</div>
+    </div>
+    <div class="acq-bar"><div class="acq-fill" style="width:65.5%">65.5%</div></div>
+    <div class="stat-item"><span class="slabel">Total Price</span><span class="sval">$390,000</span></div>
+    <div class="stat-item"><span class="slabel">Advance</span><span class="sval up">&#10003; $5,000</span></div>
+    <div class="stat-item"><span class="slabel">3 Jun payment</span><span class="sval up">&#10003; $95,000</span></div>
+    <div class="stat-item"><span class="slabel">4 Jun (x6 transfers)</span><span class="sval up">&#10003; $125,500</span></div>
+    <div class="stat-item"><span class="slabel">5 Jun payment</span><span class="sval up">&#10003; $30,000</span></div>
+    <div class="stat-item"><span class="slabel">&#11014; Total Paid</span><span class="sval" style="color:var(--green)">$255,500</span></div>
+    <div class="stat-item" style="background:#1c1206;padding:6px 8px;border-radius:6px;margin-top:4px;">
+      <span class="slabel" style="color:var(--accent)">Balance Remaining</span>
+      <span class="sval" style="color:var(--accent)">$134,500 &#9203;</span>
+    </div>
+  </div>
+
+  <!-- STAFF -->
+  <div class="card">
+    <h3>&#128101; Staff Roster</h3>
+    <div class="staff-row">
+      <div><div class="staff-name">John</div><div class="staff-role">Head Chef &bull; $625/day</div></div>
+      <span class="badge active">&#10003; Active</span>
+    </div>
+    <div class="staff-row">
+      <div><div class="staff-name">Debi</div><div class="staff-role">Limpieza &bull; $250/day</div></div>
+      <span class="badge active">&#10003; Active</span>
+    </div>
+    <div class="staff-row">
+      <div><div class="staff-name">Cesar</div><div class="staff-role">Mesero &bull; $333/day &bull; from 9 Jun</div></div>
+      <span class="badge new">&#9733; New</span>
+    </div>
+    <div class="staff-row">
+      <div><div class="staff-name">Samu</div><div class="staff-role">Ayudante &bull; $133/day &bull; from 9 Jun</div></div>
+      <span class="badge new">&#9733; New</span>
+    </div>
+    <div class="staff-row">
+      <div><div class="staff-name">Judith</div><div class="staff-role">Mesera &bull; resigned 7 Jun</div></div>
+      <span class="badge resigned">Resigned</span>
+    </div>
+    <div style="margin-top:12px;background:var(--card2);border-radius:8px;padding:10px;">
+      <div style="font-size:.62rem;color:var(--muted);text-transform:uppercase;margin-bottom:6px;">Weekly Payroll</div>
+      <div style="font-size:1.3rem;font-weight:800;color:var(--accent)">$8,050</div>
+      <div style="font-size:.65rem;color:var(--muted);margin-top:3px;">John $3,750 + Debi $1,500 + Cesar $2,000 + Samu $800</div>
+    </div>
+  </div>
+
+  <!-- BREAK-EVEN + LOHITH LEDGER -->
+  <div class="card">
+    <h3>&#127919; Break-Even Targets</h3>
+    <div class="tgt-row">
+      <span style="color:var(--muted)">Min/day (current)</span>
+      <span style="font-weight:700;font-size:.9rem;color:var(--green)">$4,092</span>
+    </div>
+    <div class="tgt-row">
+      <span style="color:var(--muted)">Total fixed /week</span>
+      <span>$14,050</span>
+    </div>
+    <div class="tgt-row">
+      <span style="color:var(--muted)">Rent + Maintenance /mo</span>
+      <span>$20,000 &#10003;</span>
+    </div>
+    <div class="tgt-row">
+      <span style="color:var(--muted)">Utilities /mo (est.)</span>
+      <span style="color:var(--accent)">~$4,000 &#9203;</span>
+    </div>
+    <div class="tgt-row">
+      <span style="color:var(--muted)">Comfortable target</span>
+      <span style="color:var(--blue)">$4,700+/day</span>
+    </div>
+
+    <div style="margin-top:14px;">
+    <h3 style="margin-bottom:10px;">&#129337; Lohith Ledger</h3>
+    <div class="stat-item"><span class="slabel">Total spent personally</span><span class="sval" style="color:var(--red)">$20,713</span></div>
+    <div class="stat-item"><span class="slabel">Transfers received</span><span class="sval" style="color:var(--green)">$848</span></div>
+    <div class="stat-item" style="background:#1c1206;padding:6px 8px;border-radius:6px;margin-top:4px;">
+      <span class="slabel" style="color:var(--accent)">Restaurant owes Lohith</span>
+      <span class="sval" style="color:var(--accent);font-size:.9rem">$19,766</span>
+    </div>
+    <div class="note">Rent $20,000 + Telmex $349 + Personal $364<br>minus transfers $848 + $99</div>
+    </div>
+  </div>
+</div>
+
+<div class="updated">LOKA Cafe Restaurante &nbsp;&bull;&nbsp; Dashboard updated Tue 9 Jun 2026 &nbsp;&bull;&nbsp; Week 4, Day 2 &nbsp;&bull;&nbsp; June 9 income TBD</div>
+</body>
+</html>
