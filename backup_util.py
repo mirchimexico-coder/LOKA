@@ -16,8 +16,8 @@ import os
 import shutil
 from datetime import datetime
 
-EXCEL_FILE  = r'C:\Restaurant\LOKA_Restaurant_Manager.xlsx'
-BACKUP_DIR  = r'C:\Restaurant\Backup'
+EXCEL_FILE  = r'C:\LOKA\LOKA_Restaurant_Manager.xlsx'
+BACKUP_DIR  = r'C:\LOKA\Backup'
 MAX_BACKUPS = 30
 
 def backup_excel(label: str = '') -> str:

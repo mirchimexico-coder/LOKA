@@ -1,0 +1,10 @@
+# LOKA repo - only sync dashboard + workbook + scripts
+Backup/
+Backups/
+My Backup/
+__pycache__/
+Logs/
+Bills/
+output.txt
+*.pyc
+~$*.xlsx
