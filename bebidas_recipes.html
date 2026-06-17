@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LOKA Café — Recetas de Bebidas</title>
+<style>
+:root{
+  --bg:#f3e9dc; --card:#fffdf9; --espresso:#3b2415; --coffee:#6f4e37;
+  --accent:#b07d4f; --line:#e6d8c5; --text:#2b1d12; --muted:#8a7561;
+  --matcha:#6f9a4f; --taro:#9472b4; --frio:#5b8fb0; --frappe:#c98a3c; --esp:#8a5a3b;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:"Segoe UI",system-ui,sans-serif;background:var(--bg);color:var(--text);
+  line-height:1.45;padding:0 0 60px}
+header{background:linear-gradient(135deg,#3b2415,#6f4e37);color:#fff;padding:34px 24px 28px;
+  text-align:center;box-shadow:0 4px 14px rgba(0,0,0,.18)}
+header h1{font-size:30px;letter-spacing:1px;font-weight:700}
+header .sub{opacity:.85;margin-top:6px;font-size:14px;letter-spacing:.5px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px}
+.controls{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center;
+  margin:26px 0 22px}
+.controls input{flex:1;min-width:220px;max-width:380px;padding:11px 15px;border:1px solid var(--line);
+  border-radius:10px;font-size:15px;background:#fff;outline:none}
+.controls input:focus{border-color:var(--accent)}
+.filters{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
+.chip{border:1px solid var(--line);background:#fff;color:var(--coffee);padding:8px 15px;
+  border-radius:999px;cursor:pointer;font-size:13px;font-weight:600;transition:.15s}
+.chip:hover{border-color:var(--accent)}
+.chip.active{background:var(--coffee);color:#fff;border-color:var(--coffee)}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:18px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;overflow:hidden;
+  box-shadow:0 2px 8px rgba(59,36,21,.06);display:flex;flex-direction:column;transition:.18s}
+.card:hover{transform:translateY(-3px);box-shadow:0 8px 20px rgba(59,36,21,.13)}
+.card .top{padding:16px 18px 12px;border-bottom:1px dashed var(--line)}
+.card h3{font-size:19px;color:var(--espresso);display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.tag{font-size:11px;font-weight:700;color:#fff;padding:3px 10px;border-radius:999px;letter-spacing:.4px;text-transform:uppercase}
+.t-Caliente{background:var(--esp)} .t-Frío{background:var(--frio)}
+.t-Frappe{background:var(--frappe)} .t-Especial{background:var(--taro)}
+.card .note{font-size:12px;color:var(--muted);margin-top:6px;font-style:italic}
+.card .body{padding:14px 18px 18px;display:flex;flex-direction:column;gap:12px;flex:1}
+.sec-h{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--accent);margin-bottom:5px}
+ul.ing{list-style:none;display:flex;flex-direction:column;gap:5px}
+ul.ing li{display:flex;justify-content:space-between;gap:12px;font-size:14px;border-bottom:1px dotted #eee3d3;padding-bottom:4px}
+ul.ing li span.q{color:var(--coffee);font-weight:600;white-space:nowrap}
+ol.steps{margin-left:18px;display:flex;flex-direction:column;gap:6px}
+ol.steps li{font-size:13.5px;color:#403022}
+.empty{text-align:center;color:var(--muted);padding:50px;grid-column:1/-1}
+footer{text-align:center;color:var(--muted);font-size:12px;margin-top:34px}
+@media(max-width:560px){.grid{grid-template-columns:1fr}header h1{font-size:24px}}
+</style>
+</head>
+<body>
+<header>
+  <h1>☕ LOKA Café — Recetas de Bebidas</h1>
+  <div class="sub">Guía de preparación para barra · Querétaro</div>
+</header>
+<div class="wrap">
+  <div class="controls">
+    <input id="search" type="text" placeholder="Buscar bebida o ingrediente…" oninput="render()">
+  </div>
+  <div class="filters" id="filters"></div>
+  <div class="grid" id="grid"></div>
+  <footer id="foot"></footer>
+</div>
+<script>
+const recipes = [
+  { cat:"Caliente", name:"Espresso",
+    note:"Concentrado de café. Variante: cortado.",
+    ing:[ ["Café (concentrado)",""] ],
+    steps:[ "Es un concentrado de café.",
+            "Cortado: agregar poca espuma de leche, unas 2 cucharadas." ] },
+
+  { cat:"Caliente", name:"Capuchino",
+    note:"Opción con sabor (push de jarabe).",
+    ing:[ ["Leche",""], ["Café",""], ["Sabor / push","opcional"] ],
+    steps:[ "Espumar la leche y vaciarla en la taza.",
+            "Hacer el café y vaciarlo poco a poco.",
+            "Si lo quieren con sabor, ya listo se le pone un push." ] },
+
+  { cat:"Caliente", name:"Latte",
+    note:"Leche poco espumada.",
+    ing:[ ["Espresso",""], ["Leche",""] ],
+    steps:[ "Hacer el espresso y ponerlo en la taza.",
+            "Después poner la leche, no tan espumada." ] },
+
+  { cat:"Caliente", name:"Matcha y Taro (Caliente)",
+    note:"Sabor a elegir: Matcha o Taro.",
+    ing:[ ["Leche",""], ["Sabor (Matcha o Taro)","1 medida (scoop)"] ],
+    steps:[ "Poner la leche.",
+            "Agregar el sabor (Matcha o Taro): una medida (scoop).",
+            "Calentar." ] },
+
+  { cat:"Frío", name:"Capuccino Frío",
+    note:"",
+    ing:[ ["Leche",""], ["Hielo",""], ["Café",""] ],
+    steps:[ "Licuar la leche con el hielo.",
+            "Después poner el café." ] },
+
+  { cat:"Frío", name:"Taro y Matcha Frío",
+    note:"Se prepara en el shaker.",
+    ing:[ ["Sabor (Taro o Matcha)","1 medida (scoop)"], ["Azúcar chica","1 cucharada"],
+          ["Hielo",""], ["Leche",""] ],
+    steps:[ "Poner en el shaker con hielo.",
+            "Agregar el sabor (una medida / scoop) y 1 cucharada chica de azúcar.",
+            "Agregar leche y moler con el vaso donde se va a servir." ] },
+
+  { cat:"Frappe", name:"Frappe Agua",
+    note:"Base de agua.",
+    ing:[ ["Agua","250 ml"], ["Sabor push","1½"], ["Azúcar","1 cdta (10 g)"],
+          ["Base de agua","3 g / punta de cuchara"], ["Hielo",""] ],
+    steps:[ "Poner hielo, agua (250 ml) y el sabor push (1½).",
+            "Agregar azúcar (1 cucharadita, 10 g).",
+            "Agregar base de agua: 3 g o la punta de la cuchara.",
+            "Licuar." ] },
+
+  { cat:"Frappe", name:"Frappe Especial",
+    note:"Oreo · Ferrero · Kinder · Gansito",
+    ing:[ ["Leche","250 ml"], ["Chocolate en polvo","20 g"],
+          ["Azúcar","30 g / 2½ cdtas"], ["Pastelito a elegir","1 pieza"],
+          ["Base","3 g / punta de cucharita"], ["Hielo",""] ],
+    steps:[ "Licuar hielo, leche (250 ml), chocolate en polvo (20 g) y azúcar (30 g o 2½ cdtas).",
+            "Agregar 1 pieza del pastelito que se ocupe y la base (3 g).",
+            "Decorar el vaso con chocolate líquido.",
+            "Preguntar si gustan crema batida y un chocolate de palito." ] },
+
+  { cat:"Frappe", name:"Frappuccino y Mokaccino",
+    note:"Mokaccino = + 20 g de polvo de chocolate.",
+    ing:[ ["Leche","250 ml"], ["Café","5–6 g"], ["Azúcar","30 g"],
+          ["Base de leche",""], ["Hielo",""], ["Polvo de chocolate (Mokaccino)","20 g"] ],
+    steps:[ "Licuar hielo, leche (250 ml), café (5–6 g) y azúcar (30 g) con base de leche.",
+            "Para el Mokaccino: agregar 20 g de polvo de chocolate." ] },
+
+  { cat:"Especial", name:"Carbón Activado",
+    note:"Con agua o con leche.",
+    ing:[ ["Agua o leche",""], ["Carbón activado",""] ],
+    steps:[ "Calentar el agua o la leche.",
+            "Agregar el carbón activado y listo." ] },
+];
+
+const cats = ["Todas","Caliente","Frío","Frappe","Especial"];
+let active = "Todas";
+
+const filtersEl = document.getElementById('filters');
+cats.forEach(c => {
+  const b = document.createElement('button');
+  b.className = 'chip' + (c === active ? ' active' : '');
+  b.textContent = c + (c === 'Todas' ? '' : '');
+  b.onclick = () => { active = c; document.querySelectorAll('.chip').forEach(x=>x.classList.remove('active')); b.classList.add('active'); render(); };
+  filtersEl.appendChild(b);
+});
+
+function render(){
+  const q = document.getElementById('search').value.trim().toLowerCase();
+  const grid = document.getElementById('grid');
+  grid.innerHTML = '';
+  const list = recipes.filter(r => {
+    const okCat = active === 'Todas' || r.cat === active;
+    const hay = (r.name + ' ' + r.note + ' ' + r.ing.map(i=>i[0]).join(' ') + ' ' + r.steps.join(' ')).toLowerCase();
+    return okCat && (q === '' || hay.includes(q));
+  });
+  if(!list.length){ grid.innerHTML = '<div class="empty">No se encontraron bebidas.</div>'; updateFoot(0); return; }
+  list.forEach(r => {
+    const ing = r.ing.map(i => `<li>${i[0]}<span class="q">${i[1]||''}</span></li>`).join('');
+    const steps = r.steps.map(s => `<li>${s}</li>`).join('');
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.innerHTML =
+      `<div class="top"><h3>${r.name}<span class="tag t-${r.cat}">${r.cat}</span></h3>` +
+      (r.note ? `<div class="note">${r.note}</div>` : '') + `</div>` +
+      `<div class="body">` +
+        `<div><div class="sec-h">Ingredientes</div><ul class="ing">${ing}</ul></div>` +
+        `<div><div class="sec-h">Preparación</div><ol class="steps">${steps}</ol></div>` +
+      `</div>`;
+    grid.appendChild(card);
+  });
+  updateFoot(list.length);
+}
+function updateFoot(n){
+  document.getElementById('foot').textContent =
+    `${n} bebida${n===1?'':'s'} · LOKA Café Restaurante · transcrito de receta de barra`;
+}
+render();
+</script>
+</body>
+</html>
