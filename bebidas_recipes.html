@@ -63,8 +63,9 @@ footer{text-align:center;color:var(--muted);font-size:12px;margin-top:34px}
   <div class="legend" style="max-width:780px;margin:4px auto 22px;background:#fffdf9;border:1px solid #e6d8c5;border-radius:10px;padding:11px 16px;font-size:12.5px;color:#6f4e37;text-align:center;line-height:1.8">
     <strong style="color:#3b2415">Glosario de barra:</strong>
     <b>push</b> = bombeo de jarabe &nbsp;·&nbsp;
-    <b>medida</b> = 1 scoop &nbsp;·&nbsp;
-    <b>base</b> = base en polvo
+    <b>scoop</b> = medida de polvo de sabor &nbsp;·&nbsp;
+    <b>base</b> = base en polvo<br>
+    <b>Con licuadora:</b> Frappes, Especiales y Frappuccino
   </div>
   <div class="grid" id="grid"></div>
   <footer id="foot"></footer>
@@ -75,7 +76,7 @@ const recipes = [
     note:"Concentrado de café. Variante: cortado.",
     ing:[ ["Café (concentrado)",""] ],
     steps:[ "Es un concentrado de café.",
-            "Cortado: agregar poca espuma de leche, unas 2 cucharadas." ] },
+            "Cortado: agregar leche, unas 2 cucharadas." ] },
 
   { cat:"Caliente", name:"Capuchino",
     note:"Opción con sabor (push de jarabe).",
@@ -90,11 +91,25 @@ const recipes = [
     steps:[ "Hacer el espresso y ponerlo en la taza.",
             "Después poner la leche, no tan espumada." ] },
 
-  { cat:"Caliente", name:"Matcha y Taro Caliente",
-    note:"Sabor a elegir: Matcha o Taro · Sin azúcar: se sirve con sobres de azúcar aparte.",
-    ing:[ ["Leche",""], ["Sabor (Matcha o Taro)","1 medida (scoop)"] ],
+  { cat:"Caliente", name:"Taro Caliente",
+    note:"Versión fría: agregar 1 cucharada de azúcar y hielo.",
+    ing:[ ["Leche",""], ["Polvo de Taro","1 scoop"], ["Base de leche","3 g / punta de cuchara"] ],
     steps:[ "Poner la leche.",
-            "Agregar el sabor (Matcha o Taro): una medida (scoop).",
+            "Agregar el polvo de Taro y la base de leche.",
+            "Calentar." ] },
+
+  { cat:"Caliente", name:"Matcha Caliente",
+    note:"Versión fría: agregar 1 cucharada de azúcar y hielo.",
+    ing:[ ["Leche",""], ["Polvo de Matcha","1 scoop"], ["Base de leche","3 g / punta de cuchara"] ],
+    steps:[ "Poner la leche.",
+            "Agregar el polvo de Matcha y la base de leche.",
+            "Calentar." ] },
+
+  { cat:"Caliente", name:"Chai Caliente",
+    note:"Antes llamado Té. Sin base de leche.",
+    ing:[ ["Leche",""], ["Polvo de sabor (chai)","1 scoop"] ],
+    steps:[ "Poner la leche.",
+            "Agregar 1 scoop de polvo de sabor.",
             "Calentar." ] },
 
   { cat:"Frío", name:"Capuchino Frío",
@@ -103,45 +118,54 @@ const recipes = [
     steps:[ "Licuar la leche con el hielo.",
             "Después poner el café." ] },
 
-  { cat:"Frío", name:"Matcha y Taro Frío",
+  { cat:"Frío", name:"Taro Frío",
     note:"Se prepara en el shaker.",
-    ing:[ ["Sabor (Matcha o Taro)","1 medida (scoop)"], ["Azúcar chica","1 cucharada"],
-          ["Hielo",""], ["Leche",""] ],
+    ing:[ ["Leche",""], ["Polvo de Taro","1 scoop"], ["Azúcar","1 cucharada"], ["Base de leche","3 g / punta de cuchara"], ["Hielo",""] ],
     steps:[ "Poner en el shaker con hielo.",
-            "Agregar el sabor (una medida / scoop) y 1 cucharada chica de azúcar.",
+            "Agregar polvo de Taro, base de leche y 1 cucharada de azúcar.",
             "Agregar leche y moler con el vaso donde se va a servir." ] },
 
+  { cat:"Frío", name:"Matcha Frío",
+    note:"Se prepara en el shaker.",
+    ing:[ ["Leche",""], ["Polvo de Matcha","1 scoop"], ["Azúcar","1 cucharada"], ["Base de leche","3 g / punta de cuchara"], ["Hielo",""] ],
+    steps:[ "Poner en el shaker con hielo.",
+            "Agregar polvo de Matcha, base de leche y 1 cucharada de azúcar.",
+            "Agregar leche y moler con el vaso donde se va a servir." ] },
+
+  { cat:"Frío", name:"Chai Frío",
+    note:"Antes llamado Té. Sin base de leche.",
+    ing:[ ["Leche",""], ["Polvo de sabor (chai)","1 scoop"], ["Azúcar","1 cucharada"], ["Hielo",""] ],
+    steps:[ "Poner leche y hielo.",
+            "Agregar 1 scoop de polvo de sabor y 1 cucharada de azúcar.",
+            "Mezclar." ] },
+
   { cat:"Frappe", name:"Frappe Agua",
-    note:"Base de agua.",
-    ing:[ ["Agua","250 ml"], ["Sabor push","1½"], ["Azúcar","1 cdta (10 g)"],
-          ["Base de agua","3 g / punta de cuchara"], ["Hielo",""] ],
-    steps:[ "Poner hielo, agua (250 ml) y el sabor push (1½).",
-            "Agregar azúcar (1 cucharadita, 10 g).",
-            "Agregar base de agua: 3 g o la punta de la cuchara.",
+    note:"Base de agua · sabores frutales · licuadora.",
+    ing:[ ["Agua","250 ml"], ["Sabor frutal (push)","1½"], ["Azúcar","1 cda (10 g)"], ["Base de agua","3 g / punta de cuchara"], ["Hielo",""] ],
+    steps:[ "Poner hielo, agua (250 ml) y el sabor frutal (push 1½).",
+            "Agregar azúcar (1 cucharada, 10 g) y base de agua (3 g).",
             "Licuar." ] },
 
   { cat:"Frappe", name:"Frappe Especial",
-    note:"Oreo · Ferrero · Kinder · Gansito",
-    ing:[ ["Leche","250 ml"], ["Chocolate en polvo","20 g"],
-          ["Azúcar","30 g / 2½ cdtas"], ["Pastelito a elegir","1 pieza"],
-          ["Base","3 g / punta de cucharita"], ["Hielo",""] ],
-    steps:[ "Licuar hielo, leche (250 ml), chocolate en polvo (20 g) y azúcar (30 g o 2½ cdtas).",
-            "Agregar 1 pieza del pastelito que se ocupe y la base (3 g).",
+    note:"Oreo · Ferrero · Kinder · Gansito · licuadora",
+    ing:[ ["Leche","250 ml"], ["Base de leche","3 g / punta de cuchara"], ["Chocolate en polvo","20 g / 2 cucharadas chicas"], ["Azúcar","30 g / 2½ cdtas"], ["Pastelito a elegir","1 pieza"], ["Hielo",""] ],
+    steps:[ "Licuar hielo, leche (250 ml), base de leche, chocolate en polvo (20 g) y azúcar (30 g).",
+            "Agregar 1 pieza del pastelito (Oreo, Ferrero, Kinder o Gansito).",
             "Decorar el vaso con chocolate líquido.",
             "Preguntar si gustan crema batida y un chocolate de palito." ] },
 
   { cat:"Frappe", name:"Frappuccino y Mokaccino",
-    note:"Mokaccino = + 20 g de polvo de chocolate.",
-    ing:[ ["Leche","250 ml"], ["Café","5–6 g"], ["Azúcar","30 g"],
-          ["Base de leche","3 g / punta de cuchara"], ["Hielo",""], ["Polvo de chocolate (Mokaccino)","20 g"] ],
-    steps:[ "Licuar hielo, leche (250 ml), café (5–6 g) y azúcar (30 g) con base de leche (3 g).",
-            "Para el Mokaccino: agregar 20 g de polvo de chocolate." ] },
+    note:"Mokaccino = + 2 cucharadas de chocolate · licuadora",
+    ing:[ ["Leche","250 ml"], ["Base de leche","3 g / punta de cuchara"], ["Café","6 g (cargado: 8 g)"], ["Azúcar","3 cucharadas medianas"], ["Hielo",""], ["Chocolate (Mokaccino)","2 cucharadas"] ],
+    steps:[ "Licuar hielo, leche (250 ml), café (6 g; cargado 8 g) y azúcar (3 cucharadas medianas) con base de leche.",
+            "Para el Mokaccino: agregar 2 cucharadas de chocolate.",
+            "Servir en vaso decorado con caramelo o chocolate y crema batida." ] },
 
   { cat:"Especial", name:"Carbón Activado",
     note:"Con agua o con leche.",
-    ing:[ ["Agua o leche",""], ["Carbón activado",""] ],
-    steps:[ "Calentar el agua o la leche.",
-            "Agregar el carbón activado y listo." ] },
+    ing:[ ["Agua o leche","1 vaso"], ["Carbón activado","1 cucharada"] ],
+    steps:[ "Calentar 1 vaso de agua (o leche).",
+            "Agregar 1 cucharada de carbón activado y listo." ] },
 ];
 
 const cats = ["Todas","Caliente","Frío","Frappe","Especial"];
