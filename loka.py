@@ -173,9 +173,11 @@ def main():
     c.add_argument('--date', required=True); c.add_argument('--card', default=0); c.add_argument('--cash', default=0); c.add_argument('--transfer', default=0)
     b = sub.add_parser('add-expenses-json'); b.add_argument('file')
     sub.add_parser('refresh-dashboard')
+    sub.add_parser('refresh-pl')
     args = ap.parse_args()
     if args.cmd=='status': print(json.dumps(compute(), indent=2, ensure_ascii=False))
     elif args.cmd=='refresh-dashboard': refresh_dashboard()
+    elif args.cmd=='refresh-pl': print(refresh_pl())
     elif args.cmd=='backup': print(backup(args.label))
     elif args.cmd=='add-expense':
         n,a0,a1=add_expenses([{'date':args.date,'desc':args.desc,'vendor':args.vendor,'cat':args.cat,'amount':args.amount,'paid':args.paid,'method':args.method,'notes':args.notes}])
@@ -367,7 +369,133 @@ def refresh_dashboard(do_backup=True):
     s=re.sub(r'<div class="card" style="margin-bottom:16px;"><h3>&#128197; Monthly Breakdown</h3>.*?(<h3 style="margin-bottom:10px;">&#128202; All-Time)',
              lambda m: monthly+m.group(1), s, count=1, flags=re.DOTALL)
     open(DASH,'w',encoding='utf-8',newline='\n').write(s)
+    # keep the Monthly P&L sheet's structure current too (formulas auto-update values themselves)
+    try:
+        info=refresh_pl(do_backup=False); print(f'  Monthly P&L synced: {info["months"]} months, {info["cats"]} categories')
+    except Exception as e:
+        print(f'  (Monthly P&L sync skipped: {e})')
     print(f'Dashboard refreshed @ {datestr}: rev {_money(rev)} exp {_money(exp)} opnet {_signed(netrent)} | cash {_money(cash)} | comm {_money(comm)} | ledger {_money(g["ol_balance"])}')
+
+
+# ============== MONTHLY P&L (LIVE FORMULAS) ==============
+def refresh_pl(do_backup=True):
+    """Rebuild the Monthly P&L sheet with LIVE SUMIFS/COUNTIFS formulas that
+    pull from Daily Log + Expenses, so it auto-updates whenever data changes."""
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+    from collections import defaultdict
+    if do_backup: backup('monthly_pl')
+    wb = openpyxl.load_workbook(P)
+    dl = wb.worksheets[S_DAILY]; ex = wb.worksheets[S_EXP]; pl = wb.worksheets[8]
+    DLN = "'" + dl.title + "'"; EXN = "'" + ex.title + "'"
+    # detect months (from both sheets) and categories (from expenses), in data order
+    def parse(v):
+        from datetime import datetime as _dt
+        if isinstance(v,_dt): return v.date()
+        if isinstance(v,date): return v
+        return None
+    monthset=set(); cat_tot=defaultdict(float)
+    for r in range(2, dl.max_row+1):
+        d=parse(dl.cell(r,2).value)
+        if d: monthset.add((d.year,d.month))
+    last=ex.max_row
+    while last>7 and ex.cell(last,3).value is None: last-=1
+    for r in range(8,last+1):
+        d=parse(ex.cell(r,2).value)
+        if d:
+            monthset.add((d.year,d.month))
+            cat_tot[str(ex.cell(r,5).value or 'Other')]+=float(ex.cell(r,6).value or 0)
+    months=sorted(monthset)
+    cats=[c for c,_ in sorted(cat_tot.items(), key=lambda x:-x[1])]
+    label={m: date(m[0],m[1],1).strftime('%b %Y') for m in months}
+    ncol=1+len(months)
+    def nextm(m):
+        y,mo=m; return (y+1,1) if mo==12 else (y,mo+1)
+    # date-range criteria builder for a sheet/col
+    def rng(sheet,col,m):
+        y,mo=m; ny,nm=nextm(m)
+        return (f'{sheet}!${col}$8:${col}$500,{sheet}!$B$8:$B$500,">="&DATE({y},{mo},1),'
+                f'{sheet}!$B$8:$B$500,"<"&DATE({ny},{nm},1)')
+    return _write_pl(wb, pl, months, cats, label, ncol, DLN, EXN, rng, P)
+
+
+def _write_pl(wb, pl, months, cats, label, ncol, DLN, EXN, rng, Ppath):
+    from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+    # strip
+    for mr in list(pl.merged_cells.ranges): pl.unmerge_cells(str(mr))
+    for r in range(1, max(pl.max_row,60)+1):
+        for c in range(1, max(pl.max_column,12)+1):
+            cell=pl.cell(r,c); cell.value=None
+            cell.font=Font(); cell.fill=PatternFill(fill_type=None); cell.border=Border()
+            cell.alignment=Alignment(); cell.number_format='General'
+    for col in 'ABCDEFGHIJKLMN': pl.column_dimensions[col].width=9.0
+    TITLE=Font(bold=True,color='FFFFFF',size=13); TFILL=PatternFill('solid',fgColor='0D2818')
+    HDR=Font(bold=True,color='FFFFFF',size=10); HFILL=PatternFill('solid',fgColor='1F4E2C')
+    BOLD=Font(bold=True); NORM=Font()
+    thin=Side(style='thin',color='D9D9D9'); BORD=Border(left=thin,right=thin,top=thin,bottom=thin)
+    MONEY='$#,##0.00'; INTF='#,##0'
+    RIGHT=Alignment(horizontal='right'); LEFT=Alignment(horizontal='left'); CTR=Alignment(horizontal='center')
+    def cel(r,c,val,font=NORM,fill=None,fmt=None,align=None):
+        x=pl.cell(r,c,val); x.font=font; x.border=BORD
+        if fill: x.fill=fill
+        if fmt: x.number_format=fmt
+        x.alignment=align or (RIGHT if c>1 else LEFT)
+    def hrow(r,text):
+        cel(r,1,text,font=HDR,fill=HFILL,align=LEFT)
+        for j,m in enumerate(months): cel(r,2+j,label[m],font=HDR,fill=HFILL,align=RIGHT)
+    # title
+    pl.merge_cells(start_row=1,start_column=1,end_row=1,end_column=ncol)
+    t=pl.cell(1,1,'LOKA — MONTHLY P&L   (live formulas — auto-updates from Daily Log & Expenses)')
+    t.font=TITLE; t.fill=TFILL; t.alignment=CTR
+    for c in range(1,ncol+1): pl.cell(1,c).fill=TFILL
+    pl.row_dimensions[1].height=26
+    COL=lambda j: get_column_letter(2+j)
+    r=3
+    hrow(r,'SUMMARY'); r+=1
+    R_INC=r; cel(r,1,'Total Income',font=BOLD)
+    for j,m in enumerate(months): cel(r,2+j,f'=SUMIFS({rng(DLN,"F",m)})',fmt=MONEY)
+    r+=1
+    R_EXP=r; cel(r,1,'Total Expenses',font=BOLD)
+    for j,m in enumerate(months): cel(r,2+j,f'=SUMIFS({rng(EXN,"F",m)})',fmt=MONEY)
+    r+=1
+    cel(r,1,'NET PROFIT / LOSS',font=BOLD)
+    for j in range(len(months)): cel(r,2+j,f'={COL(j)}{R_INC}-{COL(j)}{R_EXP}',font=BOLD,fmt=MONEY)
+    r+=1
+    R_DAYS=r; cel(r,1,'Trading Days')
+    for j,m in enumerate(months): cel(r,2+j,f'=COUNTIFS({DLN}!$F$8:$F$500,">0",'+rng(DLN,"F",m).split(",",1)[1]+')',fmt=INTF)
+    r+=1
+    cel(r,1,'Avg Income / Day')
+    for j in range(len(months)): cel(r,2+j,f'=IFERROR({COL(j)}{R_INC}/{COL(j)}{R_DAYS},0)',fmt=MONEY)
+    r+=2
+    hrow(r,'INCOME BY TYPE'); r+=1
+    R_CARD=r
+    for col,name in [('D','Card'),('E','Cash'),('G','Transfer')]:
+        cel(r,1,name)
+        for j,m in enumerate(months): cel(r,2+j,f'=SUMIFS({rng(DLN,col,m)})',fmt=MONEY)
+        r+=1
+    cel(r,1,'Total Income',font=BOLD)
+    for j in range(len(months)): cel(r,2+j,f'={COL(j)}{R_CARD}+{COL(j)}{R_CARD+1}+{COL(j)}{R_CARD+2}',font=BOLD,fmt=MONEY)
+    r+=2
+    hrow(r,'EXPENSES BY CATEGORY (high \u2192 low)'); r+=1
+    for cat in cats:
+        cel(r,1,cat)
+        for j,m in enumerate(months):
+            crit=f'{EXN}!$F$8:$F$500,{EXN}!$E$8:$E$500,$A{r},{EXN}!$B$8:$B$500,">="&DATE({m[0]},{m[1]},1),{EXN}!$B$8:$B$500,"<"&DATE({(m[0]+1) if m[1]==12 else m[0]},{1 if m[1]==12 else m[1]+1},1)'
+            cel(r,2+j,f'=SUMIFS({crit})',fmt=MONEY)
+        r+=1
+    R_TEXP=r; cel(r,1,'TOTAL EXPENSES',font=BOLD)
+    for j,m in enumerate(months): cel(r,2+j,f'=SUMIFS({rng(EXN,"F",m)})',font=BOLD,fmt=MONEY)
+    r+=1
+    cel(r,1,'NET PROFIT / LOSS',font=BOLD)
+    for j in range(len(months)): cel(r,2+j,f'={COL(j)}{R_INC}-{COL(j)}{R_TEXP}',font=BOLD,fmt=MONEY)
+    pl.column_dimensions['A'].width=34
+    for j in range(len(months)): pl.column_dimensions[get_column_letter(2+j)].width=15
+    pl.sheet_view.showGridLines=False
+    try: wb.calculation.fullCalcOnLoad = True   # force Excel to recompute all formulas on open
+    except Exception: pass
+    wb.save(Ppath)
+    return dict(months=len(months), cats=len(cats), rows=r)
 
 
 if __name__ == '__main__':
