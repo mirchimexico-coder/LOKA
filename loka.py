@@ -196,7 +196,7 @@ WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
     cash_anchor_date=date(2026,6,15), cash_anchor_amount=20283.0,
-    cash_adjust=-698.0,                 # non-restaurant/timing cash flows since anchor: transfers to Lohith (Jun18 $400 + Jun19 $120) + Jun21 reimbursement of Jun3 $178 paid on another card
+    cash_adjust=-1166.0,                # transfers to Lohith (Jun18 $400 + Jun19 $120) + Jun3 $178 reimbursement + ~$468 MP commission drift on post-15-Jun card sales (clears on next physical count)
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
     week1_start=date(2026,5,18),        # W1 begins here; weeks are 7-day blocks
 )
