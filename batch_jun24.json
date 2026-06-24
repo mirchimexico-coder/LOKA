@@ -1,0 +1,10 @@
+[
+ {"date":"24-Jun","desc":"Queso crema Lala 190g x2","vendor":"Chedraui Paseo","cat":"Ingredients - Dairy","amount":72.00,"paid":"Restaurant","method":"Card","notes":"Debito BBVA 3982; Chedraui Paseo ticket total 126.33 (crema+tortillas), dairy portion"},
+ {"date":"24-Jun","desc":"Tortillas blancas x2","vendor":"Chedraui Paseo","cat":"Ingredients - Bread","amount":54.33,"paid":"Restaurant","method":"Card","notes":"Debito BBVA 3982; same Chedraui ticket, bread portion"},
+ {"date":"24-Jun","desc":"Crema acida x2","vendor":"Sam's Club","cat":"Ingredients - Dairy","amount":479.84,"paid":"Restaurant","method":"Card","notes":"Debito Mastercard **82; Sam's ticket 1512.00 net of cuponera -32.73 + descuento -34.77; dairy portion of split"},
+ {"date":"24-Jun","desc":"Condimix 3.6, Mayo Real, Arroz Morel","vendor":"Sam's Club","cat":"Ingredients - Pantry","amount":1032.16,"paid":"Restaurant","method":"Card","notes":"Debito Mastercard **82; pantry portion of 1512.00 Sam's ticket"},
+ {"date":"24-Jun","desc":"Gas LP","vendor":"Gas Tomza de Mexico","cat":"Utilities / Gas","amount":1499.52,"paid":"Restaurant","method":"Card","notes":"Remision 8900 @ $10.58/L IVA incl; pague antes 25/06 -- CONFIRM if paid cash/transfer instead of card"},
+ {"date":"24-Jun","desc":"Filete de salmon 1.03 kg @ 350/kg","vendor":"Brisa del Mar","cat":"Ingredients - Meat & Fish","amount":360.50,"paid":"Restaurant","method":"Cash","notes":"Contado; NT 027672"},
+ {"date":"24-Jun","desc":"Naranjada 1L x6","vendor":"Casa Reca","cat":"Ingredients - Beverages","amount":150.00,"paid":"Restaurant","method":"Cash","notes":"Nota QR-37; 6 pzas; canje CJ-4 (horchata/naranjada/tamarindo) $0 -- CONFIRM pay method"},
+ {"date":"24-Jun","desc":"Papas (potatoes)","vendor":"Local purchase","cat":"Ingredients - Vegetables","amount":133.00,"paid":"Restaurant","method":"Cash","notes":"No bill"}
+]
