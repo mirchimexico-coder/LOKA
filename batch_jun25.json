@@ -1,0 +1,9 @@
+[
+ {"date":"25-Jun","desc":"Muslo (chicken thigh) ~13.5 kg @ $50/kg","vendor":"Oh lele / Local","cat":"Ingredients - Meat","amount":675.00,"paid":"Restaurant","method":"Cash","notes":"Nota de remision (handwritten, Loka Cafe); total $675; assumed cash -- confirm if on account"},
+ {"date":"25-Jun","desc":"Costilla cd (pork ribs) 3.15 kg @ ~$103/kg","vendor":"Miscelanea LC La Cruz","cat":"Ingredients - Meat","amount":318.00,"paid":"Restaurant","method":"Card","notes":"Remision ~319 handwritten; Getnet card charge 318.00; card **3982 Aut 298095; LC remision partly illegible"},
+ {"date":"25-Jun","desc":"Papas (potatoes)","vendor":"Local purchase","cat":"Ingredients - Vegetables","amount":64.00,"paid":"Restaurant","method":"Cash","notes":"No bill"},
+ {"date":"25-Jun","desc":"Pan dulces","vendor":"Local purchase","cat":"Ingredients - Bread","amount":96.00,"paid":"Restaurant","method":"Cash","notes":"No bill"},
+ {"date":"25-Jun","desc":"Agua natural","vendor":"Local purchase","cat":"Supplies / Other","amount":60.00,"paid":"Restaurant","method":"Cash","notes":"No bill"},
+ {"date":"25-Jun","desc":"Frigadora (kitchenware)","vendor":"Local purchase","cat":"Kitchen Supplies","amount":45.00,"paid":"Restaurant","method":"Cash","notes":"No bill"},
+ {"date":"25-Jun","desc":"Gancho (hook)","vendor":"Local purchase","cat":"Supplies / Other","amount":30.00,"paid":"Restaurant","method":"Cash","notes":"No bill"}
+]
