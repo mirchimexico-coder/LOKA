@@ -1,0 +1,5 @@
+[
+ {"date":"26-Jun","desc":"Samu — Ayudante Week 6","vendor":"Payroll","cat":"Staff - Salary","amount":1200.00,"paid":"Restaurant","method":"Cash","notes":"Week 6 salary, paid Friday"},
+ {"date":"27-Jun","desc":"John — Head Chef Week 6 (full week)","vendor":"Payroll","cat":"Staff - Salary","amount":3750.00,"paid":"Restaurant","method":"Cash","notes":"Week 6 salary, paid Saturday"},
+ {"date":"27-Jun","desc":"Duvi/Debi — Limpieza Week 6","vendor":"Payroll","cat":"Staff - Salary","amount":1500.00,"paid":"Restaurant","method":"Cash","notes":"Week 6 salary, paid Saturday"}
+]
