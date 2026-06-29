@@ -1,0 +1,7 @@
+[
+ {"date":"26-Jun","desc":"Zanahoria, cilantro, tomate (granel)","vendor":"Chedraui Paseo","cat":"Ingredients - Vegetables","amount":45.74,"paid":"Restaurant","method":"Card","notes":"Debito BBVA 3982; Chedraui ticket total 99.53 (veg+tortillas), veg portion"},
+ {"date":"26-Jun","desc":"Tortillas blancas x2","vendor":"Chedraui Paseo","cat":"Ingredients - Bread","amount":53.79,"paid":"Restaurant","method":"Card","notes":"Debito BBVA 3982; same Chedraui ticket, bread portion"},
+ {"date":"26-Jun","desc":"Curcuma (turmeric) 70g","vendor":"H-E-B","cat":"Ingredients - Pantry","amount":14.00,"paid":"Restaurant","method":"Cash","notes":"Efectivo; ticket 215/07/02997"},
+ {"date":"26-Jun","desc":"Lechugas (lettuce)","vendor":"Local purchase","cat":"Ingredients - Vegetables","amount":40.00,"paid":"Restaurant","method":"Cash","notes":"No bill"},
+ {"date":"26-Jun","desc":"Queso Panela","vendor":"Local purchase","cat":"Ingredients - Dairy","amount":592.00,"paid":"Restaurant","method":"Cash","notes":"No bill"}
+]
