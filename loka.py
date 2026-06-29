@@ -196,7 +196,7 @@ WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
     cash_anchor_date=date(2026,6,15), cash_anchor_amount=20283.0,
-    cash_adjust=-1680.28,               # transfers to Lohith (Jun18 $400 + Jun19 $120 + Jun26 $165 = $685) + Jun3 $178 reimbursement + $817.28 MP commission on post-15-Jun card sales through Jun28 (W5 $467.96 + W6 $349.32) (clears on next physical count)
+    cash_adjust=-11680.28,              # Jun29 $10,000 owner cash withdrawal (repayment of balance owed) + transfers to Lohith (Jun18 $400 + Jun19 $120 + Jun26 $165 = $685) + Jun3 $178 reimbursement + $817.28 MP commission on post-15-Jun card sales through Jun28 (W5 $467.96 + W6 $349.32) (commission/transfer drift clears on next physical count)
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
     week1_start=date(2026,5,18),        # W1 begins here; weeks are 7-day blocks
 )
