@@ -274,7 +274,20 @@ def _build_weeks(days):
                    f'<div class="wk-row"><span>Net</span><span class="{cls}">{_signed(net)}</span></div></div>')
     return ''.join(out)
 
+GROUP_ORDER = ['Salaries','Groceries','Supplies','Utilities','Rent','Maintenance','Software','Other']
+def _cat_group(c):
+    c=str(c or '')
+    if c.startswith('Staff'): return 'Salaries'
+    if c.startswith('Ingredients') or c.startswith('Supermarket'): return 'Groceries'
+    if c.startswith('Utilities'): return 'Utilities'
+    if c=='Rent': return 'Rent'
+    if c=='Maintenance': return 'Maintenance'
+    if c.startswith('Software'): return 'Software'
+    if ('Supplies' in c) or ('Disposables' in c) or ('Packaging' in c): return 'Supplies'
+    return 'Other'
+
 def _build_monthly(inc_m, cat_m, dcount):
+    from collections import defaultdict
     months=sorted(set(list(inc_m)+list(cat_m))); CUR=months[-1]
     lab={m: date(m[0],m[1],1).strftime('%b %Y') for m in months}
     ordered=list(reversed(months))[:6]
@@ -290,27 +303,57 @@ def _build_monthly(inc_m, cat_m, dcount):
             f'<div style="display:flex;justify-content:space-between;font-size:.78rem;margin:3px 0;"><span style="color:var(--muted);">Expenses</span><span style="color:var(--red);font-weight:700;">{_money(te)}</span></div>'
             f'<div style="display:flex;justify-content:space-between;font-size:.9rem;margin:6px 0 2px;border-top:1px solid var(--border);padding-top:6px;"><span style="font-weight:700;">Net</span><span style="color:{nc};font-weight:800;">{_signed(net)}</span></div>'
             f'<div style="font-size:.62rem;color:var(--muted);margin-top:4px;">{dcount[m]} trading days</div></div>')
-    cats=sorted({c for m in ordered for c in cat_m[m]}, key=lambda c:-sum(cat_m[m].get(c,0) for m in ordered))
-    def tr(lbl,vals,color=None,bold=False,hdr=False):
+    def tr(lbl,vals,color=None,bold=False,hdr=False,indent=False):
         td=''
         for v in vals:
             st=('font-weight:700;' if bold else '')+(f'color:{color};' if color else '')
             td+=f'<td style="text-align:right;padding:4px 10px;{st}border-bottom:1px solid var(--border);">{v}</td>'
         ls='font-weight:700;' if (bold or hdr) else ''
-        return f'<tr><td style="text-align:left;padding:4px 10px;{ls}border-bottom:1px solid var(--border);">{lbl}</td>{td}</tr>'
+        pl='padding-left:26px;color:var(--muted);font-size:.92em;' if indent else ''
+        return f'<tr><td style="text-align:left;padding:4px 10px;{ls}{pl}border-bottom:1px solid var(--border);">{lbl}</td>{td}</tr>'
     th='<tr><th style="text-align:left;padding:5px 10px;color:var(--muted);font-size:.66rem;text-transform:uppercase;">Line</th>'+''.join(f'<th style="text-align:right;padding:5px 10px;color:var(--muted);font-size:.66rem;text-transform:uppercase;">{lab[m]}</th>' for m in ordered)+'</tr>'
+    grp_m={m:defaultdict(float) for m in ordered}
+    for m in ordered:
+        for c,a in cat_m[m].items(): grp_m[m][_cat_group(c)]+=a
+    gtot=lambda g: sum(grp_m[m].get(g,0) for m in ordered)
+    groups=[g for g in GROUP_ORDER if gtot(g)>0]
+    # current-month expense pie (donut)
+    GCOL={'Salaries':'#3b82f6','Groceries':'#22c55e','Supplies':'#f97316','Utilities':'#a855f7','Rent':'#ef4444','Maintenance':'#f59e0b','Software':'#06b6d4','Other':'#64748b'}
+    cm=ordered[0]; ctot=sum(grp_m[cm].values()); pie=''
+    if ctot>0:
+        segs=[]; leg=[]; off=0.0
+        for g in groups:
+            v=grp_m[cm].get(g,0)
+            if v<=0: continue
+            pct=v/ctot*100; col=GCOL.get(g,'#64748b')
+            segs.append(f'<circle cx="18" cy="18" r="15.915" fill="none" stroke="{col}" stroke-width="4.4" stroke-dasharray="{pct:.3f} {100-pct:.3f}" stroke-dashoffset="{25-off:.3f}"/>')
+            leg.append(f'<div style="display:flex;align-items:center;gap:7px;font-size:.72rem;margin:3px 0;"><span style="width:10px;height:10px;border-radius:2px;background:{col};flex:none;"></span><span style="flex:1;">{g}</span><span style="font-weight:700;">{_money(v)}</span><span style="color:var(--muted);width:40px;text-align:right;">{pct:.0f}%</span></div>')
+            off+=pct
+        donut=(f'<svg viewBox="0 0 36 36" style="width:128px;height:128px;flex:none;">'
+               f'<circle cx="18" cy="18" r="15.915" fill="none" stroke="var(--border)" stroke-width="4.4"/>{"".join(segs)}'
+               f'<text x="18" y="16.6" text-anchor="middle" style="font-size:3px;fill:var(--muted);">{lab[cm]}</text>'
+               f'<text x="18" y="21.2" text-anchor="middle" style="font-size:4.2px;font-weight:700;fill:#e6edf3;">{_money(ctot)}</text></svg>')
+        pie=(f'<div style="display:flex;gap:20px;align-items:center;flex-wrap:wrap;margin-top:16px;padding:15px;border:1px solid var(--border);border-radius:10px;background:#0e141b;">'
+             f'<div style="display:flex;flex-direction:column;align-items:center;">{donut}<div style="font-size:.6rem;color:var(--muted);margin-top:5px;">expense split</div></div>'
+             f'<div style="flex:1;min-width:210px;"><div style="font-size:.7rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted);margin-bottom:7px;">{lab[cm]} &mdash; expenses by group</div>{"".join(leg)}</div></div>')
     body=tr('INCOME',['' for _ in ordered],hdr=True)
     for typ in ['Card','Cash','Transfer']: body+=tr(typ,[_money(inc_m[m].get(typ,0)) for m in ordered])
     body+=tr('Total Income',[_money(sum(inc_m[m].values())) for m in ordered],color='var(--green)',bold=True)
-    body+=tr('EXPENSES (high \u2192 low)',['' for _ in ordered],hdr=True)
-    for c in cats: body+=tr(c,[_money(cat_m[m].get(c,0)) for m in ordered])
+    body+=tr('EXPENSES BY GROUP',['' for _ in ordered],hdr=True)
+    for g in groups: body+=tr(g,[_money(grp_m[m].get(g,0)) for m in ordered])
     body+=tr('Total Expenses',[_money(sum(cat_m[m].values())) for m in ordered],color='var(--red)',bold=True)
     body+=tr('NET PROFIT / LOSS',[_signed(sum(inc_m[m].values())-sum(cat_m[m].values())) for m in ordered],bold=True)
     table=f'<div style="overflow-x:auto;margin-top:14px;"><table style="width:100%;border-collapse:collapse;font-size:.74rem;"><thead>{th}</thead><tbody>{body}</tbody></table></div>'
-    note='<p style="font-size:.66rem;color:var(--muted);margin-top:10px;line-height:1.5;">Showing up to last 6 months. Rent + maintenance + most salaries were front-loaded into June, so June reads as a loss while May (opening fortnight) shows a large profit; from July each month carries its own overhead.</p>'
+    dbody=''
+    for g in groups:
+        cs=sorted({c for m in ordered for c in cat_m[m] if _cat_group(c)==g}, key=lambda c:-sum(cat_m[m].get(c,0) for m in ordered))
+        dbody+=tr(g,[_money(grp_m[m].get(g,0)) for m in ordered],bold=True)
+        for c in cs: dbody+=tr(c,[_money(cat_m[m].get(c,0)) for m in ordered],indent=True)
+    dtable=f'<div style="overflow-x:auto;margin-top:10px;"><table style="width:100%;border-collapse:collapse;font-size:.72rem;"><thead>{th}</thead><tbody>{dbody}</tbody></table></div>'
+    details=f'<details style="margin-top:12px;"><summary style="cursor:pointer;font-size:.72rem;color:var(--accent,#3b82f6);user-select:none;">&#9656; Show detailed categories</summary>{dtable}</details>'
+    note='<p style="font-size:.66rem;color:var(--muted);margin-top:10px;line-height:1.5;">Expenses grouped into Salaries, Groceries, Supplies, Utilities, Rent, Maintenance &amp; Software. Rent + most salaries were front-loaded into June, so June reads heavier; May (opening fortnight) shows a large profit. Expand &ldquo;detailed categories&rdquo; for the full per-item list.</p>'
     return (f'<div class="card" style="margin-bottom:16px;"><h3>&#128197; Monthly Breakdown</h3>'
-            f'<div style="display:flex;gap:12px;flex-wrap:wrap;">{"".join(cards)}</div>{table}{note}</div>')
-
+            f'<div style="display:flex;gap:12px;flex-wrap:wrap;">{"".join(cards)}</div>{pie}{table}{details}{note}</div>')
 
 def refresh_dashboard(do_backup=True):
     import re
