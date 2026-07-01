@@ -1,0 +1,42 @@
+[
+  {
+    "date": "30-Jun-2026",
+    "desc": "Tortillas blancas 2.055kg + Bolillo x6",
+    "vendor": "Chedraui Paseo",
+    "cat": "Ingredients - Bread",
+    "amount": 43.17,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Debito BBVA; ticket 30-Jun 08:38"
+  },
+  {
+    "date": "30-Jun-2026",
+    "desc": "Pan hamburguesa ajonjoli x24, pan caja arandano 900g x4, chapata x24",
+    "vendor": "Productos Real La Cruz",
+    "cat": "Ingredients - Bread",
+    "amount": 728.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Tarjeta debito; base $740 - $12 desc = $728; folio 4423"
+  },
+  {
+    "date": "30-Jun-2026",
+    "desc": "Queso Gouda Menona 2.06kg @ $135/kg",
+    "vendor": "La Bodega del Buen Queso",
+    "cat": "Ingredients - Dairy",
+    "amount": 278.1,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Efectivo; nota 0032709"
+  },
+  {
+    "date": "30-Jun-2026",
+    "desc": "Miscelanea LC remision (2 lineas manuscritas ilegibles)",
+    "vendor": "Miscelanea LC La Cruz",
+    "cat": "Ingredients - Other",
+    "amount": 436.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Getnet $436 autoritativo (Aut 785588, 11:38); lineas ~$197 + 'CH Alto' ~$239 ilegibles - confirmar articulos"
+  }
+]

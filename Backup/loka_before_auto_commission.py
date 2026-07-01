@@ -86,7 +86,6 @@ def close_day(d, card=0, cash=0, transfer=0, do_backup=True):
         dl.cell(target,8, f"=SUMIFS({EXP}!$F$8:$F$500,{EXP}!$B$8:$B$500,\">=\"&B{target},{EXP}!$B$8:$B$500,\"<\"&(B{target}+1))")
         dl.cell(target,9, f'=IFERROR(F{target}-H{target},0)')
         dl.cell(target,10, f'=IFERROR(I{target}/F{target},0)')
-        dl.cell(target,18, f'=IFERROR(D{target}*$T$7,0)'); dl.cell(target,18).number_format='$#,##0.00'
         _copyfmt(dl, lastrow, target, range(2,13))
         dl.cell(target,2).number_format='dd-mmm-yyyy'
     dl.cell(target,4, float(card)); dl.cell(target,5, float(cash)); dl.cell(target,7, float(transfer))
@@ -197,7 +196,7 @@ WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
     cash_anchor_date=date(2026,6,15), cash_anchor_amount=20283.0,
-    cash_adjust=-10918.00,              # Jun29 $10,000 owner cash withdrawal + transfers to Lohith (Jun18 $400 + Jun19 $120 + Jun26 $165 + Jun30 $55 = $740) + Jun3 $178 reimbursement. MP commission is NOW auto-deducted per day (see comm_post in refresh_dashboard), no longer bundled here.
+    cash_adjust=-11735.28,              # Jun29 $10,000 owner cash withdrawal (repayment of balance owed) + transfers to Lohith (Jun18 $400 + Jun19 $120 + Jun26 $165 + Jun30 $55 = $740) + Jun3 $178 reimbursement + $817.28 MP commission on post-15-Jun card sales through Jun28 (W5 $467.96 + W6 $349.32) (commission/transfer drift clears on next physical count)
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
     week1_start=date(2026,5,18),        # W1 begins here; weeks are 7-day blocks
 )
@@ -363,15 +362,12 @@ def refresh_dashboard(do_backup=True):
     net=round(rev-exp,2); netrent=round(net+20000,2)
     trading=sum(1 for _,c,k,t,_ in days if c+k+t>0)
     card=sum(d[1] for d in days)
-    rate=CFG['commission_rate']
-    comm=round(card*rate)                 # all-time MP commission (display + true loss)
+    comm=round(card*CFG['commission_rate'])
     last_d,lc,lk,lt,le = days[-1]
     last_rev=lc+lk+lt; last_net=last_rev-le
-    # cash on hand = anchor + nets after anchor - MP commission after anchor (auto) + manual adjust
+    # cash on hand = anchor + nets after anchor + manual adjust
     roll=sum((c+k+t-e) for d,c,k,t,e in days if d>CFG['cash_anchor_date'])
-    comm_post=sum(c*rate for d,c,k,t,e in days if d>CFG['cash_anchor_date'])
-    cash=round(CFG['cash_anchor_amount']+roll-comm_post+CFG['cash_adjust'])
-    net_allin=round(rev-exp-comm,2)       # bottom line after ALL expenses AND commission
+    cash=round(CFG['cash_anchor_amount']+roll+CFG['cash_adjust'])
     datestr=last_d.strftime('%a %d %b %Y')
     if do_backup:
         import shutil, os
@@ -405,11 +401,6 @@ def refresh_dashboard(do_backup=True):
     sub(r'(Transfers received</span><span class="sval" style="color:var\(--green\);">)\$[\d,]+', lambda m: m.group(1)+_money(g['ol_transferred']), 'ledger recv')
     sub(r'(Restaurant owes Lohith</span><span class="sval"[^>]*>)\$[\d,]+', lambda m: m.group(1)+_money(g['ol_balance']), 'ledger bal')
     sub(r'(Lohith Ledger</div><div class="aval">Restaurant owes )\$[\d,]+', lambda m: m.group(1)+_money(g['ol_balance']), 'ledger alert')
-    # operations <-> capital (Section K) — commission + true bottom line
-    _s3=lambda n: (f'+${n:,.0f}' if n>=0 else f'&minus;${abs(n):,.0f}')
-    sub(r'(MP commission \(auto, all-time\)</span><span class="sval"[^>]*>)(?:&minus;)?\$[\d,]+', lambda m: m.group(1)+'&minus;'+_money(comm), 'ops comm')
-    sub(r'(Net after all exp &amp; commission</span><span class="sval"[^>]*>)(?:\+|&minus;)?\$[\d,]+', lambda m: m.group(1)+_s3(net_allin), 'ops net-allin')
-    sub(r'net after all exp &amp; comm (?:\+|&minus;)?\$[\d,]+', lambda m: 'net after all exp &amp; comm '+_s3(net_allin), 'banner net-allin')
     # --- block regens ---
     bars=_build_bars(days)
     s=re.sub(r'(<h3>Daily Revenue &mdash; Last 30 Days</h3>).*?(<div style="display:flex;gap:14px;margin-top:10px;)',
