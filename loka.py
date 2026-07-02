@@ -264,7 +264,7 @@ def _build_weeks(days):
         rows=wk[i]; rev=sum(c+k+t for _,c,k,t,_ in rows); exp=sum(e for *_,e in rows); net=rev-exp
         ds=[r[0] for r in rows]; lo,hi=min(ds),max(ds)
         if lo.month==hi.month: rng=f'{lo.day}-{hi.day} {lo.strftime("%b")}'
-        else: rng=f'{lo.strftime("%-d %b") if hasattr(lo,"strftime") else lo.day}-{hi.strftime("%d %b")}'
+        else: rng=f'{lo.day} {lo.strftime("%b")}-{hi.day} {hi.strftime("%b")}'
         col=WEEK_COLORS[i % len(WEEK_COLORS)]
         w=max(4, round(rev/maxrev*100))
         cls='up' if net>=0 else 'down'

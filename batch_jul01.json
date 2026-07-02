@@ -1,0 +1,122 @@
+[
+  {
+    "date": "01-Jul-2026",
+    "desc": "Aceite La Posada 800 x2",
+    "vendor": "OXXO",
+    "cat": "Ingredients - Pantry",
+    "amount": 56.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "OXXO 09:14; cooking oil"
+  },
+  {
+    "date": "01-Jul-2026",
+    "desc": "Horchata/Jamaica/Limonada 1L x6 c/u (18 pzas)",
+    "vendor": "Casa Reca",
+    "cat": "Ingredients - Beverages",
+    "amount": 450.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Nota venta ruta preventa; facturado a 'CAFE OH LELE' - confirmar nombre de cuenta; metodo no confirmado (asumido efectivo)"
+  },
+  {
+    "date": "01-Jul-2026",
+    "desc": "Salchicha nortena p/asar 1kg",
+    "vendor": "San Juan Salchichonerias",
+    "cat": "Ingredients - Meat",
+    "amount": 73.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Ticket 0255365 La Cruz 14:49; tarjeta Banregio"
+  },
+  {
+    "date": "01-Jul-2026",
+    "desc": "Tortillas blancas x2",
+    "vendor": "Chedraui Paseo",
+    "cat": "Ingredients - Bread",
+    "amount": 55.93,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Debito BBVA; 08:55"
+  },
+  {
+    "date": "01-Jul-2026",
+    "desc": "Muslo (pollo) 5.23kg @ $50/kg",
+    "vendor": "Remision Loka Cafe",
+    "cat": "Ingredients - Meat",
+    "amount": 262.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Nota remision manuscrita; 5.23x50=261.50, total escrito $262; metodo no confirmado"
+  },
+  {
+    "date": "01-Jul-2026",
+    "desc": "Rosca chocolate base + salchicha p/asar 800 x2",
+    "vendor": "H-E-B",
+    "cat": "Ingredients - Other",
+    "amount": 246.8,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Cuenta tarjeta ***3982; rosca $105 + salchicha $141.80; incl IEPS"
+  },
+  {
+    "date": "01-Jul-2026",
+    "desc": "Aceite La Posada 800 x12",
+    "vendor": "OXXO",
+    "cat": "Ingredients - Pantry",
+    "amount": 336.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "BBVA debito ML ***3982 AUT 922070; 18:35; cooking oil"
+  },
+  {
+    "date": "01-Jul-2026",
+    "desc": "Pork Belly",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 355.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash purchase"
+  },
+  {
+    "date": "01-Jul-2026",
+    "desc": "Carne molida",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 271.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash purchase"
+  },
+  {
+    "date": "01-Jul-2026",
+    "desc": "Agua Ciel",
+    "vendor": "No bill",
+    "cat": "Ingredients - Beverages",
+    "amount": 49.5,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash purchase"
+  },
+  {
+    "date": "01-Jul-2026",
+    "desc": "Agua natural",
+    "vendor": "No bill",
+    "cat": "Ingredients - Beverages",
+    "amount": 36.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash purchase"
+  },
+  {
+    "date": "01-Jul-2026",
+    "desc": "Hielos",
+    "vendor": "No bill",
+    "cat": "Kitchen Supplies",
+    "amount": 150.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash purchase"
+  }
+]
