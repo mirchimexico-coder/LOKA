@@ -1,0 +1,22 @@
+[
+  {
+    "date": "02-Jul-2026",
+    "desc": "Tomatoes",
+    "vendor": "No bill",
+    "cat": "Ingredients - Vegetables",
+    "amount": 31.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash purchase"
+  },
+  {
+    "date": "02-Jul-2026",
+    "desc": "Bistec puerco (pork steak)",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 287.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash purchase"
+  }
+]
