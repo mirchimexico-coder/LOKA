@@ -1,0 +1,52 @@
+[
+  {
+    "date": "03-Jul-2026",
+    "desc": "Muslo (pollo) 3.79kg @ $50/kg",
+    "vendor": "Remision Loka Cafe",
+    "cat": "Ingredients - Meat",
+    "amount": 190.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Nota remision manuscrita; 3.79x50; efectivo"
+  },
+  {
+    "date": "03-Jul-2026",
+    "desc": "Muslo (pollo) 2.30kg @ $50/kg",
+    "vendor": "Remision",
+    "cat": "Ingredients - Meat",
+    "amount": 115.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Nota remision manuscrita; 2.30x50=115; efectivo"
+  },
+  {
+    "date": "03-Jul-2026",
+    "desc": "Mayo Real x2 + Leche entera (Sam's Club)",
+    "vendor": "Sam's Club",
+    "cat": "Supermarket/General",
+    "amount": 810.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Debito Mastercard Bancomer AUT 733600; mayo $544.24 + leche $284.39 - desc $18.63 = 810"
+  },
+  {
+    "date": "03-Jul-2026",
+    "desc": "Filete mojarra de mar 3.14kg @ $140/kg",
+    "vendor": "Brisa del Mar",
+    "cat": "Ingredients - Meat & Fish",
+    "amount": 439.6,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Pescados y mariscos 08:44; metodo no impreso (asumido efectivo)"
+  },
+  {
+    "date": "03-Jul-2026",
+    "desc": "Vegetales",
+    "vendor": "No bill",
+    "cat": "Ingredients - Vegetables",
+    "amount": 55.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash purchase"
+  }
+]

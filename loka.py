@@ -408,7 +408,12 @@ def refresh_dashboard(do_backup=True):
     # operations <-> capital (Section K) — commission + true bottom line
     _s3=lambda n: (f'+${n:,.0f}' if n>=0 else f'&minus;${abs(n):,.0f}')
     sub(r'(MP commission \(auto, all-time\)</span><span class="sval"[^>]*>)(?:&minus;)?\$[\d,]+', lambda m: m.group(1)+'&minus;'+_money(comm), 'ops comm')
-    sub(r'(Net after all exp &amp; commission</span><span class="sval"[^>]*>)(?:\+|&minus;)?\$[\d,]+', lambda m: m.group(1)+_s3(net_allin), 'ops net-allin')
+    def _netitem(m):
+        pos=net_allin>=0; col='var(--green)' if pos else 'var(--red)'; bg='#0f2a12' if pos else '#2a0f0f'
+        return (f'<div class="stat-item" style="background:{bg};padding:6px 8px;border-radius:6px;margin-top:5px;">'
+                f'<span class="slabel" style="color:{col};">Net after all exp &amp; commission</span>'
+                f'<span class="sval" style="color:{col};font-size:.9rem;">{_s3(net_allin)}</span></div>')
+    sub(r'<div class="stat-item" style="background:#[0-9a-fA-F]{6};padding:6px 8px;border-radius:6px;margin-top:5px;"><span class="slabel" style="color:var\(--(?:red|green)\);">Net after all exp &amp; commission</span><span class="sval" style="color:var\(--(?:red|green)\);font-size:.9rem;">(?:\+|&minus;)?\$[\d,]+</span></div>', _netitem, 'ops net-allin')
     sub(r'net after all exp &amp; comm (?:\+|&minus;)?\$[\d,]+', lambda m: 'net after all exp &amp; comm '+_s3(net_allin), 'banner net-allin')
     # --- block regens ---
     bars=_build_bars(days)
