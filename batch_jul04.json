@@ -1,0 +1,142 @@
+[
+  {
+    "date": "04-Jul-2026",
+    "desc": "Zanahoria 3kg, Limon 3kg, Cebolla 3kg",
+    "vendor": "Mi Joven",
+    "cat": "Ingredients - Vegetables",
+    "amount": 147.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Mercado de Abastos folio 21212; efectivo"
+  },
+  {
+    "date": "04-Jul-2026",
+    "desc": "Papas 6 x $35",
+    "vendor": "Papas San Miguel",
+    "cat": "Ingredients - Vegetables",
+    "amount": 210.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "6x35=210; efectivo"
+  },
+  {
+    "date": "04-Jul-2026",
+    "desc": "Verduras/hierbas mixtas (col, espinacas, hierbabuena, champinones, betabeles, lechugas, jengibre)",
+    "vendor": "Hnos. Labra",
+    "cat": "Ingredients - Vegetables",
+    "amount": 339.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Suma lineas=339; efectivo"
+  },
+  {
+    "date": "04-Jul-2026",
+    "desc": "Guayaba (1 primera)",
+    "vendor": "Guayabas Aviles Hernandez",
+    "cat": "Ingredients - Fruit",
+    "amount": 150.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Total ~$150; efectivo"
+  },
+  {
+    "date": "04-Jul-2026",
+    "desc": "Pepino",
+    "vendor": "Citricos Sanchez",
+    "cat": "Ingredients - Vegetables",
+    "amount": 49.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Folio 7244; total $49 (detalle de linea poco legible)"
+  },
+  {
+    "date": "04-Jul-2026",
+    "desc": "Cubiertos soperos desechables (tenedor/cuchara/cuchillo)",
+    "vendor": "Guimar Polietilenos",
+    "cat": "Packaging/Disposables",
+    "amount": 139.8,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Folio AK90544; tarjeta de credito"
+  },
+  {
+    "date": "04-Jul-2026",
+    "desc": "Melon",
+    "vendor": "Frutas de Temporada Jose",
+    "cat": "Ingredients - Fruit",
+    "amount": 30.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Solo melon $30; sin total impreso"
+  },
+  {
+    "date": "04-Jul-2026",
+    "desc": "Morron surtido",
+    "vendor": "Verduras Selectas Oscar",
+    "cat": "Ingredients - Vegetables",
+    "amount": 20.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Morron $20; sin total impreso"
+  },
+  {
+    "date": "04-Jul-2026",
+    "desc": "Fresa 0.775kg @ $65/kg",
+    "vendor": "Nota manuscrita",
+    "cat": "Ingredients - Fruit",
+    "amount": 50.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": ".775x65=50; efectivo"
+  },
+  {
+    "date": "04-Jul-2026",
+    "desc": "Gelatinas, hot cakes, jarabe, verduras congeladas",
+    "vendor": "Basicos",
+    "cat": "Supermarket/General",
+    "amount": 354.5,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Total $358 - desc $3.50 = $354.50; tarjeta"
+  },
+  {
+    "date": "04-Jul-2026",
+    "desc": "Melocoton 2.5kg + Platano",
+    "vendor": "Remision",
+    "cat": "Ingredients - Fruit",
+    "amount": 68.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Melocoton $50 + platano $18 = $68; efectivo"
+  },
+  {
+    "date": "04-Jul-2026",
+    "desc": "Papaya",
+    "vendor": "Remision",
+    "cat": "Ingredients - Fruit",
+    "amount": 36.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Papaya total $36; efectivo"
+  },
+  {
+    "date": "04-Jul-2026",
+    "desc": "Granola 400g + Tortillas blancas 4.435kg",
+    "vendor": "Chedraui Selecto",
+    "cat": "Supermarket/General",
+    "amount": 108.43,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Granola $53 + tortillas $55.43; debito ***0311"
+  },
+  {
+    "date": "04-Jul-2026",
+    "desc": "Jitomate 8.3kg + Aguacate Hass",
+    "vendor": "Frutas Finas Ana Pao",
+    "cat": "Ingredients - Vegetables",
+    "amount": 126.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Jitomate $100 + hass $26 = $126; sin total impreso"
+  }
+]

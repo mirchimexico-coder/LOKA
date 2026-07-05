@@ -1,0 +1,22 @@
+[
+  {
+    "date": "04-Jul-2026",
+    "desc": "John — Head Chef Week 7",
+    "vendor": "Payroll",
+    "cat": "Staff - Salary",
+    "amount": 3800.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Week 7 salary, paid Saturday 04 Jul (usual $3,750; $50 higher this week)"
+  },
+  {
+    "date": "04-Jul-2026",
+    "desc": "Duvi/Debi — Limpieza Week 7 (5 days)",
+    "vendor": "Payroll",
+    "cat": "Staff - Salary",
+    "amount": 1250.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Week 7, worked 5 days @ $250/day = $1,250, paid Saturday 04 Jul"
+  }
+]
