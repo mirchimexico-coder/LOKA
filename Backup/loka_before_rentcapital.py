@@ -211,14 +211,13 @@ def _gather():
     wb = openpyxl.load_workbook(P)
     dl = wb.worksheets[S_DAILY]; ex = wb.worksheets[S_EXP]
     last = _last_data_row(ex)
-    ebd = defaultdict(float); cat_m = defaultdict(lambda: defaultdict(float)); capf_bd = defaultdict(float)
+    ebd = defaultdict(float); cat_m = defaultdict(lambda: defaultdict(float))
     for r in range(8, last+1):
         v = ex.cell(r,2).value
         if not isinstance(v,(datetime,date)): continue
         dd = v.date() if isinstance(v,datetime) else v
         amt = float(ex.cell(r,6).value or 0)
         ebd[dd]+=amt; cat_m[(dd.year,dd.month)][str(ex.cell(r,5).value or 'Other')]+=amt
-        if str(ex.cell(r,7).value or '')=='Capital': capf_bd[dd]+=amt   # paid from Capital: excluded from operating-cash roll
     days=[]; inc_m=defaultdict(lambda: defaultdict(float)); dcount=defaultdict(int)
     for r in range(2, dl.max_row+1):
         v = dl.cell(r,2).value
@@ -235,7 +234,7 @@ def _gather():
     for r in range(4, ol.max_row+1):
         if str(ol.cell(r,1).value or '').startswith('TOTALS'): break
         spent+=float(ol.cell(r,4).value or 0); transferred+=float(ol.cell(r,5).value or 0)
-    return dict(days=days, ebd=ebd, capf_bd=capf_bd, cat_m=cat_m, inc_m=inc_m, dcount=dcount,
+    return dict(days=days, ebd=ebd, cat_m=cat_m, inc_m=inc_m, dcount=dcount,
                 ol_spent=round(spent,2), ol_transferred=round(transferred,2), ol_balance=round(spent-transferred,2))
 
 
@@ -369,7 +368,7 @@ def refresh_dashboard(do_backup=True):
     last_d,lc,lk,lt,le = days[-1]
     last_rev=lc+lk+lt; last_net=last_rev-le
     # cash on hand = anchor + nets after anchor - MP commission after anchor (auto) + manual adjust
-    roll=sum((c+k+t-(e-g['capf_bd'].get(d,0.0))) for d,c,k,t,e in days if d>CFG['cash_anchor_date'])
+    roll=sum((c+k+t-e) for d,c,k,t,e in days if d>CFG['cash_anchor_date'])
     comm_post=sum(c*rate for d,c,k,t,e in days if d>CFG['cash_anchor_date'])
     cash=round(CFG['cash_anchor_amount']+roll-comm_post+CFG['cash_adjust'])
     net_allin=round(rev-exp-comm,2)       # bottom line after ALL expenses AND commission

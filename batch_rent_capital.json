@@ -1,0 +1,12 @@
+[
+  {
+    "date": "05-Jul-2026",
+    "desc": "Renta mensual (pagada con capital)",
+    "vendor": "Arrendador",
+    "cat": "Rent",
+    "amount": 20000.0,
+    "paid": "Capital",
+    "method": "Transfer",
+    "notes": "Renta pagada con dinero de CAPITAL (no de caja operativa). Es gasto operativo (P&L) y operaciones deben este monto al capital. Excluida del roll de efectivo por paid=Capital."
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "date": "06-Jul-2026",
+    "desc": "Miscelanea LC remision (lineas ilegibles)",
+    "vendor": "Miscelanea LC La Cruz",
+    "cat": "Ingredients - Vegetables",
+    "amount": 974.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Getnet $974 autoritativo (Aut 6B6666, 15:52); lineas manuscritas ilegibles"
+  },
+  {
+    "date": "06-Jul-2026",
+    "desc": "Miscelanea LC remision (lineas ilegibles)",
+    "vendor": "Miscelanea LC La Cruz",
+    "cat": "Ingredients - Vegetables",
+    "amount": 289.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Getnet $289 autoritativo (Aut 722687, 09:45); lineas manuscritas ilegibles"
+  },
+  {
+    "date": "06-Jul-2026",
+    "desc": "Pasta seca (codo, caracol, spaguetti, estrella)",
+    "vendor": "Tres B",
+    "cat": "Ingredients - Pantry",
+    "amount": 245.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Ticket 31 08:50; tarjeta ML ***3982"
+  },
+  {
+    "date": "06-Jul-2026",
+    "desc": "Coca-Cola 600ml x2 + Crema acida x2",
+    "vendor": "Sam's Club",
+    "cat": "Supermarket/General",
+    "amount": 1420.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Coca 2x485.92 + crema 2x240.40 - desc 32.64; debito ***82; 11:01"
+  },
+  {
+    "date": "06-Jul-2026",
+    "desc": "Queso x2",
+    "vendor": "Walmart",
+    "cat": "Ingredients - Dairy",
+    "amount": 74.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "GV QSO 37x2; debito ***82; 11:17"
+  },
+  {
+    "date": "06-Jul-2026",
+    "desc": "Milanesa 1.53kg + Muslo 10.18kg + Pechuga 3.69kg",
+    "vendor": "Remision Loka Cafe",
+    "cat": "Ingredients - Meat",
+    "amount": 1133.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Milanesa $199 + muslo $509 + pechuga $425 = $1133; efectivo"
+  },
+  {
+    "date": "06-Jul-2026",
+    "desc": "Cilantro",
+    "vendor": "No bill",
+    "cat": "Ingredients - Vegetables",
+    "amount": 5.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "06-Jul-2026",
+    "desc": "Agua natural",
+    "vendor": "No bill",
+    "cat": "Ingredients - Beverages",
+    "amount": 60.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  }
+]
