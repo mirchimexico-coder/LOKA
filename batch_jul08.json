@@ -1,0 +1,22 @@
+[
+  {
+    "date": "08-Jul-2026",
+    "desc": "Tortillas blancas x2 + Rosca de nuez",
+    "vendor": "Chedraui Paseo",
+    "cat": "Ingredients - Bread",
+    "amount": 139.43,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Debito BBVA ***3982 09:31; tortillas $50.43 + rosca nuez $89"
+  },
+  {
+    "date": "08-Jul-2026",
+    "desc": "Terminal rolls (rollos POS)",
+    "vendor": "No bill",
+    "cat": "Office Supplies",
+    "amount": 1076.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash; amount confirmed by owner"
+  }
+]
