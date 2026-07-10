@@ -1,0 +1,62 @@
+[
+  {
+    "date": "09-Jul-2026",
+    "desc": "Cebolla morada, mango, crema, tortillas",
+    "vendor": "Chedraui Paseo",
+    "cat": "Supermarket/General",
+    "amount": 191.09,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Debito Bancomer ***0863; 19:00"
+  },
+  {
+    "date": "09-Jul-2026",
+    "desc": "Salsa BBQ Mr Wings + Salsa Mr Wings 3.8L + Pan caja masa madre",
+    "vendor": "REAL La Cruz",
+    "cat": "Ingredients - Pantry",
+    "amount": 506.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Ticket venta folio 4518; debito; salsas $431 + pan $75"
+  },
+  {
+    "date": "09-Jul-2026",
+    "desc": "Milaneza de cerdo 3.04kg @ $95",
+    "vendor": "Carnicos Frescos (Central de Abastos)",
+    "cat": "Ingredients - Meat",
+    "amount": 288.8,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Folio 74169; maciza/molida"
+  },
+  {
+    "date": "09-Jul-2026",
+    "desc": "Pescado/mariscos",
+    "vendor": "Brisa del Mar",
+    "cat": "Ingredients - Meat & Fish",
+    "amount": 288.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Pescados y mariscos; NT 092008 12:21"
+  },
+  {
+    "date": "09-Jul-2026",
+    "desc": "Tomatoes",
+    "vendor": "No bill",
+    "cat": "Ingredients - Vegetables",
+    "amount": 39.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "09-Jul-2026",
+    "desc": "Pollo",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 508.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  }
+]

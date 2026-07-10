@@ -197,7 +197,7 @@ WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
     cash_anchor_date=date(2026,6,15), cash_anchor_amount=20283.0,
-    cash_adjust=-11383.00,              # Jun29 $10,000 owner cash withdrawal + transfers to Lohith (Jun18 $400 + Jun19 $120 + Jun26 $165 + Jun30 $55 + Jul7 $150 + Jul8 $195 + Jul9 $120 = $1,205) + Jun3 $178 reimbursement. MP commission is NOW auto-deducted per day (see comm_post in refresh_dashboard), no longer bundled here.
+    cash_adjust=-11263.00,              # Jun29 $10,000 owner cash withdrawal + transfers to Lohith (Jun18 $400 + Jun19 $120 + Jun26 $165 + Jun30 $55 + Jul7 $150 + Jul8 transfer-to-me $195 = $1,085) + Jun3 $178 reimbursement. MP commission is NOW auto-deducted per day (see comm_post in refresh_dashboard), no longer bundled here.
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
     soft_commission_rate=0.0205,        # Soft Restaurant terminal est. on its card revenue (col U)
     week1_start=date(2026,5,18),        # W1 begins here; weeks are 7-day blocks
@@ -220,7 +220,7 @@ def _gather():
         amt = float(ex.cell(r,6).value or 0)
         ebd[dd]+=amt; cat_m[(dd.year,dd.month)][str(ex.cell(r,5).value or 'Other')]+=amt
         if str(ex.cell(r,7).value or '')=='Capital': capf_bd[dd]+=amt   # paid from Capital: excluded from operating-cash roll
-    days=[]; inc_m=defaultdict(lambda: defaultdict(float)); dcount=defaultdict(int); soft_bd=defaultdict(float); softcomm_bd=defaultdict(float)
+    days=[]; inc_m=defaultdict(lambda: defaultdict(float)); dcount=defaultdict(int); soft_bd=defaultdict(float)
     for r in range(2, dl.max_row+1):
         v = dl.cell(r,2).value
         if v is None: continue
@@ -229,8 +229,6 @@ def _gather():
         ca=float(dl.cell(r,4).value or 0); cs=float(dl.cell(r,5).value or 0); tf=float(dl.cell(r,7).value or 0)
         sf=float(dl.cell(r,21).value or 0)   # col U = Soft Restaurant card revenue
         if sf: soft_bd[dd]+=sf
-        vc=dl.cell(r,22).value               # col V = Soft commission (actual value, user-provided)
-        if isinstance(vc,(int,float)): softcomm_bd[dd]+=float(vc)
         days.append((dd,ca,cs,tf,round(ebd.get(dd,0.0),2)))
         k=(dd.year,dd.month); inc_m[k]['Card']+=ca+sf; inc_m[k]['Cash']+=cs; inc_m[k]['Transfer']+=tf
         if ca+cs+tf+sf>0: dcount[k]+=1
@@ -240,7 +238,7 @@ def _gather():
     for r in range(4, ol.max_row+1):
         if str(ol.cell(r,1).value or '').startswith('TOTALS'): break
         spent+=float(ol.cell(r,4).value or 0); transferred+=float(ol.cell(r,5).value or 0)
-    return dict(days=days, ebd=ebd, capf_bd=capf_bd, soft_bd=soft_bd, softcomm_bd=softcomm_bd, cat_m=cat_m, inc_m=inc_m, dcount=dcount,
+    return dict(days=days, ebd=ebd, capf_bd=capf_bd, soft_bd=soft_bd, cat_m=cat_m, inc_m=inc_m, dcount=dcount,
                 ol_spent=round(spent,2), ol_transferred=round(transferred,2), ol_balance=round(spent-transferred,2))
 
 
@@ -365,21 +363,19 @@ def _build_monthly(inc_m, cat_m, dcount):
 def refresh_dashboard(do_backup=True):
     import re
     g = _gather(); days = g['days']
-    soft_bd=g['soft_bd']; softcomm_bd=g['softcomm_bd']; soft_total=round(sum(soft_bd.values()),2)
-    soft_comm=round(sum(softcomm_bd.values()),2)   # actual Soft Restaurant commission (user-provided per day)
+    soft_bd=g['soft_bd']; soft_rate=CFG['soft_commission_rate']; soft_total=round(sum(soft_bd.values()),2)
     rev=sum(c+k+t for _,c,k,t,_ in days)+soft_total; exp=round(sum(g['ebd'].values()),2)
     net=round(rev-exp,2); netrent=round(net+20000,2)
     trading=sum(1 for _,c,k,t,_ in days if c+k+t>0)
     card=sum(d[1] for d in days)
     rate=CFG['commission_rate']
-    comm=round(card*rate + soft_comm)   # MP (4.06% auto) + Soft Restaurant (actual per-day)
+    comm=round(card*rate + soft_total*soft_rate)   # MP (4.06%) + Soft Restaurant (2.05%)
     last_d,lc,lk,lt,le = days[-1]
     last_rev=lc+lk+lt+soft_bd.get(last_d,0.0); last_net=last_rev-le
-    # cash on hand = anchor + nets after anchor + soft-card net - commissions after anchor + manual adjust
+    # cash on hand = anchor + nets after anchor + soft-card net - MP commission after anchor (auto) + manual adjust
     roll=sum((c+k+t-(e-g['capf_bd'].get(d,0.0))) for d,c,k,t,e in days if d>CFG['cash_anchor_date'])
     soft_post=round(sum(v for dd,v in soft_bd.items() if dd>CFG['cash_anchor_date']),2)
-    softcomm_post=round(sum(v for dd,v in softcomm_bd.items() if dd>CFG['cash_anchor_date']),2)
-    comm_post=sum(c*rate for d,c,k,t,e in days if d>CFG['cash_anchor_date'])+softcomm_post
+    comm_post=sum(c*rate for d,c,k,t,e in days if d>CFG['cash_anchor_date'])+round(soft_post*soft_rate,2)
     cash=round(CFG['cash_anchor_amount']+roll+soft_post-comm_post+CFG['cash_adjust'])
     net_allin=round(rev-exp-comm,2)       # bottom line after ALL expenses AND commission
     datestr=last_d.strftime('%a %d %b %Y')
