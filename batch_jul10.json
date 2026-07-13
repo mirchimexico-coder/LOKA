@@ -1,0 +1,102 @@
+[
+  {
+    "date": "10-Jul-2026",
+    "desc": "Lechuga",
+    "vendor": "No bill",
+    "cat": "Ingredients - Vegetables",
+    "amount": 64.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "10-Jul-2026",
+    "desc": "Tocino",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 141.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "10-Jul-2026",
+    "desc": "Water cans",
+    "vendor": "No bill",
+    "cat": "Ingredients - Beverages",
+    "amount": 30.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "10-Jul-2026",
+    "desc": "Jamon",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 173.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "10-Jul-2026",
+    "desc": "Tostadas",
+    "vendor": "No bill",
+    "cat": "Ingredients - Bread",
+    "amount": 121.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "10-Jul-2026",
+    "desc": "Queso",
+    "vendor": "No bill",
+    "cat": "Ingredients - Dairy",
+    "amount": 274.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "10-Jul-2026",
+    "desc": "Kinder",
+    "vendor": "No bill",
+    "cat": "Ingredients - Other",
+    "amount": 21.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash; snack/confectionery"
+  },
+  {
+    "date": "10-Jul-2026",
+    "desc": "Saladitas",
+    "vendor": "No bill",
+    "cat": "Ingredients - Other",
+    "amount": 48.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash; crackers"
+  },
+  {
+    "date": "10-Jul-2026",
+    "desc": "Oreo",
+    "vendor": "No bill",
+    "cat": "Ingredients - Other",
+    "amount": 22.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash; cookies"
+  },
+  {
+    "date": "10-Jul-2026",
+    "desc": "Samu — Ayudante Week 8",
+    "vendor": "Payroll",
+    "cat": "Staff - Salary",
+    "amount": 1200.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Week 8 salary, paid Friday 10 Jul ($800 base + $400 mesero top-up)"
+  }
+]

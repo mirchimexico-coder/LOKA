@@ -197,7 +197,7 @@ WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
     cash_anchor_date=date(2026,6,15), cash_anchor_amount=20283.0,
-    cash_adjust=-11383.00,              # Jun29 $10,000 owner cash withdrawal + transfers to Lohith (Jun18 $400 + Jun19 $120 + Jun26 $165 + Jun30 $55 + Jul7 $150 + Jul8 $195 + Jul9 $120 = $1,205) + Jun3 $178 reimbursement. MP commission is NOW auto-deducted per day (see comm_post in refresh_dashboard), no longer bundled here.
+    cash_adjust=-11453.00,              # Jun29 $10,000 owner cash withdrawal + transfers to Lohith (Jun18 $400 + Jun19 $120 + Jun26 $165 + Jun30 $55 + Jul7 $150 + Jul8 $195 + Jul9 $120 + Jul10 $70 = $1,275) + Jun3 $178 reimbursement. MP commission is NOW auto-deducted per day (see comm_post in refresh_dashboard), no longer bundled here.
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
     soft_commission_rate=0.0205,        # Soft Restaurant terminal est. on its card revenue (col U)
     week1_start=date(2026,5,18),        # W1 begins here; weeks are 7-day blocks

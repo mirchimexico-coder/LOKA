@@ -1,0 +1,52 @@
+[
+  {
+    "date": "11-Jul-2026",
+    "desc": "Sam's Club: corte recto, arroz/cebolla, dedos queso, tomate cherry, azucar, cafe, jarabe Hershey, Oroweat, Kraft parmesano, champinon, germinado",
+    "vendor": "Sam's Club",
+    "cat": "Supermarket/General",
+    "amount": 2803.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Visa debito ***63 AUT 867321; 11-Jul 11:06; comprado con tarjeta personal de Shashirekha (socio ***7787) - liquidar por transferencia directa fuera de Excel"
+  },
+  {
+    "date": "11-Jul-2026",
+    "desc": "Vegetables",
+    "vendor": "No bill",
+    "cat": "Ingredients - Vegetables",
+    "amount": 1437.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "11-Jul-2026",
+    "desc": "Hielo",
+    "vendor": "No bill",
+    "cat": "Kitchen Supplies",
+    "amount": 100.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "11-Jul-2026",
+    "desc": "John — Head Chef Week 8",
+    "vendor": "Payroll",
+    "cat": "Staff - Salary",
+    "amount": 4000.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Week 8 salary, paid Saturday 11 Jul (prev week $3,800)"
+  },
+  {
+    "date": "11-Jul-2026",
+    "desc": "Duvi/Debi — Limpieza Week 8",
+    "vendor": "Payroll",
+    "cat": "Staff - Salary",
+    "amount": 1000.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Week 8, paid Saturday 11 Jul (prev week $1,250 for 5 days; $1,000 = 4 days @ $250)"
+  }
+]
