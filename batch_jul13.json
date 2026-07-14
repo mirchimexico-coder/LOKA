@@ -1,0 +1,82 @@
+[
+  {
+    "date": "13-Jul-2026",
+    "desc": "Pan dulce",
+    "vendor": "No bill",
+    "cat": "Ingredients - Bread",
+    "amount": 60.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "13-Jul-2026",
+    "desc": "Pollo",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 1495.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "13-Jul-2026",
+    "desc": "Carne",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 483.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "13-Jul-2026",
+    "desc": "Queso panela",
+    "vendor": "No bill",
+    "cat": "Ingredients - Dairy",
+    "amount": 592.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "13-Jul-2026",
+    "desc": "Aceite (Oxxo)",
+    "vendor": "OXXO",
+    "cat": "Ingredients - Pantry",
+    "amount": 112.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "13-Jul-2026",
+    "desc": "Agua",
+    "vendor": "No bill",
+    "cat": "Ingredients - Beverages",
+    "amount": 60.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "13-Jul-2026",
+    "desc": "Aceite",
+    "vendor": "No bill",
+    "cat": "Ingredients - Pantry",
+    "amount": 330.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "13-Jul-2026",
+    "desc": "Clorox",
+    "vendor": "No bill",
+    "cat": "Kitchen Supplies",
+    "amount": 10.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash; cleaning supply"
+  }
+]

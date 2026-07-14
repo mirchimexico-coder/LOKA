@@ -197,10 +197,9 @@ WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
     cash_anchor_date=date(2026,6,15), cash_anchor_amount=20283.0,
-    cash_adjust=-11173.00,              # Jun29 $10,000 owner cash withdrawal + transfers to Lohith (Jun18 $400 + Jun19 $120 + Jun26 $165 + Jun30 $55 + Jul7 $150 + Jul8 $195 + Jul9 $120 + Jul10 $70 + Jul13 $120 = $1,395) + Jun3 $178 reimbursement, LESS Jul13 $400 of expenses paid personally by Lohith (Aceite/Agua/Clorox: booked in Expenses but never left the till; owed back via Owner Ledger). MP commission is auto-deducted per day.
+    cash_adjust=-11453.00,              # Jun29 $10,000 owner cash withdrawal + transfers to Lohith (Jun18 $400 + Jun19 $120 + Jun26 $165 + Jun30 $55 + Jul7 $150 + Jul8 $195 + Jul9 $120 + Jul10 $70 = $1,275) + Jun3 $178 reimbursement. MP commission is NOW auto-deducted per day (see comm_post in refresh_dashboard), no longer bundled here.
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
-    soft_commission_rate=0.0205,        # Soft Restaurant terminal (reference only; actual value stored per-day in col V)
-    bbva_commission_rate=0.0190,        # BBVA terminal (reference only; actual value stored per-day in col Z)
+    soft_commission_rate=0.0205,        # Soft Restaurant terminal est. on its card revenue (col U)
     week1_start=date(2026,5,18),        # W1 begins here; weeks are 7-day blocks
 )
 
@@ -221,7 +220,7 @@ def _gather():
         amt = float(ex.cell(r,6).value or 0)
         ebd[dd]+=amt; cat_m[(dd.year,dd.month)][str(ex.cell(r,5).value or 'Other')]+=amt
         if str(ex.cell(r,7).value or '')=='Capital': capf_bd[dd]+=amt   # paid from Capital: excluded from operating-cash roll
-    days=[]; inc_m=defaultdict(lambda: defaultdict(float)); dcount=defaultdict(int); soft_bd=defaultdict(float); softcomm_bd=defaultdict(float); bbva_bd=defaultdict(float); bbvacomm_bd=defaultdict(float)
+    days=[]; inc_m=defaultdict(lambda: defaultdict(float)); dcount=defaultdict(int); soft_bd=defaultdict(float); softcomm_bd=defaultdict(float)
     for r in range(2, dl.max_row+1):
         v = dl.cell(r,2).value
         if v is None: continue
@@ -232,20 +231,16 @@ def _gather():
         if sf: soft_bd[dd]+=sf
         vc=dl.cell(r,22).value               # col V = Soft commission (actual value, user-provided)
         if isinstance(vc,(int,float)): softcomm_bd[dd]+=float(vc)
-        bb=float(dl.cell(r,25).value or 0)   # col Y = BBVA card revenue
-        if bb: bbva_bd[dd]+=bb
-        zc=dl.cell(r,26).value               # col Z = BBVA commission (actual value, user-provided)
-        if isinstance(zc,(int,float)): bbvacomm_bd[dd]+=float(zc)
         days.append((dd,ca,cs,tf,round(ebd.get(dd,0.0),2)))
-        k=(dd.year,dd.month); inc_m[k]['Card']+=ca+sf+bb; inc_m[k]['Cash']+=cs; inc_m[k]['Transfer']+=tf
-        if ca+cs+tf+sf+bb>0: dcount[k]+=1
+        k=(dd.year,dd.month); inc_m[k]['Card']+=ca+sf; inc_m[k]['Cash']+=cs; inc_m[k]['Transfer']+=tf
+        if ca+cs+tf+sf>0: dcount[k]+=1
     days.sort()
     # owner ledger balance (raw sums)
     ol = wb[OWNER]; spent=transferred=0.0
     for r in range(4, ol.max_row+1):
         if str(ol.cell(r,1).value or '').startswith('TOTALS'): break
         spent+=float(ol.cell(r,4).value or 0); transferred+=float(ol.cell(r,5).value or 0)
-    return dict(days=days, ebd=ebd, capf_bd=capf_bd, soft_bd=soft_bd, softcomm_bd=softcomm_bd, bbva_bd=bbva_bd, bbvacomm_bd=bbvacomm_bd, cat_m=cat_m, inc_m=inc_m, dcount=dcount,
+    return dict(days=days, ebd=ebd, capf_bd=capf_bd, soft_bd=soft_bd, softcomm_bd=softcomm_bd, cat_m=cat_m, inc_m=inc_m, dcount=dcount,
                 ol_spent=round(spent,2), ol_transferred=round(transferred,2), ol_balance=round(spent-transferred,2))
 
 
@@ -372,24 +367,20 @@ def refresh_dashboard(do_backup=True):
     g = _gather(); days = g['days']
     soft_bd=g['soft_bd']; softcomm_bd=g['softcomm_bd']; soft_total=round(sum(soft_bd.values()),2)
     soft_comm=round(sum(softcomm_bd.values()),2)   # actual Soft Restaurant commission (user-provided per day)
-    bbva_bd=g['bbva_bd']; bbvacomm_bd=g['bbvacomm_bd']; bbva_total=round(sum(bbva_bd.values()),2)
-    bbva_comm=round(sum(bbvacomm_bd.values()),2)   # actual BBVA commission (user-provided per day)
-    rev=sum(c+k+t for _,c,k,t,_ in days)+soft_total+bbva_total; exp=round(sum(g['ebd'].values()),2)
+    rev=sum(c+k+t for _,c,k,t,_ in days)+soft_total; exp=round(sum(g['ebd'].values()),2)
     net=round(rev-exp,2); netrent=round(net+20000,2)
     trading=sum(1 for _,c,k,t,_ in days if c+k+t>0)
     card=sum(d[1] for d in days)
     rate=CFG['commission_rate']
-    comm=round(card*rate + soft_comm + bbva_comm)   # MP (4.06% auto) + Soft Restaurant + BBVA (actual per-day)
+    comm=round(card*rate + soft_comm)   # MP (4.06% auto) + Soft Restaurant (actual per-day)
     last_d,lc,lk,lt,le = days[-1]
-    last_rev=lc+lk+lt+soft_bd.get(last_d,0.0)+bbva_bd.get(last_d,0.0); last_net=last_rev-le
-    # cash on hand = anchor + nets after anchor + soft/bbva card net - commissions after anchor + manual adjust
+    last_rev=lc+lk+lt+soft_bd.get(last_d,0.0); last_net=last_rev-le
+    # cash on hand = anchor + nets after anchor + soft-card net - commissions after anchor + manual adjust
     roll=sum((c+k+t-(e-g['capf_bd'].get(d,0.0))) for d,c,k,t,e in days if d>CFG['cash_anchor_date'])
     soft_post=round(sum(v for dd,v in soft_bd.items() if dd>CFG['cash_anchor_date']),2)
     softcomm_post=round(sum(v for dd,v in softcomm_bd.items() if dd>CFG['cash_anchor_date']),2)
-    bbva_post=round(sum(v for dd,v in bbva_bd.items() if dd>CFG['cash_anchor_date']),2)
-    bbvacomm_post=round(sum(v for dd,v in bbvacomm_bd.items() if dd>CFG['cash_anchor_date']),2)
-    comm_post=sum(c*rate for d,c,k,t,e in days if d>CFG['cash_anchor_date'])+softcomm_post+bbvacomm_post
-    cash=round(CFG['cash_anchor_amount']+roll+soft_post+bbva_post-comm_post+CFG['cash_adjust'])
+    comm_post=sum(c*rate for d,c,k,t,e in days if d>CFG['cash_anchor_date'])+softcomm_post
+    cash=round(CFG['cash_anchor_amount']+roll+soft_post-comm_post+CFG['cash_adjust'])
     net_allin=round(rev-exp-comm,2)       # bottom line after ALL expenses AND commission
     datestr=last_d.strftime('%a %d %b %Y')
     if do_backup:
@@ -426,7 +417,7 @@ def refresh_dashboard(do_backup=True):
     sub(r'(Lohith Ledger</div><div class="aval">Restaurant owes )\$[\d,]+', lambda m: m.group(1)+_money(g['ol_balance']), 'ledger alert')
     # operations <-> capital (Section K) — commission + true bottom line
     _s3=lambda n: (f'+${n:,.0f}' if n>=0 else f'&minus;${abs(n):,.0f}')
-    sub(r'(Card commissions \(MP\+BBVA\+Soft\)</span><span class="sval"[^>]*>)(?:&minus;)?\$[\d,]+', lambda m: m.group(1)+'&minus;'+_money(comm), 'ops comm')
+    sub(r'(MP commission \(auto, all-time\)</span><span class="sval"[^>]*>)(?:&minus;)?\$[\d,]+', lambda m: m.group(1)+'&minus;'+_money(comm), 'ops comm')
     def _netitem(m):
         pos=net_allin>=0; col='var(--green)' if pos else 'var(--red)'; bg='#0f2a12' if pos else '#2a0f0f'
         return (f'<div class="stat-item" style="background:{bg};padding:6px 8px;border-radius:6px;margin-top:5px;">'
