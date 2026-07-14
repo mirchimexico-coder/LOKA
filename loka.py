@@ -249,12 +249,13 @@ def _gather():
                 ol_spent=round(spent,2), ol_transferred=round(transferred,2), ol_balance=round(spent-transferred,2))
 
 
-def _build_bars(days):
+def _build_bars(days, xbd=None):
+    xbd = xbd or {}
     recent = days[-30:]
-    maxrev = max((c+k+t for _,c,k,t,_ in recent), default=1) or 1
+    maxrev = max((c+k+t+xbd.get(d,0.0) for d,c,k,t,_ in recent), default=1) or 1
     out=[]
     for d,c,k,t,e in recent:
-        rev=c+k+t; net=rev-e
+        rev=c+k+t+xbd.get(d,0.0); net=rev-e
         widx=(d-CFG['week1_start']).days//7
         col=WEEK_COLORS[widx % len(WEEK_COLORS)]
         w=max(6, round(rev/maxrev*100)) if rev>0 else 3
@@ -264,15 +265,16 @@ def _build_bars(days):
                    f'<div class="bar-amt">{_money(rev)}</div><div class="bar-net {cls}">{_signed(net)}</div></div>')
     return ''.join(out)
 
-def _build_weeks(days):
+def _build_weeks(days, xbd=None):
+    xbd = xbd or {}
     from collections import defaultdict
     wk=defaultdict(list)
     for row in days: wk[(row[0]-CFG['week1_start']).days//7].append(row)
     idxs=sorted(wk)[-8:]
-    maxrev=max((sum(c+k+t for _,c,k,t,_ in wk[i]) for i in idxs), default=1) or 1
+    maxrev=max((sum(c+k+t+xbd.get(d,0.0) for d,c,k,t,_ in wk[i]) for i in idxs), default=1) or 1
     out=[]
     for i in idxs:
-        rows=wk[i]; rev=sum(c+k+t for _,c,k,t,_ in rows); exp=sum(e for *_,e in rows); net=rev-exp
+        rows=wk[i]; rev=sum(c+k+t+xbd.get(d,0.0) for d,c,k,t,_ in rows); exp=sum(e for *_,e in rows); net=rev-exp
         ds=[r[0] for r in rows]; lo,hi=min(ds),max(ds)
         if lo.month==hi.month: rng=f'{lo.day}-{hi.day} {lo.strftime("%b")}'
         else: rng=f'{lo.day} {lo.strftime("%b")}-{hi.day} {hi.strftime("%b")}'
@@ -435,10 +437,11 @@ def refresh_dashboard(do_backup=True):
     sub(r'<div class="stat-item" style="background:#[0-9a-fA-F]{6};padding:6px 8px;border-radius:6px;margin-top:5px;"><span class="slabel" style="color:var\(--(?:red|green)\);">Net after all exp &amp; commission</span><span class="sval" style="color:var\(--(?:red|green)\);font-size:.9rem;">(?:\+|&minus;)?\$[\d,]+</span></div>', _netitem, 'ops net-allin')
     sub(r'net after all exp &amp; comm (?:\+|&minus;)?\$[\d,]+', lambda m: 'net after all exp &amp; comm '+_s3(net_allin), 'banner net-allin')
     # --- block regens ---
-    bars=_build_bars(days)
+    xbd={d: soft_bd.get(d,0.0)+bbva_bd.get(d,0.0) for d in set(soft_bd)|set(bbva_bd)}  # extra card revenue (Soft+BBVA) per day
+    bars=_build_bars(days, xbd)
     s=re.sub(r'(<h3>Daily Revenue &mdash; Last 30 Days</h3>).*?(<div style="display:flex;gap:14px;margin-top:10px;)',
              lambda m: m.group(1)+bars+m.group(2), s, count=1, flags=re.DOTALL)
-    weeks=_build_weeks(days)
+    weeks=_build_weeks(days, xbd)
     s=re.sub(r'(<div class="week-grid">).*?(</div>\s*<p class="note")',
              lambda m: m.group(1)+weeks+m.group(2), s, count=1, flags=re.DOTALL)
     monthly=_build_monthly(g['inc_m'], g['cat_m'], g['dcount'])
