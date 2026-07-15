@@ -1,0 +1,22 @@
+[
+  {
+    "date": "14-Jul-2026",
+    "desc": "Clorox 3.8L + Tortillas blancas x3 + Rosca marmoleada + Bolillo x6",
+    "vendor": "Chedraui Paseo",
+    "cat": "Supermarket/General",
+    "amount": 224.38,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Debito BBVA ***3982 AUT 312881; 14-Jul 09:17; subtotal $228 - desc $3.62 = $224.38"
+  },
+  {
+    "date": "14-Jul-2026",
+    "desc": "Mojarra (pescado)",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat & Fish",
+    "amount": 372.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  }
+]
