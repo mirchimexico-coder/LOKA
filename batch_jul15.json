@@ -1,0 +1,72 @@
+[
+  {
+    "date": "15-Jul-2026",
+    "desc": "Italpast 1kg x5",
+    "vendor": "Sam's Club",
+    "cat": "Ingredients - Pantry",
+    "amount": 199.5,
+    "paid": "Lohith",
+    "method": "Card",
+    "notes": "Debito ***3982; socio Shashirekha. PAGADO POR LOHITH (bolsillo propio); reembolsable via Owner Ledger; no salio de la caja."
+  },
+  {
+    "date": "15-Jul-2026",
+    "desc": "Leche deslactosada, Unico fresco, Crutones",
+    "vendor": "Costco",
+    "cat": "Supermarket/General",
+    "amount": 615.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Debito ***3982 ticket 1672; total $615 (sub $629.13 - desc $14.13)"
+  },
+  {
+    "date": "15-Jul-2026",
+    "desc": "Snickers, Queso Philadelphia x2, tortillas, baguette",
+    "vendor": "Chedraui Selecto",
+    "cat": "Supermarket/General",
+    "amount": 282.86,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Debito ***3982 AUT 305923; sub $286.87 - desc $3.01 = $282.86"
+  },
+  {
+    "date": "15-Jul-2026",
+    "desc": "Carne",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 581.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "15-Jul-2026",
+    "desc": "Cilantro",
+    "vendor": "No bill",
+    "cat": "Ingredients - Vegetables",
+    "amount": 5.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "15-Jul-2026",
+    "desc": "Pollo",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 579.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "15-Jul-2026",
+    "desc": "Telmex (internet/telefono)",
+    "vendor": "Telmex",
+    "cat": "Utilities/Internet",
+    "amount": 349.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash; monthly internet/phone"
+  }
+]
