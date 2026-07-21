@@ -1,0 +1,12 @@
+[
+  {
+    "date": "16-Jul-2026",
+    "desc": "John (Head Chef) — pago por quedarse tarde (wine party)",
+    "vendor": "Payroll",
+    "cat": "Staff - Salary",
+    "amount": 500.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Pago extra al chef por trabajar tarde en el evento de vino (16-Jul). Sueldo/bono, no propina."
+  }
+]

@@ -1,0 +1,12 @@
+[
+  {
+    "date": "11-Jul-2026",
+    "desc": "Pan y salsas",
+    "vendor": "Pan Reales",
+    "cat": "Ingredients - Bread",
+    "amount": 867.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Pan + salsas; gasto de 11-Jul agregado despues (missed en el EOD original)"
+  }
+]

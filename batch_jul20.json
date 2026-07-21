@@ -1,0 +1,72 @@
+[
+  {
+    "date": "20-Jul-2026",
+    "desc": "Milk (Oxxo)",
+    "vendor": "OXXO",
+    "cat": "Ingredients - Dairy",
+    "amount": 36.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "20-Jul-2026",
+    "desc": "Bistec",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 290.0,
+    "paid": "Lohith",
+    "method": "Cash",
+    "notes": "Pagado por Lohith (bolsillo); reembolsable via Owner Ledger; no de la caja"
+  },
+  {
+    "date": "20-Jul-2026",
+    "desc": "Pollo",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 89.0,
+    "paid": "Lohith",
+    "method": "Cash",
+    "notes": "Pagado por Lohith (bolsillo); reembolsable via Owner Ledger; no de la caja"
+  },
+  {
+    "date": "20-Jul-2026",
+    "desc": "Agua natural",
+    "vendor": "No bill",
+    "cat": "Ingredients - Beverages",
+    "amount": 30.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "20-Jul-2026",
+    "desc": "Hielo (Oxxo)",
+    "vendor": "OXXO",
+    "cat": "Kitchen Supplies",
+    "amount": 54.0,
+    "paid": "Lohith",
+    "method": "Cash",
+    "notes": "Pagado por Lohith (bolsillo); reembolsable via Owner Ledger; no de la caja"
+  },
+  {
+    "date": "20-Jul-2026",
+    "desc": "Hielos (mercado)",
+    "vendor": "No bill",
+    "cat": "Kitchen Supplies",
+    "amount": 200.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "20-Jul-2026",
+    "desc": "Sam's Club (varios)",
+    "vendor": "Sam's Club",
+    "cat": "Supermarket/General",
+    "amount": 1760.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "No receipt provided; restaurant-paid"
+  }
+]

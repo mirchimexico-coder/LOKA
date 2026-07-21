@@ -197,7 +197,7 @@ WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
     cash_anchor_date=date(2026,6,15), cash_anchor_amount=20283.0,
-    cash_adjust=-11108.00,              # -(Jun29 $10,000 withdrawal + transfers-to-Lohith $1,525 + Jun3 $178 reimbursement) + owner-paid-not-from-till add-back $595 (Jul13 $400 Aceite/Agua/Clorox + Jul15 $195 Sam's cash). = -(11,703) + 595 = -11,108. Owed back via Owner Ledger. MP commission auto-deducted per day.
+    cash_adjust=-10965.00,              # -(Jun29 $10,000 withdrawal + transfers-to-Lohith $2,115 [Jun18..Jul18; Jul20 transfer was $0] + Jun3 $178 reimbursement) + owner-paid-not-from-till add-back $1,328 (Jul13 $400 + Jul15 Sam's $195 + Jul17 Pollo $300 + Jul20 $433 Bistec/Pollo/Hielo). = -(12,293) + 1,328 = -10,965. Owed back via Owner Ledger. MP commission auto-deducted per day.
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
     soft_commission_rate=0.0205,        # Soft Restaurant terminal (reference only; actual value stored per-day in col V)
     bbva_commission_rate=0.0190,        # BBVA terminal (reference only; actual value stored per-day in col Z)

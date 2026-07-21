@@ -1,0 +1,82 @@
+[
+  {
+    "date": "16-Jul-2026",
+    "desc": "Vasos plastico + Reyma tapas (desechables)",
+    "vendor": "Guimar Polietilenos",
+    "cat": "Packaging/Disposables",
+    "amount": 106.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Folio XCC39648; disposables"
+  },
+  {
+    "date": "16-Jul-2026",
+    "desc": "Jamaica",
+    "vendor": "Molino y Condimentos La Cruz",
+    "cat": "Ingredients - Beverages",
+    "amount": 110.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Molino La Cruz; jamaica (agua fresca)"
+  },
+  {
+    "date": "16-Jul-2026",
+    "desc": "Queso",
+    "vendor": "La Bodega del Buen Queso",
+    "cat": "Ingredients - Dairy",
+    "amount": 409.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Nota de venta 16-Jul"
+  },
+  {
+    "date": "16-Jul-2026",
+    "desc": "Fideo La Moderna x3",
+    "vendor": "Tres B",
+    "cat": "Ingredients - Pantry",
+    "amount": 51.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "3x $17; Mercado Libre contactless"
+  },
+  {
+    "date": "16-Jul-2026",
+    "desc": "Carne",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 263.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "16-Jul-2026",
+    "desc": "Wine glasses",
+    "vendor": "No bill",
+    "cat": "Kitchen Supplies",
+    "amount": 150.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash; glassware"
+  },
+  {
+    "date": "16-Jul-2026",
+    "desc": "Salvo (lavatrastes)",
+    "vendor": "No bill",
+    "cat": "Kitchen Supplies",
+    "amount": 28.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash; dish soap"
+  },
+  {
+    "date": "16-Jul-2026",
+    "desc": "Topo Chico (Oxxo)",
+    "vendor": "OXXO",
+    "cat": "Ingredients - Beverages",
+    "amount": 40.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  }
+]

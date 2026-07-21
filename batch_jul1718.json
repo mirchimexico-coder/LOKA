@@ -1,0 +1,92 @@
+[
+  {
+    "date": "17-Jul-2026",
+    "desc": "Arroz (Oxxo)",
+    "vendor": "OXXO",
+    "cat": "Ingredients - Pantry",
+    "amount": 52.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "17-Jul-2026",
+    "desc": "Pollo",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 300.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "17-Jul-2026",
+    "desc": "Vegetables",
+    "vendor": "No bill",
+    "cat": "Ingredients - Vegetables",
+    "amount": 51.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "17-Jul-2026",
+    "desc": "Lechuga",
+    "vendor": "No bill",
+    "cat": "Ingredients - Vegetables",
+    "amount": 88.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "17-Jul-2026",
+    "desc": "Bistec",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 96.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "17-Jul-2026",
+    "desc": "Chedraui (varios)",
+    "vendor": "Chedraui",
+    "cat": "Supermarket/General",
+    "amount": 164.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt provided; cash"
+  },
+  {
+    "date": "17-Jul-2026",
+    "desc": "Samu — Ayudante Week 9",
+    "vendor": "Payroll",
+    "cat": "Staff - Salary",
+    "amount": 1200.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Week 9 salary, paid Friday 17 Jul"
+  },
+  {
+    "date": "18-Jul-2026",
+    "desc": "John — Head Chef Week 9",
+    "vendor": "Payroll",
+    "cat": "Staff - Salary",
+    "amount": 3750.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Week 9 salary, paid Saturday 18 Jul"
+  },
+  {
+    "date": "18-Jul-2026",
+    "desc": "Duvi/Debi — Limpieza Week 9",
+    "vendor": "Payroll",
+    "cat": "Staff - Salary",
+    "amount": 1500.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Week 9 salary, paid Saturday 18 Jul (full week)"
+  }
+]
