@@ -1,0 +1,62 @@
+[
+  {
+    "date": "21-Jul-2026",
+    "desc": "Jamon",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 174.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "21-Jul-2026",
+    "desc": "Carnes",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 562.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "21-Jul-2026",
+    "desc": "Carne de hamburguesa",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 380.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "21-Jul-2026",
+    "desc": "Arroz (Oxxo)",
+    "vendor": "OXXO",
+    "cat": "Ingredients - Pantry",
+    "amount": 26.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "21-Jul-2026",
+    "desc": "Chedraui (varios)",
+    "vendor": "Chedraui",
+    "cat": "Supermarket/General",
+    "amount": 116.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt provided; cash"
+  },
+  {
+    "date": "21-Jul-2026",
+    "desc": "Pollo",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 939.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  }
+]
