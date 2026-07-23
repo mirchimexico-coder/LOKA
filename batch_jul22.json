@@ -1,0 +1,62 @@
+[
+  {
+    "date": "22-Jul-2026",
+    "desc": "Avia Reca",
+    "vendor": "Reca",
+    "cat": "Ingredients - Other",
+    "amount": 300.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash; (categoria a confirmar)"
+  },
+  {
+    "date": "22-Jul-2026",
+    "desc": "Carnes",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 833.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "22-Jul-2026",
+    "desc": "Elote (Oxxo)",
+    "vendor": "OXXO",
+    "cat": "Ingredients - Vegetables",
+    "amount": 20.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "22-Jul-2026",
+    "desc": "Tilapia",
+    "vendor": "Brisa del Mar",
+    "cat": "Ingredients - Meat & Fish",
+    "amount": 366.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash; pescado"
+  },
+  {
+    "date": "22-Jul-2026",
+    "desc": "Pollo",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 234.0,
+    "paid": "Lohith",
+    "method": "Cash",
+    "notes": "Pagado por Lohith (bolsillo); reembolsable via Owner Ledger; no de la caja"
+  },
+  {
+    "date": "22-Jul-2026",
+    "desc": "Soft Restaurant app subscription",
+    "vendor": "Soft Restaurant",
+    "cat": "Utilities/Internet",
+    "amount": 810.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Suscripcion recurrente del software POS; gasto operativo"
+  }
+]

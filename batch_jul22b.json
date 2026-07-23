@@ -1,0 +1,22 @@
+[
+  {
+    "date": "22-Jul-2026",
+    "desc": "Groceries (Tres B)",
+    "vendor": "Tres B",
+    "cat": "Supermarket/General",
+    "amount": 1186.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt provided; cash; abarrotes"
+  },
+  {
+    "date": "22-Jul-2026",
+    "desc": "Agua natural",
+    "vendor": "No bill",
+    "cat": "Ingredients - Beverages",
+    "amount": 70.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  }
+]
