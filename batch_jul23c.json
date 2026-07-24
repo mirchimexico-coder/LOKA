@@ -1,0 +1,22 @@
+[
+  {
+    "date": "23-Jul-2026",
+    "desc": "Arroz (Oxxo)",
+    "vendor": "OXXO",
+    "cat": "Ingredients - Pantry",
+    "amount": 35.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "23-Jul-2026",
+    "desc": "Pan y salsas",
+    "vendor": "Pan Reales",
+    "cat": "Ingredients - Bread",
+    "amount": 847.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  }
+]

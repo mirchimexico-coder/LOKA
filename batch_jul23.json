@@ -1,0 +1,52 @@
+[
+  {
+    "date": "23-Jul-2026",
+    "desc": "Vegetables",
+    "vendor": "No bill",
+    "cat": "Ingredients - Vegetables",
+    "amount": 105.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "23-Jul-2026",
+    "desc": "Carnes",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 600.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "23-Jul-2026",
+    "desc": "Pollo",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 220.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "23-Jul-2026",
+    "desc": "Vasos plast. 12 + Reyma tapas + bolsa negra + stretch film",
+    "vendor": "Guimar Polietilenos",
+    "cat": "Packaging/Disposables",
+    "amount": 1544.98,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Folio AK93904 10:48. Pagado con tarjeta de Lohith pero YA reembolsado con dinero del restaurante -> gasto del restaurante, sin entrada en Owner Ledger."
+  },
+  {
+    "date": "23-Jul-2026",
+    "desc": "Elote Herdez, agua mineral, detergente 5kg, tortillas, bolillo, rosca de nuez",
+    "vendor": "Chedraui Selecto",
+    "cat": "Supermarket/General",
+    "amount": 515.4,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "Debito BBVA ***3982 AUT 006060; 23-Jul 11:34; 16 articulos"
+  }
+]
