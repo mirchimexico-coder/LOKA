@@ -1,0 +1,62 @@
+[
+  {
+    "date": "25-Jul-2026",
+    "desc": "Vegetables",
+    "vendor": "No bill",
+    "cat": "Ingredients - Vegetables",
+    "amount": 150.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "25-Jul-2026",
+    "desc": "Carne bistec",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 284.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "25-Jul-2026",
+    "desc": "Pollo",
+    "vendor": "No bill",
+    "cat": "Ingredients - Meat",
+    "amount": 905.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "25-Jul-2026",
+    "desc": "Azucar (Oxxo)",
+    "vendor": "OXXO",
+    "cat": "Ingredients - Pantry",
+    "amount": 24.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "25-Jul-2026",
+    "desc": "John — Head Chef Week 10",
+    "vendor": "Payroll",
+    "cat": "Staff - Salary",
+    "amount": 3750.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Week 10 salary, paid Saturday 25 Jul"
+  },
+  {
+    "date": "25-Jul-2026",
+    "desc": "Duvi/Debi — Limpieza Week 10",
+    "vendor": "Payroll",
+    "cat": "Staff - Salary",
+    "amount": 1500.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "Week 10 salary, paid Saturday 25 Jul (full week)"
+  }
+]

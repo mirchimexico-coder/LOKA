@@ -1,0 +1,32 @@
+[
+  {
+    "date": "24-Jul-2026",
+    "desc": "Pan molido",
+    "vendor": "No bill",
+    "cat": "Ingredients - Bread",
+    "amount": 72.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash; breadcrumbs"
+  },
+  {
+    "date": "24-Jul-2026",
+    "desc": "Azucar (Oxxo)",
+    "vendor": "OXXO",
+    "cat": "Ingredients - Pantry",
+    "amount": 24.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  },
+  {
+    "date": "24-Jul-2026",
+    "desc": "Queso panela",
+    "vendor": "No bill",
+    "cat": "Ingredients - Dairy",
+    "amount": 590.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash"
+  }
+]

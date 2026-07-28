@@ -2,8 +2,9 @@
 Backups/
 My Backup/
 __pycache__/
-Logs/
 Bills/
 output.txt
 *.pyc
 ~$*.xlsx
+_*.py
+*.tmp

@@ -1,0 +1,32 @@
+[
+  {
+    "date": "26-Jul-2026",
+    "desc": "Vegetables (Central de Abastos)",
+    "vendor": "Central de Abastos",
+    "cat": "Ingredients - Vegetables",
+    "amount": 1832.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash; compra semanal (domingo, restaurante cerrado)"
+  },
+  {
+    "date": "26-Jul-2026",
+    "desc": "Arroz (Oxxo)",
+    "vendor": "OXXO",
+    "cat": "Ingredients - Pantry",
+    "amount": 78.0,
+    "paid": "Restaurant",
+    "method": "Cash",
+    "notes": "No receipt; cash; domingo shopping"
+  },
+  {
+    "date": "26-Jul-2026",
+    "desc": "Sam's Club (varios)",
+    "vendor": "Sam's Club",
+    "cat": "Supermarket/General",
+    "amount": 1157.0,
+    "paid": "Restaurant",
+    "method": "Card",
+    "notes": "No receipt provided; restaurant-paid; domingo shopping"
+  }
+]

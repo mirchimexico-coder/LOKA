@@ -63,7 +63,83 @@ def add_expenses(rows, do_backup=True):
     wb.save(P)
     return n, last+1, last+n
 
-def close_day(d, card=0, cash=0, transfer=0, do_backup=True):
+def _inject_cache():
+    """Write computed values into the <v> cache of Daily Log formula cells.
+
+    openpyxl writes formulas with an EMPTY <v/> cache, and Excel here does not
+    reliably honour fullCalcOnLoad -> cells render blank until a manual recalc.
+    This rewrites xl/worksheets/sheet3.xml keeping <f> intact and filling <v>.
+    MUST run after any write that touches the Daily Log (refresh_dashboard does
+    it automatically at the end).
+    """
+    import zipfile, shutil, re as _re
+    from datetime import timedelta
+    wb = openpyxl.load_workbook(P); dl = wb.worksheets[S_DAILY]; ex = wb.worksheets[S_EXP]
+    def _pd(v): return v.date() if isinstance(v, datetime) else (v if isinstance(v, date) else None)
+    lastx = _last_data_row(ex)
+    ebd = {}
+    for r in range(8, lastx+1):
+        dd = _pd(ex.cell(r,2).value); a = ex.cell(r,6).value
+        if isinstance(dd, date) and isinstance(a,(int,float)): ebd[dd] = ebd.get(dd,0.0)+float(a)
+    vals = {}; today_row = None
+    _dates=[]; _revbd={}; _tfbd={}
+    for r in range(8, dl.max_row+1):
+        dd = _pd(dl.cell(r,2).value)
+        if not isinstance(dd, date): continue
+        rev = sum(float(dl.cell(r,c).value or 0) for c in (4,5,7,21,25))
+        e = round(ebd.get(dd,0.0),2); net = round(rev-e,2)
+        _dates.append(dd); _revbd[dd]=_revbd.get(dd,0.0)+rev
+        _tfbd[dd]=_tfbd.get(dd,0.0)+float(dl.cell(r,7).value or 0)
+        vals[f'F{r}']=rev; vals[f'H{r}']=e; vals[f'I{r}']=net
+        vals[f'J{r}']=round(net/rev,6) if rev else 0
+        vals[f'R{r}']=round(float(dl.cell(r,4).value or 0)*CFG['commission_rate'],2)
+        today_row = (rev, e, net)
+    if today_row and _dates:           # top-of-sheet "today / this week / this month" row 6
+        rev,e,net = today_row
+        vals['H6']=e; vals['I6']=net; vals['J6']=round(net/rev,6) if rev else 0
+        # F6/G6 = today's figures; M6/N6/O6/P6/Q6 = week & month roll-ups.
+        # "Today" here means the LATEST recorded day (the sheet uses TODAY(); if no
+        # trading happened today these legitimately show the last day's numbers).
+        td = max(d for d in _dates)
+        vals['F6'] = round(_revbd.get(td,0.0),2)
+        vals['G6'] = round(_tfbd.get(td,0.0),2)
+        wk_start = td - timedelta(days=(td.weekday()-0) % 7)   # weeks start Monday
+        wk = [d for d in _dates if wk_start <= d < wk_start+timedelta(days=7)]
+        mo = [d for d in _dates if d.month==td.month and d.year==td.year]
+        wk_rev = round(sum(_revbd.get(d,0.0) for d in wk),2)
+        wk_exp = round(sum(ebd.get(d,0.0) for d in wk),2)
+        vals['M6']=wk_rev; vals['N6']=wk_rev
+        vals['O6']=round(sum(_revbd.get(d,0.0) for d in mo),2)
+        vals['P6']=wk_exp; vals['Q6']=round(wk_rev-wk_exp,2)
+    tmp = P+'.tmp'
+    zin = zipfile.ZipFile(P,'r'); zout = zipfile.ZipFile(tmp,'w',zipfile.ZIP_DEFLATED)
+    n = 0
+    for item in zin.namelist():
+        data = zin.read(item)
+        if item == 'xl/worksheets/sheet3.xml':
+            xml = data.decode('utf-8')
+            def _repl(m):
+                nonlocal n
+                ref = m.group('ref'); whole = m.group(0)
+                if ref in vals and '<f' in whole:
+                    nv = f"<v>{vals[ref]}</v>"
+                    w = _re.sub(r'<v\s*/>', nv, whole)
+                    if w == whole: w = _re.sub(r'<v>.*?</v>', nv, whole)
+                    if '<v' not in w: w = w.replace('</c>', nv+'</c>')
+                    if w != whole: n += 1
+                    return w
+                return whole
+            # NOTE: the alternation is essential - a self-closing cell like
+            # <c r="Q74" s="1"/> would otherwise let .*?</c> run on and swallow the
+            # NEXT cell, so that cell never gets its cached value (this silently
+            # left the whole R/MP-commission column blank until 27-Jul).
+            xml = _re.sub(r'<c r="(?P<ref>[A-Z]+\d+)"[^>]*?(?:/>|>.*?</c>)', _repl, xml)
+            data = xml.encode('utf-8')
+        zout.writestr(item, data)
+    zin.close(); zout.close(); shutil.move(tmp, P)
+    return n
+
+def close_day(d, card=0, cash=0, transfer=0, soft=0, softcomm=0, bbva=0, bbvacomm=0, do_backup=True):
     """Set revenue for date d in Daily Log; create row with auto-SUMIFS if missing."""
     d = pdate(d)
     if do_backup: backup('close_day')
@@ -82,17 +158,20 @@ def close_day(d, card=0, cash=0, transfer=0, do_backup=True):
         target = lastrow + 1
         dl.cell(target,2, d); dl.cell(target,2).number_format='dd-mmm-yyyy'
         dl.cell(target,3, MONTHS[d.month-1] and d.strftime('%a'))
-        dl.cell(target,6, f'=IFERROR(D{target}+E{target}+G{target},0)')
-        dl.cell(target,8, f"=SUMIFS({EXP}!$F$8:$F$500,{EXP}!$B$8:$B$500,\">=\"&B{target},{EXP}!$B$8:$B$500,\"<\"&(B{target}+1))")
+        dl.cell(target,6, f'=IFERROR(D{target}+E{target}+G{target}+U{target}+Y{target},0)')
+        dl.cell(target,8, f"=SUMIFS({EXP}!$F$8:$F$5000,{EXP}!$B$8:$B$5000,\">=\"&B{target},{EXP}!$B$8:$B$5000,\"<\"&(B{target}+1))")
         dl.cell(target,9, f'=IFERROR(F{target}-H{target},0)')
         dl.cell(target,10, f'=IFERROR(I{target}/F{target},0)')
         dl.cell(target,18, f'=IFERROR(D{target}*$T$7,0)'); dl.cell(target,18).number_format='$#,##0.00'
-        _copyfmt(dl, lastrow, target, range(2,13))
+        _copyfmt(dl, lastrow, target, range(2,29))
         dl.cell(target,2).number_format='dd-mmm-yyyy'
+        for cc in (18,21,22,25,26): dl.cell(target,cc).number_format='$#,##0.00'
     dl.cell(target,4, float(card)); dl.cell(target,5, float(cash)); dl.cell(target,7, float(transfer))
+    dl.cell(target,21, float(soft)); dl.cell(target,22, float(softcomm))
+    dl.cell(target,25, float(bbva)); dl.cell(target,26, float(bbvacomm))
     dl.cell(target,12,'Cierre via loka.py')
     wb.save(P)
-    return target, float(card)+float(cash)+float(transfer)
+    return target, float(card)+float(cash)+float(transfer)+float(soft)+float(bbva)
 
 def add_ledger(d, desc, spent=0, transferred=0, typ=None, status=None, notes='', do_backup=True):
     d = pdate(d)
@@ -122,6 +201,35 @@ def add_ledger(d, desc, spent=0, transferred=0, typ=None, status=None, notes='',
     ol.cell(t,7, f'=IF(F{new}>0,"Restaurant owes Lohith $"&TEXT(F{new},"#,##0"),IF(F{new}<0,"Lohith holds $"&TEXT(ABS(F{new}),"#,##0"),"Zero balance"))')
     wb.save(P)
     return new
+
+def cash_adjust_add(delta, reason):
+    """Append a delta to CFG['cash_adjust'] in this file and log the reason.
+
+    Use for anything that moves till cash but is NOT a Daily Log expense:
+      transfer-to-me      -> negative (cash went to Lohith, not the till)
+      owner-paid expense  -> positive (till never paid it; add back)
+      capital repayment   -> negative (cash left the restaurant)
+    """
+    import re as _re
+    src = open(__file__, encoding='utf-8').read()
+    m = _re.search(r'(cash_adjust=)(-?[\d.]+)(,\s*#[^\n]*)', src)
+    if not m: raise SystemExit('cash_adjust line not found')
+    old = float(m.group(2)); new = round(old + float(delta), 2)
+    note = m.group(3).rstrip()
+    stamp = f" | {date.today():%d-%b}: {'+' if float(delta)>=0 else ''}{float(delta):,.2f} {reason}"
+    src = src[:m.start()] + f"cash_adjust={new:.2f}" + note + stamp + src[m.end():]
+    open(__file__, 'w', encoding='utf-8', newline='\n').write(src)
+    # IMPORTANT: also update the value loaded in THIS process, otherwise a
+    # refresh_all() called afterwards in the same run recomputes cash with the
+    # stale figure (this overstated Cash on Hand by the transfer amount on 27-Jul).
+    CFG['cash_adjust'] = new
+    return old, new
+
+def refresh_all(do_backup=True):
+    """One-shot: P&L sync + dashboard + formula-cache injection."""
+    refresh_dashboard(do_backup=do_backup)
+    n = _inject_cache()
+    print(f'  cache injected into {n} cells')
 
 def compute():
     from collections import defaultdict
@@ -172,12 +280,25 @@ def main():
     a.add_argument('--paid', default='Restaurant'); a.add_argument('--method', default='Cash'); a.add_argument('--notes', default='')
     c = sub.add_parser('close-day')
     c.add_argument('--date', required=True); c.add_argument('--card', default=0); c.add_argument('--cash', default=0); c.add_argument('--transfer', default=0)
+    c.add_argument('--soft', default=0); c.add_argument('--softcomm', default=0)
+    c.add_argument('--bbva', default=0); c.add_argument('--bbvacomm', default=0)
+    c.add_argument('--bbvarate', default=0.019, type=float, help='if --bbvacomm omitted, comm = bbva*rate')
+    l = sub.add_parser('add-ledger')
+    l.add_argument('--date', required=True); l.add_argument('--desc', required=True)
+    l.add_argument('--spent', default=0); l.add_argument('--transferred', default=0)
+    l.add_argument('--typ', default=None); l.add_argument('--status', default=None); l.add_argument('--notes', default='')
+    ca = sub.add_parser('cash-adjust')
+    ca.add_argument('--delta', required=True); ca.add_argument('--reason', required=True)
     b = sub.add_parser('add-expenses-json'); b.add_argument('file')
     sub.add_parser('refresh-dashboard')
+    sub.add_parser('refresh-all')
+    sub.add_parser('inject-cache')
     sub.add_parser('refresh-pl')
     args = ap.parse_args()
     if args.cmd=='status': print(json.dumps(compute(), indent=2, ensure_ascii=False))
     elif args.cmd=='refresh-dashboard': refresh_dashboard()
+    elif args.cmd=='refresh-all': refresh_all()
+    elif args.cmd=='inject-cache': print(f'cache injected into {_inject_cache()} cells')
     elif args.cmd=='refresh-pl': print(refresh_pl())
     elif args.cmd=='backup': print(backup(args.label))
     elif args.cmd=='add-expense':
@@ -185,8 +306,15 @@ def main():
         print(f'added rows {a0}-{a1}')
     elif args.cmd=='add-expenses-json':
         n,a0,a1=add_expenses(json.load(open(args.file,encoding='utf-8'))); print(f'added {n} rows {a0}-{a1}')
+    elif args.cmd=='add-ledger':
+        r=add_ledger(args.date,args.desc,args.spent,args.transferred,args.typ,args.status,args.notes)
+        print(f'ledger row {r}')
+    elif args.cmd=='cash-adjust':
+        o,n=cash_adjust_add(args.delta,args.reason); print(f'cash_adjust {o} -> {n}')
     elif args.cmd=='close-day':
-        row,tot=close_day(args.date,args.card,args.cash,args.transfer); print(f'row {row} revenue {tot}')
+        bc = float(args.bbvacomm) or round(float(args.bbva)*float(args.bbvarate),2)
+        row,tot=close_day(args.date,args.card,args.cash,args.transfer,args.soft,args.softcomm,args.bbva,bc)
+        print(f'row {row} revenue {tot} (bbva comm {bc})')
     else: ap.print_help()
 # (entry point moved to end of file, after all helper defs)
 
@@ -196,8 +324,8 @@ DASH = r'C:\LOKA\dashboard.html'
 WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b6d4','#ec4899']
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
-    cash_anchor_date=date(2026,6,15), cash_anchor_amount=20283.0,
-    cash_adjust=-33578.00,              # -(Jun29 $10,000 withdrawal + transfers-to-Lohith $2,375 [Jun18..Jul22; incl Jul22 $260, Jul20 was $0] + Jun3 $178 reimbursement) + owner-paid-not-from-till add-back $1,562 (Jul13 $400 + Jul15 $195 + Jul17 $300 + Jul20 $433 + Jul22 Pollo $234) - $22,587 repaid to Capital from operating cash (Jul21 $20,000 + Jul22 $2,587). = -(12,553) + 1,562 - 22,587 = -33,578. MP commission auto-deducted per day.
+    cash_anchor_date=date(2026,7,26), cash_anchor_amount=15395.0,
+    cash_adjust=-700.00,                   # RESET 26-Jul-2026: full physical count of all cash forms (till + bank/card balances) = $15,395 became the new anchor. The fresh count absorbs ALL prior drift, the Jun29 withdrawal, transfers-to-Lohith, owner-paid add-backs, and the $22,587 Capital repayments. Start clean from here: only add NEW adjustments dated AFTER 26-Jul (transfers-to-Lohith, owner-paid expenses, capital repayments). MP commission auto-deducted per day. | 27-Jul: +0.00 automation smoke test | 27-Jul: -700.00 transfer-to-me 27-Jul | 27-Jul: +0.00 selftest neutral
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
     soft_commission_rate=0.0205,        # Soft Restaurant terminal (reference only; actual value stored per-day in col V)
     bbva_commission_rate=0.0190,        # BBVA terminal (reference only; actual value stored per-day in col Z)
@@ -245,8 +373,40 @@ def _gather():
     for r in range(4, ol.max_row+1):
         if str(ol.cell(r,1).value or '').startswith('TOTALS'): break
         spent+=float(ol.cell(r,4).value or 0); transferred+=float(ol.cell(r,5).value or 0)
+    # advance still owed by Operations to Capital (Capital & Ownership, Section K, C147)
+    try:
+        owe_capital = round(float(wb.worksheets[0]['C147'].value or 0), 2)
+    except Exception:
+        owe_capital = 0.0
+    # ---- partner capital positions (for the 3 ownership cards on the dashboard) ----
+    # These were hard-coded and went stale (Shashi showed "owes $1,105" long after a
+    # -$1,034 reimbursement had netted her to exactly her $120k budget).
+    partners = {}
+    try:
+        cp = wb.worksheets[0]
+        def _s(lo, hi):
+            return sum(float(cp.cell(r,4).value or 0) for r in range(lo,hi+1)
+                       if isinstance(cp.cell(r,4).value,(int,float)))
+        lo_b = float(cp.cell(6,4).value or 0)      # 300,000
+        ka_b = float(cp.cell(7,4).value or 0)      # 180,000
+        sh_b = float(cp.cell(8,4).value or 0)      # 120,000
+        ka_dep = float(cp.cell(42,4).value or 0) + _s(43,51)
+        sh_dep = float(cp.cell(71,4).value or 0) + _s(72,81)
+        # Lohith holds his own budget + what the other two transferred TO him
+        funds_in = lo_b + float(cp.cell(42,4).value or 0) + float(cp.cell(71,4).value or 0)
+        lo_remaining = funds_in - (_s(56,66) - float(cp.cell(56,4).value or 0)) \
+                       - _s(14,30) - owe_capital
+        partners = {
+            'Lohith Reddy':   dict(dep=round(funds_in-lo_remaining,2), other=round(lo_remaining,2),
+                                   base=funds_in),
+            'Kashigoud Patil':dict(dep=round(ka_dep,2), other=round(ka_b-ka_dep,2), base=ka_b),
+            'Shashirekha B.': dict(dep=round(sh_dep,2), other=round(sh_b-sh_dep,2), base=sh_b),
+        }
+    except Exception:
+        partners = {}
     return dict(days=days, ebd=ebd, capf_bd=capf_bd, soft_bd=soft_bd, softcomm_bd=softcomm_bd, bbva_bd=bbva_bd, bbvacomm_bd=bbvacomm_bd, cat_m=cat_m, inc_m=inc_m, dcount=dcount,
-                ol_spent=round(spent,2), ol_transferred=round(transferred,2), ol_balance=round(spent-transferred,2))
+                ol_spent=round(spent,2), ol_transferred=round(transferred,2), ol_balance=round(spent-transferred,2),
+                owe_capital=owe_capital, partners=partners)
 
 
 def _build_bars(days, xbd=None):
@@ -395,9 +555,14 @@ def refresh_dashboard(do_backup=True):
     net_allin=round(rev-exp-comm,2)       # bottom line after ALL expenses AND commission
     datestr=last_d.strftime('%a %d %b %Y')
     if do_backup:
-        import shutil, os
+        import shutil, os, glob as _glob
         bdir=r'C:\LOKA\Backup'; os.makedirs(bdir,exist_ok=True)
         shutil.copy(DASH, os.path.join(bdir, 'dashboard_'+datetime.now().strftime('%Y%m%d_%H%M%S')+'.html'))
+        # rotate: keep only the newest 15 dashboard snapshots (they used to pile up to 100+)
+        snaps=sorted(_glob.glob(os.path.join(bdir,'dashboard_*.html')), key=os.path.getmtime, reverse=True)
+        for old in snaps[15:]:
+            try: os.remove(old)
+            except OSError: pass
     s=open(DASH,encoding='utf-8').read()
     def sub(pat, repl, label, n=None):
         nonlocal s
@@ -424,8 +589,15 @@ def refresh_dashboard(do_backup=True):
     # owner ledger card + alert
     sub(r'(Spent personally</span><span class="sval" style="color:var\(--red\);">)\$[\d,]+', lambda m: m.group(1)+_money(g['ol_spent']), 'ledger spent')
     sub(r'(Transfers received</span><span class="sval" style="color:var\(--green\);">)\$[\d,]+', lambda m: m.group(1)+_money(g['ol_transferred']), 'ledger recv')
-    sub(r'(Restaurant owes Lohith</span><span class="sval"[^>]*>)\$[\d,]+', lambda m: m.group(1)+_money(g['ol_balance']), 'ledger bal')
-    sub(r'(Lohith Ledger</div><div class="aval">Restaurant owes )\$[\d,]+', lambda m: m.group(1)+_money(g['ol_balance']), 'ledger alert')
+    # ledger balance card + alert: the sign FLIPS (positive = restaurant owes Lohith,
+    # negative = Lohith is holding restaurant money), so both the label and the value
+    # must be rewritten, and the value shown as an absolute amount.
+    _olb = g['ol_balance']
+    _ollab = 'Restaurant owes Lohith' if _olb > 0 else ('Lohith holds' if _olb < 0 else 'Ledger settled')
+    sub(r'(<span class="slabel" style="color:var\(--accent\);">)(?:Restaurant owes Lohith|Lohith holds|Ledger settled)(</span><span class="sval"[^>]*>)\$-?[\d,]+',
+        lambda m: m.group(1)+_ollab+m.group(2)+_money(abs(_olb)), 'ledger bal')
+    sub(r'(Lohith Ledger</div><div class="aval">)(?:Restaurant owes|Lohith holds|Settled) \$-?[\d,]+',
+        lambda m: m.group(1)+('Restaurant owes' if _olb>0 else ('Lohith holds' if _olb<0 else 'Settled'))+' '+_money(abs(_olb)), 'ledger alert')
     # operations <-> capital (Section K) — commission + true bottom line
     _s3=lambda n: (f'+${n:,.0f}' if n>=0 else f'&minus;${abs(n):,.0f}')
     sub(r'(Card commissions \(MP\+BBVA\+Soft\)</span><span class="sval"[^>]*>)(?:&minus;)?\$[\d,]+', lambda m: m.group(1)+'&minus;'+_money(comm), 'ops comm')
@@ -436,6 +608,31 @@ def refresh_dashboard(do_backup=True):
                 f'<span class="sval" style="color:{col};font-size:.9rem;">{_s3(net_allin)}</span></div>')
     sub(r'<div class="stat-item" style="background:#[0-9a-fA-F]{6};padding:6px 8px;border-radius:6px;margin-top:5px;"><span class="slabel" style="color:var\(--(?:red|green)\);">Net after all exp &amp; commission</span><span class="sval" style="color:var\(--(?:red|green)\);font-size:.9rem;">(?:\+|&minus;)?\$[\d,]+</span></div>', _netitem, 'ops net-allin')
     sub(r'net after all exp &amp; comm (?:\+|&minus;)?\$[\d,]+', lambda m: 'net after all exp &amp; comm '+_s3(net_allin), 'banner net-allin')
+    # ---- partner ownership cards: were HARD-CODED and went stale (Shashi still showed
+    # "owes $1,105" long after a -$1,034 reimbursement netted her to her exact $120k).
+    # Now driven straight off the Capital sheet.
+    def _owncard(m):
+        card = m.group(0)
+        nm = re.search(r'<div class="oname">([^<]+)</div>', card)
+        if not nm or nm.group(1) not in g.get('partners', {}): return card
+        p = g['partners'][nm.group(1)]
+        pct = max(0.0, min(100.0, (p['dep']/p['base']*100) if p['base'] else 0))
+        card = re.sub(r'(<div class="own-bar" style="width:)[\d.]+(%)',
+                      lambda x: x.group(1)+f'{pct:.1f}'+x.group(2), card)
+        it = iter([_money(p['dep']), _money(abs(p['other']))])   # row1 deployed, row2 owes/remaining
+        card = re.sub(r'(<div class="ov"(?: style="[^"]*")?>)\$[\d,]+(</div>)',
+                      lambda x: x.group(1)+next(it, x.group(0)[len(x.group(1)):-len(x.group(2))])+x.group(2), card)
+        return card
+    sub(r'<div class="own-card">.*?</div></div></div>', _owncard, 'partner cards', 3)
+    # --- net CASH POSITION (balance-sheet view): cash held minus what operations owes ---
+    net_cash_pos = round(cash - g['owe_capital'] - g['ol_balance'], 2)
+    sub(r'Ops owe capital \$[\d,]+', lambda m: 'Ops owe capital '+_money(g['owe_capital']), 'banner ops-owe')
+    def _ncp(m):
+        pos = net_cash_pos>=0; col='var(--green)' if pos else 'var(--red)'
+        return m.group(1)+f'<div style="font-size:.85rem;font-weight:700;color:{col}">'+_s3(net_cash_pos)+'</div>'
+    sub(r'(Net Cash Position</div>)<div[^>]*>(?:\+|&minus;)?\$[\d,]+</div>', _ncp, 'banner net-cash-pos')
+    sub(r'(Net Cash Position[^<]*</span><span class="sval"[^>]*>)(?:\+|&minus;)?\$[\d,]+',
+        lambda m: m.group(1)+_s3(net_cash_pos), 'ops net-cash-pos')
     # --- block regens ---
     xbd={d: soft_bd.get(d,0.0)+bbva_bd.get(d,0.0) for d in set(soft_bd)|set(bbva_bd)}  # extra card revenue (Soft+BBVA) per day
     bars=_build_bars(days, xbd)
@@ -493,8 +690,8 @@ def refresh_pl(do_backup=True):
     # date-range criteria builder for a sheet/col
     def rng(sheet,col,m):
         y,mo=m; ny,nm=nextm(m)
-        return (f'{sheet}!${col}$8:${col}$500,{sheet}!$B$8:$B$500,">="&DATE({y},{mo},1),'
-                f'{sheet}!$B$8:$B$500,"<"&DATE({ny},{nm},1)')
+        return (f'{sheet}!${col}$8:${col}$5000,{sheet}!$B$8:$B$5000,">="&DATE({y},{mo},1),'
+                f'{sheet}!$B$8:$B$5000,"<"&DATE({ny},{nm},1)')
     return _write_pl(wb, pl, months, cats, label, ncol, DLN, EXN, rng, P)
 
 
@@ -542,7 +739,7 @@ def _write_pl(wb, pl, months, cats, label, ncol, DLN, EXN, rng, Ppath):
     for j in range(len(months)): cel(r,2+j,f'={COL(j)}{R_INC}-{COL(j)}{R_EXP}',font=BOLD,fmt=MONEY)
     r+=1
     R_DAYS=r; cel(r,1,'Trading Days')
-    for j,m in enumerate(months): cel(r,2+j,f'=COUNTIFS({DLN}!$F$8:$F$500,">0",'+rng(DLN,"F",m).split(",",1)[1]+')',fmt=INTF)
+    for j,m in enumerate(months): cel(r,2+j,f'=COUNTIFS({DLN}!$F$8:$F$5000,">0",'+rng(DLN,"F",m).split(",",1)[1]+')',fmt=INTF)
     r+=1
     cel(r,1,'Avg Income / Day')
     for j in range(len(months)): cel(r,2+j,f'=IFERROR({COL(j)}{R_INC}/{COL(j)}{R_DAYS},0)',fmt=MONEY)
@@ -560,7 +757,7 @@ def _write_pl(wb, pl, months, cats, label, ncol, DLN, EXN, rng, Ppath):
     for cat in cats:
         cel(r,1,cat)
         for j,m in enumerate(months):
-            crit=f'{EXN}!$F$8:$F$500,{EXN}!$E$8:$E$500,$A{r},{EXN}!$B$8:$B$500,">="&DATE({m[0]},{m[1]},1),{EXN}!$B$8:$B$500,"<"&DATE({(m[0]+1) if m[1]==12 else m[0]},{1 if m[1]==12 else m[1]+1},1)'
+            crit=f'{EXN}!$F$8:$F$5000,{EXN}!$E$8:$E$5000,$A{r},{EXN}!$B$8:$B$5000,">="&DATE({m[0]},{m[1]},1),{EXN}!$B$8:$B$5000,"<"&DATE({(m[0]+1) if m[1]==12 else m[0]},{1 if m[1]==12 else m[1]+1},1)'
             cel(r,2+j,f'=SUMIFS({crit})',fmt=MONEY)
         r+=1
     R_TEXP=r; cel(r,1,'TOTAL EXPENSES',font=BOLD)
