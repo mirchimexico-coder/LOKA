@@ -18,6 +18,9 @@ echo   5.  Open the workbook (Excel)
 echo   6.  Health check
 echo   7.  Refresh dashboard only
 echo.
+echo   8.  Teach a category  (fix anything it didn't recognise)
+echo   9.  Show what I've taught it
+echo.
 echo   0.  Exit
 echo.
 set /p c="Choose: "
@@ -29,7 +32,17 @@ if "%c%"=="4" start "" "C:\LOKA\dashboard.html" & goto menu
 if "%c%"=="5" start "" "C:\LOKA\LOKA_Restaurant_Manager.xlsx" & goto menu
 if "%c%"=="6" goto doctor
 if "%c%"=="7" %PY% loka.py refresh-all & pause & goto menu
+if "%c%"=="8" goto teach
+if "%c%"=="9" %PY% teach.py --list & pause & goto menu
 if "%c%"=="0" exit
+goto menu
+
+:teach
+%PY% teach.py
+echo.
+echo   (choose 'A' below to add another word by hand, or press Enter to go back)
+set /p more="   A = add another, Enter = back: "
+if /i "%more%"=="A" %PY% teach.py --add & pause
 goto menu
 
 :edit

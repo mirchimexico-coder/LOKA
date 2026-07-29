@@ -152,8 +152,25 @@ DEPLOYED + AVAILABLE == 600,000
 py eod.py today.txt              # PREVIEW a whole day from Reddy's plain-text format
 py eod.py today.txt --apply      # do it all: expenses + daily row + ledger + cash-adjust + refresh
 py doctor.py                     # full health check, ALL_CLEAR or FAIL lines
+py teach.py                      # teach it a category it didn't recognise
+py teach.py --list               # show learned rules
 LOKA.bat                         # menu for Reddy (no commands to remember)
 ```
+
+### Auto-categorisation & learned rules
+`eod.py` guesses category + vendor from the item text. Order of precedence:
+1. **`categories.json`** — rules Reddy taught via `teach.py` (longest keyword first). These
+   ALWAYS win, so this is also how he corrects a wrong guess.
+2. Supermarket store names (prefix match: `sam` hits "Sams", "Sam's").
+3. Utensils/tableware — **disposable → Packaging/Disposables**, **reusable → Kitchen
+   Supplies**; decided by markers like `desechable/plast/reyma/unicel/termico`.
+4. `KEYWORD_CAT` keyword table.
+5. Fallback `Supplies/Other` = `eod.UNKNOWN`, and the preview FLAGS it as `?? not recognised`.
+
+**Plural gotcha (bit us twice):** short keywords are matched with a word boundary to avoid
+substring collisions (`res` inside `tres b`), but that broke plurals — `vaso` didn't match
+`vasos`, `sam` didn't match `sams`. Now allows `(e)?s` (Spanish adds -es after a consonant:
+`sarten`→`sartenes`). If a category "sometimes works", suspect the plural rule.
 **`eod.py` is the default answer for a routine day.** Paste Reddy's message into
 `today.txt`, run the preview, show him the plan, then `--apply`. It handles
 auto-categorisation, both transfer types, owner-paid items, salaries, Sunday

@@ -64,20 +64,60 @@ def _norm(s):
     s=unicodedata.normalize('NFKD',s).encode('ascii','ignore').decode().lower()
     return re.sub(r'\s+',' ',s).strip()
 
+# ---------- learned rules (things Reddy has taught it) ----------
+RULES_PATH = r'C:\LOKA\categories.json'
+CATEGORIES = [
+ 'Ingredients - Vegetables','Ingredients - Meat','Ingredients - Meat & Fish',
+ 'Ingredients - Pantry','Ingredients - Bread','Ingredients - Dairy',
+ 'Ingredients - Beverages','Ingredients - Fruit','Ingredients - Eggs',
+ 'Ingredients - Other','Ingredients - Desserts',
+ 'Staff - Salary','Staff - Advance','Staff - Propinas',
+ 'Supermarket/General','Kitchen Supplies','Packaging/Disposables','Supplies/Other',
+ 'Utilities/Internet','Utilities/Gas','Software/Subscription',
+ 'Rent','Office Supplies','Maintenance',
+]
+def load_rules():
+    try:
+        with open(RULES_PATH, encoding='utf-8') as f:
+            return json.load(f)
+    except Exception:
+        return {}
+def save_rule(keyword, category):
+    r = load_rules(); r[_norm(keyword)] = category
+    with open(RULES_PATH,'w',encoding='utf-8',newline='\n') as f:
+        json.dump(r, f, ensure_ascii=False, indent=2, sort_keys=True)
+    return r
+
+UNKNOWN = 'Supplies/Other'   # what guess_cat returns when it has no idea
+
 def guess_cat(desc):
     d=_norm(desc)
+    # 1) anything Reddy has taught wins outright (longest keyword first = most specific)
+    for k in sorted(load_rules(), key=len, reverse=True):
+        if k and k in d: return load_rules()[k]
     # supermarket names win first (a store name shouldn't be guessed from its letters).
     # prefix match (no trailing boundary) so "sams"/"sam's" and misspellings still hit.
     for k in ('sam','costco','chedraui','chedruai','chedrahui','h-e-b','heb','walmart',
               'soriana','tres b','3b','bodega','city market','la comer','smart'):
         if re.search(rf'(?<![a-z]){re.escape(k)}', d): return 'Supermarket/General'
+    # utensils / tableware: DISPOSABLE (for customers) vs REUSABLE (kitchen tools).
+    # Both are called "utensils" in conversation, but they are different lines.
+    UTENSIL = ('utensil','utensilio','cubierto','cuchillo','cuchara','tenedor','plato',
+               'vaso','taza','charola','bandeja','coladera','colador','sarten','olla',
+               'tabla','pinza','espatula','cucharon','batidor','rallador','tupper')
+    # Spanish plurals add -s after a vowel but -es after a consonant
+    # (vaso->vasos, sarten->sartenes, colador->coladores), so allow (e)?s
+    if any(re.search(rf'(?<![a-z]){re.escape(k)}(?:e?s)?(?![a-z])', d) for k in UTENSIL):
+        DISPOSABLE = ('desechable','plast','reyma','unicel','biocup','papel','carton',
+                      'termico','poliseda','dart')
+        return 'Packaging/Disposables' if any(x in d for x in DISPOSABLE) else 'Kitchen Supplies'
     for keys,cat in KEYWORD_CAT:
         for k in keys:
             kn=_norm(k)
             # short keywords must match as whole words to avoid substring collisions
-            # (e.g. 'res' inside 'tres b', 'gas' inside 'gaseosa')
+            # (e.g. 'res' inside 'tres b'), but ALLOW a plural 's' -> 'vaso' matches 'vasos'
             if len(kn)<=4:
-                if re.search(rf'(?<![a-z]){re.escape(kn)}(?![a-z])', d): return cat
+                if re.search(rf'(?<![a-z]){re.escape(kn)}s?(?![a-z])', d): return cat
             elif kn in d:
                 return cat
     return 'Supplies/Other'
@@ -175,9 +215,15 @@ def build(d):
     plan.append(f"  commissions   : MP auto {d['mp']*0.0406:,.2f} | BBVA {d['bbvacomm']:,.2f} | Soft {d['softcomm']:,.2f}")
     if d['mpcomm_note']: plan.append(f"  (you wrote MP commission {d['mpcomm_note']:,.2f} - MP col is auto-calculated, informational only)")
     plan.append(f"EXPENSES        : {exp:,.2f}  ({len(rows)} rows)")
+    unsure=0
     for r in rows:
         flag=' [PAID BY YOU]' if r['paid']=='Lohith' else ''
-        plan.append(f"    {r['amount']:>9,.2f}  {r['desc'][:34]:<34} {r['cat']:<26} {r['vendor']}{flag}")
+        mark='  <-- ?? not recognised' if r['cat']==UNKNOWN else ''
+        if mark: unsure+=1
+        plan.append(f"    {r['amount']:>9,.2f}  {r['desc'][:34]:<34} {r['cat']:<26} {r['vendor']}{flag}{mark}")
+    if unsure:
+        plan.append(f"    ^^ {unsure} item(s) could not be categorised - they will go to '{UNKNOWN}'.")
+        plan.append(f"       Use menu option 8 (Teach a category) to fix this permanently.")
     plan.append(f"DAY NET         : {rev-exp:,.2f}")
     if d['t_me']:
         plan.append(f"LEDGER          : + transfer received {d['t_me']:,.2f}  (cash-adjust -{d['t_me']:,.2f})")

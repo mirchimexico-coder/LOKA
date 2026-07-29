@@ -57,6 +57,37 @@ it is a 10-second fix and nothing breaks.
 | 5 | Open the workbook in Excel |
 | 6 | **Health check** — run this any time you're unsure |
 | 7 | Refresh dashboard only |
+| 8 | **Teach a category** — fix anything it didn't recognise |
+| 9 | Show everything you've taught it |
+
+---
+
+## WHEN IT DOESN'T RECOGNISE SOMETHING (menu 8)
+
+The preview flags anything it couldn't work out:
+
+```
+    340.00  Mantel para mesa    Supplies/Other    No bill  <-- ?? not recognised
+    ^^ 1 item(s) could not be categorised - they will go to 'Supplies/Other'.
+```
+
+**Press 8.** It walks you through each unrecognised item:
+
+1. It shows the item and asks which word to remember (press Enter to use the item name)
+2. It lists the categories — type the number
+3. Done. It's remembered **forever**
+
+Then press **2** (preview) again and it will be filed correctly.
+
+**It only asks once per word.** Teach it "servilletero" today and every future servilletero
+is categorised automatically. Press **9** any time to see everything you've taught it.
+
+You can also press 8 then **A** to add a word by hand, without waiting for it to come up
+in a day's entry — useful if you know a new supplier or item is coming.
+
+Everything you teach lives in `categories.json`. Your rules always win over the built-in
+guesses, so this is also how you **correct** something it gets wrong: teach it the right
+answer and it will never make that mistake again.
 
 ---
 
