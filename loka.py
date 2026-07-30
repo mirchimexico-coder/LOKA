@@ -325,7 +325,7 @@ WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
     cash_anchor_date=date(2026,7,26), cash_anchor_amount=15395.0,
-    cash_adjust=-434.00,                   # RESET 26-Jul-2026: full physical count of all cash forms (till + bank/card balances) = $15,395 became the new anchor. The fresh count absorbs ALL prior drift, the Jun29 withdrawal, transfers-to-Lohith, owner-paid add-backs, and the $22,587 Capital repayments. Start clean from here: only add NEW adjustments dated AFTER 26-Jul (transfers-to-Lohith, owner-paid expenses, capital repayments). MP commission auto-deducted per day. | 27-Jul: +0.00 automation smoke test | 27-Jul: -700.00 transfer-to-me 27-Jul | 27-Jul: +0.00 selftest neutral | 28-Jul: -130.00 transfer-to-me 28-Jul | 28-Jul: +396.00 owner-paid 28-Jul
+    cash_adjust=-579.00,                   # RESET 26-Jul-2026: full physical count of all cash forms (till + bank/card balances) = $15,395 became the new anchor. The fresh count absorbs ALL prior drift, the Jun29 withdrawal, transfers-to-Lohith, owner-paid add-backs, and the $22,587 Capital repayments. Start clean from here: only add NEW adjustments dated AFTER 26-Jul (transfers-to-Lohith, owner-paid expenses, capital repayments). MP commission auto-deducted per day. | 27-Jul: +0.00 automation smoke test | 27-Jul: -700.00 transfer-to-me 27-Jul | 27-Jul: +0.00 selftest neutral | 28-Jul: -130.00 transfer-to-me 28-Jul | 28-Jul: +396.00 owner-paid 28-Jul | 29-Jul: -205.00 transfer-to-me 29-Jul | 29-Jul: +60.00 owner-paid 29-Jul
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
     soft_commission_rate=0.0205,        # Soft Restaurant terminal (reference only; actual value stored per-day in col V)
     bbva_commission_rate=0.0190,        # BBVA terminal (reference only; actual value stored per-day in col Z)
@@ -368,6 +368,15 @@ def _gather():
         k=(dd.year,dd.month); inc_m[k]['Card']+=ca+sf+bb; inc_m[k]['Cash']+=cs; inc_m[k]['Transfer']+=tf
         if ca+cs+tf+sf+bb>0: dcount[k]+=1
     days.sort()
+    # --- closed-day expenses (Sundays) must still reduce cash -------------------
+    # Sundays have expenses (the weekly shop) but NO Daily Log row, so their spend
+    # was never subtracted in the cash roll -> Cash on Hand came out overstated.
+    # Add a zero-revenue synthetic day for any expense date with no Daily Log row.
+    _dlseen = {d for d,_,_,_,_ in days}
+    orphan_dates = sorted(d for d in ebd if d not in _dlseen and ebd.get(d,0.0))
+    for d in orphan_dates:
+        days.append((d, 0.0, 0.0, 0.0, round(ebd.get(d,0.0),2)))
+    days.sort()
     # owner ledger balance (raw sums)
     ol = wb[OWNER]; spent=transferred=0.0
     for r in range(4, ol.max_row+1):
@@ -406,7 +415,7 @@ def _gather():
         partners = {}
     return dict(days=days, ebd=ebd, capf_bd=capf_bd, soft_bd=soft_bd, softcomm_bd=softcomm_bd, bbva_bd=bbva_bd, bbvacomm_bd=bbvacomm_bd, cat_m=cat_m, inc_m=inc_m, dcount=dcount,
                 ol_spent=round(spent,2), ol_transferred=round(transferred,2), ol_balance=round(spent-transferred,2),
-                owe_capital=owe_capital, partners=partners)
+                owe_capital=owe_capital, partners=partners, orphan_dates=orphan_dates)
 
 
 def _build_bars(days, xbd=None):
@@ -537,7 +546,13 @@ def refresh_dashboard(do_backup=True):
     bbva_bd=g['bbva_bd']; bbvacomm_bd=g['bbvacomm_bd']; bbva_total=round(sum(bbva_bd.values()),2)
     bbva_comm=round(sum(bbvacomm_bd.values()),2)   # actual BBVA commission (user-provided per day)
     rev=sum(c+k+t for _,c,k,t,_ in days)+soft_total+bbva_total; exp=round(sum(g['ebd'].values()),2)
-    net=round(rev-exp,2); netrent=round(net+20000,2)
+    net=round(rev-exp,2)
+    # Operating Net = trading result, adding back only the operating costs STILL funded by
+    # Capital (Section K C147). Was hard-coded +20,000 (the Jul-5 rent), but Operations has
+    # since repaid $22,587 of the advance out of trading cash -- once repaid, the business
+    # HAS borne that cost, so adding the full amount back overstated the result.
+    # Deriving it from C147 means every repayment lowers this automatically.
+    netrent=round(net + g['owe_capital'], 2)
     trading=sum(1 for _,c,k,t,_ in days if c+k+t>0)
     card=sum(d[1] for d in days)
     rate=CFG['commission_rate']
@@ -581,6 +596,9 @@ def refresh_dashboard(do_backup=True):
         lambda m: m.group(1)+_money(rev)+m.group(2)+str(trading)+m.group(3), 'kpi rev')
     sub(r'(<div class="klabel">Total Expenses</div><div class="kval">)\$[\d,]+', lambda m: m.group(1)+_money(exp), 'kpi exp')
     sub(r'(<div class="klabel">Operating Net</div><div class="kval">)[+\-]?\$[\d,]+', lambda m: m.group(1)+_signed(netrent), 'kpi net')
+    # keep the little grey descriptor under Operating Net honest about WHAT is excluded
+    sub(r'(<div class="klabel">Operating Net</div><div class="kval">[+\-]?\$[\d,]+</div><div style="font-size:\.66rem;color:var\(--muted\);">)[^<]*',
+        lambda m: m.group(1)+f'excl. {_money(g["owe_capital"])} still owed to Capital', 'kpi net note')
     sub(r'(MP Commission</div><div class="kval">)\$[\d,]+', lambda m: m.group(1)+_money(comm), 'kpi comm')
     sub(r'(<div class="alabel">)[^<]+(</div><div class="aval">)Rev [^<]+',
         lambda m: m.group(1)+last_d.strftime('%a %d %b')+m.group(2)+f'Rev {_money(last_rev)} &mdash; Exp {_money(le)} &mdash; Net {_signed(last_net)}', 'daily alert')

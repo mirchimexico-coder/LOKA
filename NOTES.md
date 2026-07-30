@@ -296,7 +296,7 @@ that looks wrong. Those are listed in HOWTO.md §"THINGS ONLY YOU CAN DECIDE".
 14. **`refresh-all` must be idempotent.** After any change to a `sub()` rule, run it TWICE
     and confirm zero WARNs both times.
 15. **Hard-coded dashboard cards go stale silently — this is the biggest class of dashboard
-    bug.** The 3 partner ownership cards were hand-maintained. Shashirekha's still read
+    bug.** Shashirekha's still read
     "Deployed $118,895 / Owes Lohith $1,105" long after the -$1,034 reimbursement (Section E
     row 81) had netted her to her exact $120,000 budget, i.e. **owes $0**. Lohith's was also
     stale ($112,573 vs the true $109,206). Kashi's happened to be right. All three now
@@ -306,6 +306,22 @@ that looks wrong. Those are listed in HOWTO.md §"THINGS ONLY YOU CAN DECIDE".
       - Kashi / Shashi: deployed = their transfer + their direct spend; owes = budget − deployed
     **Any tile showing money must be traced to a workbook cell.** If it can't be, it will
     drift. When Reddy reports "this tile is wrong", check for a hard-coded value first.
+16. **CLOSED-DAY (Sunday) EXPENSES MUST STILL REDUCE CASH.** Sundays are shut, so there is
+    NO Daily Log row — but there IS a weekly shop in the Expenses sheet. The cash roll walked
+    Daily Log rows only, so that spending was never subtracted and **Cash on Hand came out
+    overstated**. (Found 29-Jul by Reddy asking "Sunday expenses aren't in the Daily Log — is
+    that intentional?". It wasn't.) Fixed in `_gather`: after building `days`, any expense
+    date with no Daily Log row gets a synthetic zero-revenue entry (`orphan_dates`).
+    - It happened to cost nothing: the only two affected dates (05-Jul rent $20k paid from
+      Capital, 26-Jul shop $3,067) were on/before the 26-Jul physical count, which absorbed them.
+    - This also fixed the WEEKLY totals, which understated expenses on weeks with a Sunday shop.
+    - `dcount`/`trading` are computed BEFORE the synthetic rows are appended, so trading-day
+      counts and break-even stay correct (closed days must not count as trading days).
+    - Side effect (correct, not a bug): closed days now appear in the daily bar chart with
+      $0 revenue and a red net.
+    - Convention going forward: **Sunday = expenses only, NO Daily Log row.** `eod.py` does
+      this automatically when all the revenue lines are 0. Note May/June Sundays DO have
+      zero-revenue Daily Log rows (old convention) — both styles now work, nothing to clean.
 
 ---
 
@@ -323,39 +339,53 @@ Break-Even card, Pending Income alert.
 **Partner ownership cards ARE now auto-refreshed** (fixed 27-Jul — see lesson 15).
 
 ### Two different "net" figures — don't conflate (Reddy asked about this)
-- **Net after all exp & commission** = P&L: `revenue − expenses − commission`.
-  Still carries the ONE-TIME $20,000 rent funded from capital.
+- **Net after all exp & commission** = P&L bottom line: `revenue − expenses − commission`.
+  Carries everything, including capital-funded costs.
+- **Operating Net** (`netrent`, the blue KPI) = `revenue − expenses + C147`, i.e. it adds back
+  only the operating costs **still funded by Capital**. Capital originally funded $39,314.81
+  of operating cost (ledger settlement $19,314.81 + Jul-5 rent $20,000); Operations has
+  repaid $22,587 out of trading cash, leaving $16,727.81. **Once repaid, the business HAS
+  borne that cost**, so it must NOT be added back — this used to be a hard-coded `+20000`
+  and overstated Operating Net by $3,272. Now derived from C147, so every repayment lowers
+  it automatically and it reaches the true P&L result when the advance hits zero.
+  The grey descriptor under the KPI is rewritten too ("excl. $X still owed to Capital").
 - **Net Cash Position** = balance sheet: `cash − Capital advance (C147) − Owner Ledger`.
-- **opnet** (console) = operating net EXCLUDING that one-time $20k rent.
 
 ---
 
-## 10. STATE AS OF 27-JUL-2026 (end of day)
+## 10. STATE AS OF 29-JUL-2026 (end of day)
 
 | Metric | Value |
 |---|---|
 | Cash anchor | **26-Jul-2026 = $15,395** (physical count, all forms incl. bank) |
-| `cash_adjust` | **-700.00** (27-Jul transfer-to-me; was reset to 0 at the count) |
-| All-time revenue | $253,931 |
-| All-time expenses | $250,770 |
-| Card commissions | $4,636 |
-| Net after all exp & comm | **-$1,475** |
-| Operating net (excl. $20k rent) | **+$23,161** |
-| **Net Cash Position** | **+$724** |
-| **Cash on Hand** | **$16,902** |
+| `cash_adjust` | **-579.00** (transfers-to-me less owner-paid add-backs since the count) |
+| All-time revenue | $263,301 |
+| All-time expenses | $253,769 |
+| Card commissions | $4,873 |
+| Net after all exp & comm | **+$4,659** |
+| Operating Net (excl. advance still owed) | **+$26,259** |
+| **Net Cash Position** | **+$6,859** |
+| **Cash on Hand** | **$23,158** |
 | Operations owe Capital (C147) | $16,727.81 |
-| Owner Ledger | **Lohith HOLDS $549.50** (negative balance — first time it flipped) |
+| Owner Ledger | **Lohith holds $428.50** |
 | Acquisition unpaid (D31) | $2,235 |
 | Kashi still to transfer (F100) | $18,431.66 |
-| Pooled: deployed / available | ties to $600,000 |
-| Last Daily Log row | **74 = 27-Jul** |
-| Last Expenses row | **548** |
-| P&L categories | 24 (was 28 before the 27-Jul merge) |
+| Last Daily Log row | **76 = 29-Jul** |
+| Last Expenses row | **558** |
+| Trading days | 65 (May 25 + Jun 26 + Jul 14) |
+| P&L categories | 24 |
 | Propinas slots used | 21 of 30 (rows 63–92) — extend at ~3 left |
 
+### Cash verified from the count forward (29-Jul, at Reddy's request)
+`15,395 count + 11,515 taken in (cards+cash) − 281.10 commissions − 3,471 restaurant-paid
+expenses = 23,157.90` = the dashboard figure. Transfers-to-Lohith ($1,035) and his
+out-of-pocket spend ($456) are deliberately outside this and sit on the Owner Ledger.
+**When re-deriving cash by hand, pick ONE convention:** either subtract till-only expenses
+and ignore the owner-paid add-back, or subtract all expenses and apply it. Doing both
+double-counts by the owner-paid amount (I made exactly that slip and was $456 high).
+
 ### 27-Jul was the first day entered via `eod.py` end-to-end
-It exposed bugs 11–13 above. Verified afterwards by independent recompute from raw cells:
-revenue, expenses, commission, cash, ledger and Capital all reconcile. `doctor.py` = ALL CLEAR.
+It exposed bugs 11–13. Verified by independent recompute from raw cells.
 
 ### Open / on the horizon
 - Propinas table fills around late Aug — extend rows + SUM range then.
