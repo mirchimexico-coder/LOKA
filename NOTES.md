@@ -154,8 +154,31 @@ py eod.py today.txt --apply      # do it all: expenses + daily row + ledger + ca
 py doctor.py                     # full health check, ALL_CLEAR or FAIL lines
 py teach.py                      # teach it a category it didn't recognise
 py teach.py --list               # show learned rules
-LOKA.bat                         # menu for Reddy (no commands to remember)
+py tools.py report               # week / month / all-time summary
+py tools.py recount              # re-anchor cash to a physical count
+py tools.py repay                # money paid back to Capital
+py tools.py tips                 # propinas (pass-through, not P&L)
+py tools.py settle               # settle the Owner Ledger
+py tools.py restore              # UNDO - roll back to a backup
+py scan.py [file|folder]         # read receipt photos LOCALLY (Windows built-in OCR)
+LOKA.bat                         # menu for Reddy (options 1-17)
 ```
+`tools.py` exists so Reddy no longer needs a session for the recurring jobs
+(cash counts, capital repayments, tips, ledger settlement, undo). Each one prints
+what it will do and asks to confirm, backs up first, and refreshes afterwards.
+
+### Local receipt OCR (`scan.py` + `ocr_win.ps1`)
+Windows 11 ships `Windows.Media.Ocr` — no install, no internet, nothing uploaded.
+`ocr_win.ps1` is the WinRT bridge; `scan.py` converts HEIC→PNG (pillow-heif),
+upscales/sharpens, then parses vendor / date / total and reports a CONFIDENCE.
+- Default drop folder: `Bills\_DROP_BILLS_HERE` (menu 16/17).
+- **Key quirk:** Windows OCR often returns the LABEL column and the NUMBER column as
+  separate blocks (`TOTAL` … then `1,481.45` several lines later). `find_total` handles
+  both same-line and column-offset layouts — without that it degraded to LOW confidence.
+- Only `en-US` is installed; adding the Spanish language pack in Windows Settings
+  improves accented words (numbers are unaffected).
+- Limits: reads the TOTAL, not line items; two receipts in one photo read as one.
+  For itemised breakdowns, still a Claude job.
 
 ### Auto-categorisation & learned rules
 `eod.py` guesses category + vendor from the item text. Order of precedence:
@@ -322,6 +345,14 @@ that looks wrong. Those are listed in HOWTO.md §"THINGS ONLY YOU CAN DECIDE".
     - Convention going forward: **Sunday = expenses only, NO Daily Log row.** `eod.py` does
       this automatically when all the revenue lines are 0. Note May/June Sundays DO have
       zero-revenue Daily Log rows (old convention) — both styles now work, nothing to clean.
+17. **Never write a SECOND implementation of the maths.** `compute()` (the `status` command)
+    was a parallel copy that read only MP/cash/transfer — it **ignored the Soft and BBVA
+    cards entirely**, understating all-time revenue by **$25,780** ($237,521 vs the correct
+    $263,301), and still used the hard-coded `+20000`. Nobody noticed because the dashboard
+    used `_gather()` and was right. Found 29-Jul during a full review. `compute()` now
+    delegates to `_gather()`. **Rule: `_gather()` is the single source of truth — if a
+    figure is computed anywhere else, it WILL drift.** (Same root cause as `_build_bars`
+    and `_build_weeks` omitting Soft/BBVA earlier.)
 
 ---
 

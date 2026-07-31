@@ -59,6 +59,51 @@ it is a 10-second fix and nothing breaks.
 | 7 | Refresh dashboard only |
 | 8 | **Teach a category** — fix anything it didn't recognise |
 | 9 | Show everything you've taught it |
+| 10 | **Report** — this week / this month / all time |
+| 11 | **Record propinas** (card tips handed to staff) |
+| 12 | **Cash count** — re-anchor to what you physically counted |
+| 13 | **Money paid back to Capital** |
+| 14 | **Settle the owner ledger** with you |
+| 15 | **UNDO** — restore an earlier backup |
+| 16 | **Scan receipt photos** — reads them on this PC |
+| 17 | Open the receipts drop folder |
+
+---
+
+## READING RECEIPTS (menu 16)
+
+1. Press **17** — the drop folder opens
+2. Copy your receipt photos in (iPhone HEIC works, no conversion needed)
+3. Press **16**
+
+It reads each photo and tells you the vendor, date and total, with a **confidence**:
+
+| | |
+|---|---|
+| **HIGH** | it found a line actually labelled "TOTAL" — trust it, but still glance |
+| **MEDIUM** | it used the card/cash line instead — check it |
+| **LOW** | it guessed the biggest number — **always check this one** |
+
+It also prints a line you can paste straight into `today.txt`.
+
+**This all runs on your PC.** Nothing is uploaded, no internet, no account, nothing to
+install — it uses the OCR that is already part of Windows.
+
+**Two honest limits:**
+- **Never enter a number you haven't seen with your own eyes.** OCR misreads faded thermal
+  paper and creased receipts. The confidence label tells you when to look harder.
+- **It reads the total, not the line items.** For a receipt you want broken down by item,
+  that is still a Claude job.
+
+Better photos = better reads: flat, straight on, good light, whole receipt in frame.
+**If a photo has two receipts side by side, it reads them as one** — photograph them
+separately.
+
+Options 10–15 used to need a Claude session. Each one shows you what it will do and asks
+you to confirm, takes a backup first, and refreshes everything afterwards.
+
+**Option 15 (UNDO) is your safety net.** It lists the last 15 backups with dates, and backs
+up the current state before restoring — so even an undo is undoable.
 
 ---
 

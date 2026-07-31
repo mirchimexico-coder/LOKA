@@ -232,56 +232,42 @@ def refresh_all(do_backup=True):
     print(f'  cache injected into {n} cells')
 
 def compute():
-    """Summary for the `status` command.
-
-    Delegates to _gather() ON PURPOSE. This used to be a second, parallel
-    implementation that read only MP/cash/transfer -- it silently ignored the Soft
-    and BBVA cards and understated all-time revenue by $25,780, and it still used a
-    hard-coded +20000 for the rent add-back. Never re-implement the maths here.
-    """
-    g = _gather()
-    days = g['days']
-    soft_t = round(sum(g['soft_bd'].values()), 2)
-    bbva_t = round(sum(g['bbva_bd'].values()), 2)
-    rev = round(sum(c+k+t for _,c,k,t,_ in days) + soft_t + bbva_t, 2)
-    exp = round(sum(g['ebd'].values()), 2)
-    comm = round(sum(c for _,c,_,_,_ in days)*CFG['commission_rate']
-                 + sum(g['softcomm_bd'].values()) + sum(g['bbvacomm_bd'].values()), 2)
-    trading = sum(1 for _,c,k,t,_ in days if c+k+t > 0)
-    # cash on hand, exactly as refresh_dashboard computes it
-    A = CFG['cash_anchor_date']
-    roll = sum((c+k+t)-(e-g['capf_bd'].get(d,0.0)) for d,c,k,t,e in days if d > A)
-    soft_p = round(sum(v for dd,v in g['soft_bd'].items() if dd > A), 2)
-    bbva_p = round(sum(v for dd,v in g['bbva_bd'].items() if dd > A), 2)
-    comm_p = (sum(c*CFG['commission_rate'] for d,c,_,_,_ in days if d > A)
-              + sum(v for dd,v in g['softcomm_bd'].items() if dd > A)
-              + sum(v for dd,v in g['bbvacomm_bd'].items() if dd > A))
-    cash = round(CFG['cash_anchor_amount'] + roll + soft_p + bbva_p - comm_p + CFG['cash_adjust'], 2)
-    out = {'all_time': {
-             'revenue': rev, 'expenses': exp, 'commission': comm,
-             'net': round(rev-exp, 2),
-             'net_after_commission': round(rev-exp-comm, 2),
-             'operating_net': round(rev-exp+g['owe_capital'], 2),
-             'trading_days': trading,
-             'card_mp': round(sum(d[1] for d in days),2), 'card_soft': soft_t, 'card_bbva': bbva_t,
-             'cash_taken': round(sum(d[2] for d in days),2),
-             'transfer': round(sum(d[3] for d in days),2)},
-           'position': {
-             'cash_on_hand': cash,
-             'owed_to_capital': g['owe_capital'],
-             'owner_ledger': g['ol_balance'],
-             'net_cash_position': round(cash - g['owe_capital'] - g['ol_balance'], 2),
-             'cash_anchor': f"{CFG['cash_anchor_date']} = {CFG['cash_anchor_amount']:,.2f}"},
-           'by_month': {},
-           'last_days': [(str(d), round(c+k+t+g['soft_bd'].get(d,0)+g['bbva_bd'].get(d,0),2), e,
-                          round(c+k+t+g['soft_bd'].get(d,0)+g['bbva_bd'].get(d,0)-e,2))
-                         for d,c,k,t,e in days[-7:]]}
-    for k in sorted(g['inc_m']):
-        ti = sum(g['inc_m'][k].values()); te = sum(g['cat_m'][k].values())
-        out['by_month'][f'{MONTHS[k[1]-1]} {k[0]}'] = {
-            'income': round(ti,2), 'expenses': round(te,2), 'net': round(ti-te,2),
-            'days': g['dcount'][k],
-            'top_cats': sorted(((c,round(a,2)) for c,a in g['cat_m'][k].items()), key=lambda x:-x[1])[:6]}
+    from collections import defaultdict
+    wb = openpyxl.load_workbook(P)
+    dl = wb.worksheets[S_DAILY]; ex = wb.worksheets[S_EXP]
+    last = _last_data_row(ex)
+    ebd = defaultdict(float); cat_m = defaultdict(lambda: defaultdict(float))
+    for r in range(8, last+1):
+        v = ex.cell(r,2).value
+        if not isinstance(v, (datetime, date)): continue
+        dd = v.date() if isinstance(v, datetime) else v
+        amt = float(ex.cell(r,6).value or 0)
+        ebd[dd] += amt
+        cat_m[(dd.year,dd.month)][str(ex.cell(r,5).value or 'Other')] += amt
+    days = []
+    inc_m = defaultdict(lambda: defaultdict(float)); dcount = defaultdict(int)
+    for r in range(2, dl.max_row+1):
+        v = dl.cell(r,2).value
+        if v is None: continue
+        dd = v.date() if isinstance(v, datetime) else v
+        if not isinstance(dd, date): continue
+        ca=float(dl.cell(r,4).value or 0); cs=float(dl.cell(r,5).value or 0); tf=float(dl.cell(r,7).value or 0)
+        days.append((dd,ca,cs,tf,round(ebd.get(dd,0.0),2)))
+        k=(dd.year,dd.month); inc_m[k]['Card']+=ca; inc_m[k]['Cash']+=cs; inc_m[k]['Transfer']+=tf
+        if ca+cs+tf>0: dcount[k]+=1
+    days.sort()
+    rev=sum(c+k+t for _,c,k,t,_ in days); exp=round(sum(ebd.values()),2)
+    trading=sum(1 for _,c,k,t,_ in days if c+k+t>0)
+    out={'all_time':{'revenue':round(rev,2),'expenses':exp,'net':round(rev-exp,2),
+         'net_plus_rent':round(rev-exp+20000,2),'trading_days':trading,
+         'card':round(sum(d[1] for d in days),2),'cash':round(sum(d[2] for d in days),2),
+         'transfer':round(sum(d[3] for d in days),2)},
+         'by_month':{}, 'last_days':[(str(d),round(c+k+t,2),e,round(c+k+t-e,2)) for d,c,k,t,e in days[-7:]]}
+    for k in sorted(inc_m):
+        ti=sum(inc_m[k].values()); te=sum(cat_m[k].values())
+        out['by_month'][f'{MONTHS[k[1]-1]} {k[0]}']={'income':round(ti,2),'expenses':round(te,2),
+            'net':round(ti-te,2),'days':dcount[k],
+            'top_cats':sorted(((c,round(a,2)) for c,a in cat_m[k].items()), key=lambda x:-x[1])[:6]}
     return out
 
 def main():
@@ -339,7 +325,7 @@ WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
     cash_anchor_date=date(2026,7,26), cash_anchor_amount=15395.0,
-    cash_adjust=-623.00,                   # RESET 26-Jul-2026: full physical count of all cash forms (till + bank/card balances) = $15,395 became the new anchor. The fresh count absorbs ALL prior drift, the Jun29 withdrawal, transfers-to-Lohith, owner-paid add-backs, and the $22,587 Capital repayments. Start clean from here: only add NEW adjustments dated AFTER 26-Jul (transfers-to-Lohith, owner-paid expenses, capital repayments). MP commission auto-deducted per day. | 27-Jul: +0.00 automation smoke test | 27-Jul: -700.00 transfer-to-me 27-Jul | 27-Jul: +0.00 selftest neutral | 28-Jul: -130.00 transfer-to-me 28-Jul | 28-Jul: +396.00 owner-paid 28-Jul | 29-Jul: -205.00 transfer-to-me 29-Jul | 29-Jul: +60.00 owner-paid 29-Jul | 30-Jul: +268.00 owner-paid 30-Jul | 31-Jul: -390.00 transfer-to-me 31-Jul | 31-Jul: +78.00 owner-paid 31-Jul
+    cash_adjust=-579.00,                   # RESET 26-Jul-2026: full physical count of all cash forms (till + bank/card balances) = $15,395 became the new anchor. The fresh count absorbs ALL prior drift, the Jun29 withdrawal, transfers-to-Lohith, owner-paid add-backs, and the $22,587 Capital repayments. Start clean from here: only add NEW adjustments dated AFTER 26-Jul (transfers-to-Lohith, owner-paid expenses, capital repayments). MP commission auto-deducted per day. | 27-Jul: +0.00 automation smoke test | 27-Jul: -700.00 transfer-to-me 27-Jul | 27-Jul: +0.00 selftest neutral | 28-Jul: -130.00 transfer-to-me 28-Jul | 28-Jul: +396.00 owner-paid 28-Jul | 29-Jul: -205.00 transfer-to-me 29-Jul | 29-Jul: +60.00 owner-paid 29-Jul
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
     soft_commission_rate=0.0205,        # Soft Restaurant terminal (reference only; actual value stored per-day in col V)
     bbva_commission_rate=0.0190,        # BBVA terminal (reference only; actual value stored per-day in col Z)

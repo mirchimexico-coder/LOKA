@@ -21,6 +21,17 @@ echo.
 echo   8.  Teach a category  (fix anything it didn't recognise)
 echo   9.  Show what I've taught it
 echo.
+echo  10.  Report - week / month / all time
+echo  11.  Record propinas (tips to staff)
+echo  12.  Cash count - re-anchor to what you counted
+echo  13.  Money paid back to Capital
+echo  14.  Settle the owner ledger with me
+echo  15.  UNDO - restore an earlier backup
+echo.
+echo  16.  SCAN RECEIPT PHOTOS  (reads them on this PC)
+echo  17.  Open the receipts drop folder
+echo  18.  Add Spanish to the receipt reader (one time, needs admin)
+echo.
 echo   0.  Exit
 echo.
 set /p c="Choose: "
@@ -34,6 +45,15 @@ if "%c%"=="6" goto doctor
 if "%c%"=="7" %PY% loka.py refresh-all & pause & goto menu
 if "%c%"=="8" goto teach
 if "%c%"=="9" %PY% teach.py --list & pause & goto menu
+if "%c%"=="10" %PY% tools.py report & pause & goto menu
+if "%c%"=="11" %PY% tools.py tips & pause & goto menu
+if "%c%"=="12" %PY% tools.py recount & pause & goto menu
+if "%c%"=="13" %PY% tools.py repay & pause & goto menu
+if "%c%"=="14" %PY% tools.py settle & pause & goto menu
+if "%c%"=="15" %PY% tools.py restore & pause & goto menu
+if "%c%"=="16" %PY% scan.py & pause & goto menu
+if "%c%"=="17" start "" "C:\LOKA\Bills\_DROP_BILLS_HERE" & goto menu
+if "%c%"=="18" powershell -NoProfile -ExecutionPolicy Bypass -File "C:\LOKA\add_spanish_ocr.ps1" & goto menu
 if "%c%"=="0" exit
 goto menu
 
