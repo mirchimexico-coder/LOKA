@@ -18,16 +18,43 @@ last=ex.max_row
 while last>7 and ex.cell(last,3).value is None: last-=1
 
 # 1 capped SUMIFS ranges
+# NOTE: a TOTALS row that sums everything above it (e.g. Owner Ledger D56 = SUM(D4:D55))
+# is CORRECT, not a cap - it must not be flagged. Only ranges that stop SHORT of the
+# data actually matter, so compare the range end against that sheet's last used row.
 rng=re.compile(r'\$?([A-Z]{1,3})\$?(\d+):\$?([A-Z]{1,3})\$?(\d+)')
-n=0
+def _lastused(ws):
+    last=ws.max_row
+    while last>1 and all(ws.cell(last,c).value in (None,'') for c in range(1,9)): last-=1
+    return last
+n=0; capped=[]
 for ws in wb.worksheets:
+    lu=_lastused(ws)
     for row in ws.iter_rows():
         for c in row:
             v=c.value
             if isinstance(v,str) and v.startswith('='):
                 for m in rng.finditer(v):
-                    if m.group(1)==m.group(3) and int(m.group(4))-int(m.group(2))>=50 and int(m.group(4))<=1000: n+=1
-(ok if n==0 else bad).append(f"capped formula ranges (<=1000): {n}" + ("" if n==0 else "  <-- FIX: extend to 5000"))
+                    c1,r1,c2,r2=m.group(1),int(m.group(2)),m.group(3),int(m.group(4))
+                    if c1!=c2 or (r2-r1)<50: continue
+                    # which sheet does this range point at?
+                    tgt=ws
+                    pre=v[:m.start()]
+                    sm=re.findall(r"'([^']+)'!", pre)
+                    if sm:
+                        try: tgt=wb[sm[-1]]
+                        except Exception: tgt=ws
+                    tl=_lastused(tgt)
+                    # A totals row that sums everything ABOVE itself is correct:
+                    #   Owner Ledger D56 = SUM(D4:D55)  -> ends exactly at its own row-1.
+                    # Only flag ranges on the SAME sheet that stop short of real data,
+                    # or cross-sheet ranges that would miss existing/imminent rows.
+                    own_row = c.row
+                    if tgt is ws and r2 == own_row - 1:
+                        continue                      # classic totals row - fine
+                    if r2 <= tl + 20:
+                        n+=1; capped.append(f"{ws.title} {c.coordinate} -> {m.group(0)} (data to row {tl})")
+(ok if n==0 else bad).append(f"formula ranges that stop short of the data: {n}"
+                             + ("" if n==0 else "  -> "+capped[0]+"  FIX: extend it"))
 
 # 2 headroom
 (ok if last<4500 else bad).append(f"Expenses last row {last} (cap 5000)")
@@ -97,13 +124,29 @@ xl=len(glob.glob(os.path.join(bdir,'*.xlsx'))); ht=len(glob.glob(os.path.join(bd
 stray=[f for f in os.listdir(r'C:\LOKA') if f.startswith('_') and f.endswith('.py')]
 (ok if not stray else warn).append(f"stray temp scripts in root: {len(stray)} {stray if stray else ''}")
 
-# 10 last recorded day
+# 10 propinas table headroom (rows 63-92; fills up and then silently has nowhere to go)
+try:
+    sp=wb['👥 Staff & Payroll']
+    used=sum(1 for r in range(63,93) if sp.cell(r,1).value not in (None,''))
+    free=30-used
+    msg=f"propinas table: {used}/30 used, {free} slot(s) left"
+    if free<=0: bad.append(msg+"  <-- FULL: ask Claude to extend rows 63-92 + the SUM range")
+    elif free<=4: warn.append(msg+"  <-- getting full, ask Claude to extend it soon")
+    else: ok.append(msg)
+except Exception as e:
+    warn.append("propinas check failed: "+str(e))
+
+# 11 last recorded day
 lastd=max(seen) if seen else None
 warn.append(f"last Daily Log date: {lastd}  (row {seen.get(lastd)})") if lastd else None
 
+def _safe(s):
+    """Windows console is cp1252 - emoji sheet names crash print(). Strip them."""
+    return ''.join(ch for ch in str(s) if ord(ch) < 0x2500).strip()
+
 print("="*62); print("LOKA HEALTH CHECK"); print("="*62)
-for m in ok:   print("  [OK]   "+m)
-for m in warn: print("  [note] "+m)
-for m in bad:  print("  [FAIL] "+m)
+for m in ok:   print("  [OK]   "+_safe(m))
+for m in warn: print("  [note] "+_safe(m))
+for m in bad:  print("  [FAIL] "+_safe(m))
 print("="*62)
 print(("ALL CLEAR" if not bad else f"{len(bad)} PROBLEM(S) - see FAIL lines above"))
