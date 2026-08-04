@@ -25,6 +25,7 @@ echo  10.  Report - week / month / all time
 echo  11.  Record propinas (tips to staff)
 echo  12.  Cash count - re-anchor to what you counted
 echo  13.  Money paid back to Capital
+echo  19.  Expense PAID FROM CAPITAL (rent, electricity...)
 echo  14.  Settle the owner ledger with me
 echo  15.  UNDO - restore an earlier backup
 echo.
@@ -54,6 +55,7 @@ if "%c%"=="15" %PY% tools.py restore & pause & goto menu
 if "%c%"=="16" %PY% scan.py & pause & goto menu
 if "%c%"=="17" start "" "C:\LOKA\Bills\_DROP_BILLS_HERE" & goto menu
 if "%c%"=="18" powershell -NoProfile -ExecutionPolicy Bypass -File "C:\LOKA\add_spanish_ocr.ps1" & goto menu
+if "%c%"=="19" %PY% tools.py capex & pause & goto menu
 if "%c%"=="0" exit
 goto menu
 

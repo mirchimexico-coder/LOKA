@@ -102,6 +102,7 @@ Headers row 3, data row 4+. `A`date `B`desc `C`type `D`spent-by-Lohith `E`transf
 | **Owner-paid expense** (Lohith fronts cash) | Expenses row with `paid="Lohith"` (still a real P&L cost) **+** Owner Ledger `spent` entry **+** `cash-adjust +amount` |
 | **Partner/staff card purchase, reimbursed with restaurant money** | `paid="Restaurant"`, normal P&L, **NO ledger entry** |
 | **Capital expense** (one-off equipment, e.g. camera cloud) | `paid="Capital"` → carved out of the cash roll via `capf_bd` |
+| **Operating bill paid from partner capital** (rent, electricity) | `paid="Capital"` → real P&L cost, **cash UNCHANGED**, and **C147 goes UP** by the amount. Use `py tools.py capex` / menu 19 — it does both halves. Cash and Operating Net must NOT move; only the all-in net and Net Cash Position drop. |
 | **Renovation / post-opening capex** | Capital sheet Section I |
 | **Propinas (tips)** | Staff & Payroll table rows 61–95. **Pass-through, NOT P&L.** Only restaurant top-up ABOVE collected tips is a real "Staff - Propinas" expense |
 | **Chef paid for working late** | real WAGE (Staff - Salary), not a tip |
@@ -115,6 +116,15 @@ Headers row 3, data row 4+. `A`date `B`desc `C`type `D`spent-by-Lohith `E`transf
 - **Duvi/Debi** (Limpieza) — Saturday, $1,500 full week / $1,000 for 4 days
 
 Weeks are 7-day blocks from 18-May. (Week 10 = 20–26 Jul.)
+
+### Rent
+Contractual rent is **$19,066.68/month**. Jun and Jul were paid at $20,000 each, so the
+$933.32 × 2 = **$1,866.64 overpayment was credited against August**, making the August
+payment **$17,200.04** (recorded 04-Aug, paid from Capital).
+**Confirmed with Reddy: book rent on a CASH basis — record what was actually paid, not the
+contractual figure. From September the monthly rent is $19,066.68.**
+June's $20,000 appears as TWO rows (Renta $15,000 + Mantenimiento $5,000, r179/r180) —
+don't mistake that for an underpayment.
 
 ---
 

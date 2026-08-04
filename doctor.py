@@ -124,13 +124,15 @@ xl=len(glob.glob(os.path.join(bdir,'*.xlsx'))); ht=len(glob.glob(os.path.join(bd
 stray=[f for f in os.listdir(r'C:\LOKA') if f.startswith('_') and f.endswith('.py')]
 (ok if not stray else warn).append(f"stray temp scripts in root: {len(stray)} {stray if stray else ''}")
 
-# 10 propinas table headroom (rows 63-92; fills up and then silently has nowhere to go)
+# 10 propinas table headroom (rows 63-122; fills up and then silently has nowhere to go)
 try:
     sp=wb['👥 Staff & Payroll']
-    used=sum(1 for r in range(63,93) if sp.cell(r,1).value not in (None,''))
-    free=30-used
-    msg=f"propinas table: {used}/30 used, {free} slot(s) left"
-    if free<=0: bad.append(msg+"  <-- FULL: ask Claude to extend rows 63-92 + the SUM range")
+    LASTP=122          # extended 04-Aug from 92 -> 122
+    cap_slots=LASTP-63+1
+    used=sum(1 for r in range(63,LASTP+1) if sp.cell(r,1).value not in (None,''))
+    free=cap_slots-used
+    msg=f"propinas table: {used}/{cap_slots} used, {free} slot(s) left"
+    if free<=0: bad.append(msg+"  <-- FULL: ask Claude to extend the rows + the SUM range")
     elif free<=4: warn.append(msg+"  <-- getting full, ask Claude to extend it soon")
     else: ok.append(msg)
 except Exception as e:

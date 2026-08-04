@@ -48,6 +48,7 @@ KEYWORD_CAT = [
  (('renta','rent','arrendador'),                                                              'Rent'),
  (('gas','tomza'),                                                                            'Utilities/Gas'),
  (('internet','telmex','suscripcion','suscripción','subscription','soft restaurant app'),      'Utilities/Internet'),
+ (('luz','electricidad','electricity','cfe','recibo de luz'),                                  'Utilities/Electricity'),
  (('propina','tip'),                                                                          'Staff - Propinas'),
  (('sueldo','salario','salary','nomina','nómina','payroll'),                                  'Staff - Salary'),
  (('sam','costco','chedraui','heb','h-e-b','walmart','bodega','soriana','tres b','3b',
@@ -73,7 +74,7 @@ CATEGORIES = [
  'Ingredients - Other','Ingredients - Desserts',
  'Staff - Salary','Staff - Advance','Staff - Propinas',
  'Supermarket/General','Kitchen Supplies','Packaging/Disposables','Supplies/Other',
- 'Utilities/Internet','Utilities/Gas','Software/Subscription',
+ 'Utilities/Internet','Utilities/Gas','Utilities/Electricity','Software/Subscription',
  'Rent','Office Supplies','Maintenance',
 ]
 def load_rules():

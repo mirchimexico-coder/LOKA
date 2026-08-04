@@ -86,11 +86,12 @@ def tips():
     print("   Reminder: tips are a PASS-THROUGH, not a restaurant expense.")
     print("   Only money the restaurant adds ON TOP of collected tips is a real cost.")
     wb = openpyxl.load_workbook(P); sp = wb['👥 Staff & Payroll']
+    LAST = 122                       # table extended 04-Aug from 92 -> 122 (60 slots)
     r = 63
-    while r <= 92 and sp.cell(r,1).value not in (None,''): r += 1
-    if r > 92:
-        print("   The propinas table is FULL (rows 63-92). Ask Claude to extend it."); return
-    print(f"   {92-r+1} free slot(s) left.")
+    while r <= LAST and sp.cell(r,1).value not in (None,''): r += 1
+    if r > LAST:
+        print("   The propinas table is FULL (rows 63-122). Ask Claude to extend it."); return
+    print(f"   {LAST-r+1} free slot(s) left.")
     d = askdate()
     label = ask("Which week is this for (e.g. 'Week 11: 03-09 Aug')", f"week to {d:%d-%b}")
     entries = []
@@ -110,7 +111,7 @@ def tips():
     tmpl = r-1 if r > 63 else 63
     for i,(w,a) in enumerate(entries):
         rr = r+i
-        if rr > 92: print("   ran out of slots - stopped early."); break
+        if rr > LAST: print("   ran out of slots - stopped early."); break
         for c in (1,2,3,4):
             s_,dd = sp.cell(tmpl,c), sp.cell(rr,c)
             dd.font=copy(s_.font); dd.fill=copy(s_.fill); dd.border=copy(s_.border)
@@ -193,7 +194,59 @@ def restore():
     print("   restored.")
     loka.refresh_all(do_backup=False)
 
-CMDS = dict(recount=recount, repay=repay, tips=tips, settle=settle, report=report, restore=restore)
+# ---------------------------------------------------------------- capital-paid expense
+def capex():
+    """An operating cost paid with PARTNER CAPITAL rather than restaurant money."""
+    print("\n== EXPENSE PAID FROM CAPITAL ==")
+    print("   Use this when partner capital paid an operating bill (rent, electricity...)")
+    print("   rather than the restaurant's own money.")
+    print("   It stays a real cost in the P&L, does NOT touch cash on hand, and")
+    print("   INCREASES what Operations owes Capital.\n")
+    import eod
+    wb = openpyxl.load_workbook(P); cap = wb.worksheets[0]
+    owed = float(cap.cell(147,3).value or 0)
+    print(f"   Operations currently owes Capital: ${owed:,.2f}")
+    d = askdate()
+    items = []
+    while True:
+        desc = ask("\n   What was it (blank = done)")
+        if not desc: break
+        amt = money(f"   Amount for '{desc}'")
+        guess = eod.guess_cat(desc)
+        print(f"   suggested category: {guess}")
+        if not confirm("   use that category?"):
+            for i,c in enumerate(eod.CATEGORIES,1): print(f"     {i:>2}. {c}")
+            v = ask("   Number")
+            if v.isdigit() and 1 <= int(v) <= len(eod.CATEGORIES): guess = eod.CATEGORIES[int(v)-1]
+        note = ask("   Note (optional)", "Pagado con capital de socios")
+        items.append(dict(date=d.strftime('%d-%b-%Y'), desc=desc, vendor=ask("   Vendor", "No bill"),
+                          cat=guess, amount=amt, paid='Capital', method='Transfer', notes=note))
+    if not items: print("   nothing to record."); return
+    tot = sum(i['amount'] for i in items)
+    print("\n   " + "-"*54)
+    for i in items: print(f"     {i['amount']:>11,.2f}  {i['desc'][:26]:<26} {i['cat']}")
+    print(f"     {tot:>11,.2f}  TOTAL")
+    print(f"\n   These will be recorded as paid by CAPITAL.")
+    print(f"   Cash on hand: UNCHANGED (the restaurant did not pay).")
+    print(f"   Owed to Capital: ${owed:,.2f}  ->  ${owed+tot:,.2f}")
+    if not confirm("\n   Apply?"): print("   cancelled."); return
+    loka.backup(f'capex_{d:%b%d}'.lower())
+    n,a0,a1 = loka.add_expenses(items, do_backup=False)
+    print(f"   expenses: added {n} row(s) {a0}-{a1}")
+    cap = openpyxl.load_workbook(P).worksheets[0]
+    wb2 = openpyxl.load_workbook(P); c2 = wb2.worksheets[0]
+    new = round(float(c2.cell(147,3).value or 0) + tot, 2)
+    c2.cell(147,3, new)
+    c2.cell(147,5, f'Operating costs funded from partner capital, net of repayments. '
+                   f'Latest addition {d:%d-%b-%Y} ${tot:,.2f}. Still owed by Operations: ${new:,.2f}.')
+    wb2.calculation.calcMode='auto'; wb2.calculation.fullCalcOnLoad=True
+    wb2.save(P)
+    print(f"   owed to Capital is now ${new:,.2f}")
+    loka.refresh_all(do_backup=False)
+    print("\n   done. Now push with VS Code.")
+
+CMDS = dict(recount=recount, repay=repay, tips=tips, settle=settle, report=report,
+            restore=restore, capex=capex)
 if __name__ == '__main__':
     a = sys.argv[1] if len(sys.argv) > 1 else ''
     if a in CMDS:
