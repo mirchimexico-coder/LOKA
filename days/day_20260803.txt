@@ -1,12 +1,13 @@
-DATE: 2-Aug
-MP: 0     BBVA: 0     SOFT: 0     CASH: 0
+DATE: 3-Aug
+MP: 0     BBVA: 1930     SOFT: 0     CASH: 2430
 TRANSFER-TO-ME: 0     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL: Vegetables 1472
-PAID BY ME: 
+NO-BILL: 0
+PAID BY ME: Pollo 1008 
 SALARY: NA
-NOTE: Sunday only expense, no income
+NOTE: NA
+
 
 ------------------------------------------------------------------
 HOW TO FILL THIS IN  (delete nothing - just leave a line at 0/blank)
