@@ -1,0 +1,37 @@
+DATE: 4-Aug
+MP: 0     BBVA: 1275     SOFT: 0     CASH: 2500
+TRANSFER-TO-ME: 0     TRANSFER-TO-BANK: 0
+BBVA COMMISSION: 1.9%
+SOFT COMMISSION: 0
+NO-BILL: Oxxo Tortillas 29, Oxxo Arroz 78, Jamon 173, Carne 1809, Agua Natural 45, Guimar Deschables 145, Queso Bodega 551, Chedraui 170
+PAID BY ME: NA
+SALARY: NA
+NOTE: NA
+
+------------------------------------------------------------------
+HOW TO FILL THIS IN  (delete nothing - just leave a line at 0/blank)
+
+DATE            25-Jul   or   25-Jul-2026
+MP              Mercado Pago card total
+BBVA            BBVA card total
+SOFT            Soft Restaurant card total
+CASH            cash taken
+TRANSFER-TO-ME  customer paid YOUR personal account
+                -> counts as revenue, goes on your Owner Ledger,
+                   and is kept out of till cash automatically
+TRANSFER-TO-BANK customer paid the RESTAURANT's BBVA account
+                -> revenue, stays in restaurant money, no ledger
+BBVA COMMISSION leave as 1.9% and it works it out,
+                or type the exact peso amount if you know it
+SOFT COMMISSION type the exact peso amount off the statement
+                (MP commission is worked out automatically - no need to type it)
+
+NO-BILL         things with no receipt:  item 123, item 45
+PAID BY ME      things YOU paid from your own pocket: Pollo 234
+                -> becomes reimbursable to you automatically
+SALARY          Samu 1200, John 3750, Duvi 1500
+NOTE            anything to remember about the day
+
+SUNDAY / CLOSED: leave MP/BBVA/SOFT/CASH at 0 and just fill NO-BILL.
+                 It records the shopping and skips the sales row.
+------------------------------------------------------------------
