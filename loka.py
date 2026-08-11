@@ -500,10 +500,17 @@ def _build_monthly(inc_m, cat_m, dcount):
             f'<div style="display:flex;justify-content:space-between;font-size:.78rem;margin:3px 0;"><span style="color:var(--muted);">Expenses</span><span style="color:var(--red);font-weight:700;">{_money(te)}</span></div>'
             f'<div style="display:flex;justify-content:space-between;font-size:.9rem;margin:6px 0 2px;border-top:1px solid var(--border);padding-top:6px;"><span style="font-weight:700;">Net</span><span style="color:{nc};font-weight:800;">{_signed(net)}</span></div>'
             f'<div style="font-size:.62rem;color:var(--muted);margin-top:4px;">{dcount[m]} trading days</div></div>')
-    def tr(lbl,vals,color=None,bold=False,hdr=False,indent=False):
+    def tr(lbl,vals,color=None,bold=False,hdr=False,indent=False,percell=False):
+        """percell=True -> colour EACH cell by its own sign (green +, red -).
+        Used by NET PROFIT / LOSS, where one month can be up and the next down."""
         td=''
         for v in vals:
-            st=('font-weight:700;' if bold else '')+(f'color:{color};' if color else '')
+            c=color
+            if percell:
+                sv=str(v)
+                if   sv.lstrip().startswith('-') or '&minus;' in sv or '(' in sv: c='var(--red)'
+                elif any(ch.isdigit() for ch in sv):                              c='var(--green)'
+            st=('font-weight:700;' if bold else '')+(f'color:{c};' if c else '')
             td+=f'<td style="text-align:right;padding:4px 10px;{st}border-bottom:1px solid var(--border);">{v}</td>'
         ls='font-weight:700;' if (bold or hdr) else ''
         pl='padding-left:26px;color:var(--muted);font-size:.92em;' if indent else ''
@@ -539,7 +546,7 @@ def _build_monthly(inc_m, cat_m, dcount):
     body+=tr('EXPENSES BY GROUP',['' for _ in ordered],hdr=True)
     for g in groups: body+=tr(g,[_money(grp_m[m].get(g,0)) for m in ordered])
     body+=tr('Total Expenses',[_money(sum(cat_m[m].values())) for m in ordered],color='var(--red)',bold=True)
-    body+=tr('NET PROFIT / LOSS',[_signed(sum(inc_m[m].values())-sum(cat_m[m].values())) for m in ordered],bold=True)
+    body+=tr('NET PROFIT / LOSS',[_signed(sum(inc_m[m].values())-sum(cat_m[m].values())) for m in ordered],bold=True,percell=True)
     table=f'<div style="overflow-x:auto;margin-top:14px;"><table style="width:100%;border-collapse:collapse;font-size:.74rem;"><thead>{th}</thead><tbody>{body}</tbody></table></div>'
     dbody=''
     for g in groups:
@@ -658,7 +665,12 @@ def refresh_dashboard(do_backup=True):
     sub(r'<div class="own-card">.*?</div></div></div>', _owncard, 'partner cards', 3)
     # --- net CASH POSITION (balance-sheet view): cash held minus what operations owes ---
     net_cash_pos = round(cash - g['owe_capital'] - g['ol_balance'], 2)
+    # This figure appears in TWO places with DIFFERENT wording. Both must update or one
+    # silently freezes (the Section K card sat at $16,728 from 22-Jul to 05-Aug because
+    # only the banner's "Ops owe capital" phrasing was covered).
     sub(r'Ops owe capital \$[\d,]+', lambda m: 'Ops owe capital '+_money(g['owe_capital']), 'banner ops-owe')
+    sub(r'(Owed by ops to capital</span><span class="sval"[^>]*>)\$[\d,]+',
+        lambda m: m.group(1)+_money(g['owe_capital']), 'section-K ops-owe')
     def _ncp(m):
         pos = net_cash_pos>=0; col='var(--green)' if pos else 'var(--red)'
         return m.group(1)+f'<div style="font-size:.85rem;font-weight:700;color:{col}">'+_s3(net_cash_pos)+'</div>'

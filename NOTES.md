@@ -363,6 +363,15 @@ that looks wrong. Those are listed in HOWTO.md §"THINGS ONLY YOU CAN DECIDE".
     delegates to `_gather()`. **Rule: `_gather()` is the single source of truth — if a
     figure is computed anywhere else, it WILL drift.** (Same root cause as `_build_bars`
     and `_build_weeks` omitting Soft/BBVA earlier.)
+18. **The SAME figure can appear on the dashboard under DIFFERENT wording — cover every
+    phrasing or one silently freezes.** "Owed to Capital" is rendered three ways:
+    `Ops owe capital $X` (banner), `excl. $X still owed to Capital` (Operating Net note),
+    and `Owed by ops to capital` (**Section K card**). Only the first two had `sub()` rules,
+    so the Section K card sat frozen at **$16,728 from 22-Jul to 05-Aug** while the others
+    correctly showed $32,416 — Reddy spotted the contradiction. All three now update.
+    **When adding a `sub()` rule, grep the dashboard for the VALUE as well as the label** to
+    find every place it is displayed. A frozen card produces no warning: `sub()` only warns
+    when a pattern matches nothing, and a stale card still matches its own old text.
 
 ---
 
