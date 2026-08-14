@@ -1,13 +1,12 @@
-DATE: 12-Aug
-MP:  0    BBVA: 1850     SOFT: 0     CASH: 810
-TRANSFER-TO-ME: 130    TRANSFER-TO-BANK: 0
+DATE: 13-Aug
+MP:  0    BBVA: 2165     SOFT: 0     CASH: 1140
+TRANSFER-TO-ME: 135    TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL: Chedraui 112, Vegetales 89, Carne 743, Alico Sirlion Boneless y Papa 2270, Avia Reca 750, Guimar deschables 139, Oxxo Arroz 301
-PAID BY ME: Pollo 639
+NO-BILL: Pan Dulce 25, Duplicate Keys 180, Tomato 84, Jamon 90, Knife sharpening 100
+PAID BY ME: NA
 SALARY: NA
 NOTE: NA
-
 
 ------------------------------------------------------------------
 HOW TO FILL THIS IN  (delete nothing - just leave a line at 0/blank)
