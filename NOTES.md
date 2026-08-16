@@ -111,11 +111,22 @@ Headers row 3, data row 4+. `A`date `B`desc `C`type `D`spent-by-Lohith `E`transf
 | **Sunday** | expenses only, **no Daily Log row** |
 
 ### Weekly payroll (paid in arrears)
-- **Samu** (Ayudante) — Friday, $1,200
 - **John** (Head Chef) — Saturday, $3,750
 - **Duvi/Debi** (Limpieza) — Saturday, $1,500 full week / $1,000 for 4 days
+- **Armando** (Ayudante) — **$370/day, Mon–Fri only, NOT available Saturdays** = $1,850/week.
+  Started 13-Aug-2026; first payment 14-Aug was **$740 = 2 days**. Replaced Samu.
+- **Samu** (Ayudante) — **INACTIVE from Aug 2026.** Was Friday $1,200/week; final week paid
+  14-Aug. Roster r13 and fixed-cost r38 both zeroed.
 
 Weeks are 7-day blocks from 18-May. (Week 10 = 20–26 Jul.)
+
+**Staff sheet layout:** roster rows 8–15 (`C`=daily rate, `D:J`=Mon–Sun, `K`=COUNTIF "Full Day",
+`L`=K*C). Weekly fixed costs rows 35–40 with **`B41=SUM(B35:B40)`** — a new person MUST go
+inside 35:40 or the total silently misses them. Armando reused r37 (Cesar, resigned, $0);
+Cesar's history is preserved in the roster at r12.
+**Known staleness:** the roster's daily rates drifted from what was actually paid (Samu's row
+said $160/day = $800/wk while he was really being paid $1,200/wk). Treat the Expenses sheet as
+the source of truth for what was paid; the roster is a planning view.
 
 ### Rent
 Contractual rent is **$19,066.68/month**. Jun and Jul were paid at $20,000 each, so the
