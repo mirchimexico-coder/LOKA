@@ -1,12 +1,13 @@
-DATE: 
-MP: 0     BBVA: 0     SOFT: 0     CASH: 0
+DATE: 01-Sep
+MP: 120     BBVA: 1485     SOFT: 0     CASH: 1480
 TRANSFER-TO-ME: 0     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL: 
-PAID BY ME: 
-SALARY: 
-NOTE: 
+NO-BILL: 3B Aceite 628, Carne Hamburguesa 380, Mole 890, Chile pasilla 115, Pan Reales 416 , Pollo 1032, Gas 1500, Sams Club 2816
+PAID BY ME: NA
+SALARY: NA
+NOTE: NA
+
 
 ------------------------------------------------------------------
 HOW TO FILL THIS IN  (delete nothing - just leave a line at 0/blank)
