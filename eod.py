@@ -91,11 +91,34 @@ def save_rule(keyword, category):
 
 UNKNOWN = 'Supplies/Other'   # what guess_cat returns when it has no idea
 
+# Vendors sell many categories, so a learned rule whose key is just a SHOP NAME must not
+# hijack every item from that shop ("oxxo" -> Pantry made Oxxo Hielo/Tortillas/Leche all
+# Pantry). Shop-name rules are demoted to a fallback; product words still win.
+_VENDOR_WORDS = {w for keys,_ in VENDOR_HINT for k in keys for w in _norm(k).split()} | {
+    'oxxo','sams','sam','costco','chedraui','chedruai','walmart','soriana','bodega',
+    'heb','tres','3b','abastos','guimar','molino','basicos','office','depot','superama'}
+
+def _learned_hit(d):
+    """(product_rule_category, vendor_rule_category) for description d."""
+    vend = None
+    for k in sorted(load_rules(), key=len, reverse=True):
+        kn = _norm(k)
+        if len(kn) < 3:            # 1-2 char rules match far too much - ignore them
+            continue
+        if not re.search(rf'(?<![a-z0-9]){re.escape(kn)}', d):
+            continue
+        cat = load_rules()[k]
+        if all(w in _VENDOR_WORDS for w in kn.split()):
+            vend = vend or cat     # shop-name rule -> fallback only
+        else:
+            return cat, vend       # product rule -> wins outright
+    return None, vend
+
 def guess_cat(desc):
     d=_norm(desc)
-    # 1) anything Reddy has taught wins outright (longest keyword first = most specific)
-    for k in sorted(load_rules(), key=len, reverse=True):
-        if k and k in d: return load_rules()[k]
+    # 1) a product word Reddy taught wins outright
+    prod, vend = _learned_hit(d)
+    if prod: return prod
     # supermarket names win first (a store name shouldn't be guessed from its letters).
     # prefix match (no trailing boundary) so "sams"/"sam's" and misspellings still hit.
     for k in ('sam','costco','chedraui','chedruai','chedrahui','h-e-b','heb','walmart',
@@ -121,7 +144,9 @@ def guess_cat(desc):
                 if re.search(rf'(?<![a-z]){re.escape(kn)}s?(?![a-z])', d): return cat
             elif kn in d:
                 return cat
-    return 'Supplies/Other'
+    # a shop-name rule Reddy taught, used only when nothing more specific matched
+    if vend: return vend
+    return UNKNOWN
 
 def guess_vendor(desc):
     d=_norm(desc)
@@ -235,13 +260,58 @@ def build(d):
         plan.append(f"NOTE            : {d['t_bank']:,.2f} went to the restaurant bank - revenue, stays in restaurant, no ledger")
     return rows, plan
 
+def existing_day(d):
+    """Return (row, revenue, expenses) if this date is already in the books, else None."""
+    import openpyxl
+    from datetime import datetime as _dt
+    wb = openpyxl.load_workbook(loka.P)
+    dl = wb.worksheets[2]; ex = wb.worksheets[3]
+    def _pd(v): return v.date() if isinstance(v,_dt) else (v if isinstance(v,date) else None)
+    row = rev = None
+    for r in range(8, dl.max_row+1):
+        if _pd(dl.cell(r,2).value) == d:
+            row = r
+            rev = sum(float(dl.cell(r,c).value or 0) for c in (4,5,7,21,25))
+            break
+    last = ex.max_row
+    while last > 7 and ex.cell(last,3).value is None: last -= 1
+    exp = sum(float(ex.cell(r,6).value or 0) for r in range(8,last+1)
+              if _pd(ex.cell(r,2).value) == d)
+    if row is None and not exp: return None
+    return row, rev or 0.0, exp
+
 def main():
     if len(sys.argv)<2:
         print(__doc__); return
-    path=sys.argv[1]; apply='--apply' in sys.argv
+    path=sys.argv[1]; apply='--apply' in sys.argv; add='--add' in sys.argv
     txt=open(path,encoding='utf-8').read()
     d=parse(txt); rows,plan=build(d)
     print('\n'.join(plan))
+
+    prior = existing_day(d['date'])
+    if prior:
+        prow, prev, pexp = prior
+        print("\n" + "="*58)
+        print(f"  THIS DAY IS ALREADY IN THE BOOKS  ({d['date']:%d-%b})")
+        print("="*58)
+        print(f"    already recorded : revenue {prev:>10,.2f}   expenses {pexp:>10,.2f}")
+        newrev = d['mp']+d['bbva']+d['soft']+d['cash']+d['t_me']+d['t_bank']
+        newexp = sum(r['amount'] for r in rows)
+        if add:
+            print(f"    adding now       : revenue {newrev:>10,.2f}   expenses {newexp:>10,.2f}")
+            print(f"    NEW TOTAL        : revenue {prev+newrev:>10,.2f}   expenses {pexp+newexp:>10,.2f}")
+            print("\n  Mode: ADD  ->  the figures above will be ADDED to the day.")
+            print("  Only put the EXTRA amounts in the file, not the whole day again.")
+        else:
+            print(f"    this file says   : revenue {newrev:>10,.2f}   expenses {newexp:>10,.2f}")
+            print("\n  >> STOP. Running --apply now would REPLACE the day's revenue")
+            print("     with the figures above and DUPLICATE the expenses.")
+            print("     If you meant to add extra income/expenses to this day, use")
+            print("     menu option 20 (Add MORE to a day already entered), or run:")
+            print(f"         py eod.py {os.path.basename(path)} --add --apply")
+            if apply:
+                print("\n  --apply refused. Re-run with --add if that is what you meant.\n")
+                return
     if not apply:
         print('\n--- PREVIEW ONLY.  Re-run with --apply to write it. ---'); return
     print('\napplying...')
@@ -251,8 +321,9 @@ def main():
     has_rev = any([d['mp'],d['bbva'],d['soft'],d['cash'],d['t_me'],d['t_bank']])
     if has_rev:
         r,tot=loka.close_day(d['date'], d['mp'], d['cash'], d['t_me']+d['t_bank'],
-                             d['soft'], d['softcomm'], d['bbva'], d['bbvacomm'], do_backup=False)
-        print(f'  daily log: row {r}, revenue {tot:,.2f}')
+                             d['soft'], d['softcomm'], d['bbva'], d['bbvacomm'],
+                             do_backup=False, mode='add' if add else 'set')
+        print(f'  daily log: row {r}, day revenue now {tot:,.2f}')
     else:
         print('  no revenue given -> shopping-only day, no Daily Log row')
     if d['t_me']:

@@ -53,6 +53,7 @@ it is a 10-second fix and nothing breaks.
 | 1 | Open today's sheet to type numbers |
 | 2 | **Preview** — shows what will be recorded, writes nothing |
 | 3 | **Record it** — writes the books, then health-checks |
+| 20 | **Add MORE to a day already entered** |
 | 4 | Open the dashboard |
 | 5 | Open the workbook in Excel |
 | 6 | **Health check** — run this any time you're unsure |
@@ -107,8 +108,29 @@ up the current state before restoring — so even an undo is undoable.
 
 ---
 
-## WHEN IT DOESN'T RECOGNISE SOMETHING (menu 8)
+## ADDING MORE TO A DAY YOU ALREADY ENTERED (menu 20)
 
+You recorded the day, then took more money or spent more later. Press **20**.
+
+It opens a fresh sheet. **Put in ONLY the extra amounts — not the whole day again.**
+Make sure the DATE line is the day you're topping up. Then it shows you:
+
+```
+  THIS DAY IS ALREADY IN THE BOOKS  (14-Aug)
+    already recorded : revenue   5,645.00   expenses   3,955.00
+    adding now       : revenue     500.00   expenses      85.00
+    NEW TOTAL        : revenue   6,145.00   expenses   4,040.00
+```
+
+Check the NEW TOTAL line, then confirm. The extra is **added** to the day — the original
+figures are kept and no duplicate row is created.
+
+**You're protected if you forget.** If you try to record a day that's already in the books
+using the normal option 3, it stops and refuses rather than wiping your earlier numbers.
+
+---
+
+## WHEN IT DOESN'T RECOGNISE SOMETHING (menu 8)
 The preview flags anything it couldn't work out:
 
 ```

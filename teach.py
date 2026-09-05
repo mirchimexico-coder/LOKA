@@ -25,11 +25,19 @@ def pick_category(word):
         print("   Please type one of the numbers above.")
 
 def teach_word(word, cat=None):
+    word = (word or '').strip()
+    if len(eod._norm(word)) < 3:
+        print("   That is too short to be a safe rule - a 1-2 character word would match")
+        print("   almost every item. Use a fuller word, e.g. 'servilletas' not 'sv'.")
+        return False
     cat = cat or pick_category(word)
     if not cat:
         print("   skipped."); return False
     eod.save_rule(word, cat)
     print(f"   SAVED:  anything containing '{word.lower()}'  ->  {cat}")
+    if all(w in eod._VENDOR_WORDS for w in eod._norm(word).split()):
+        print(f"   (note: '{word}' looks like a SHOP name. It will only be used when nothing")
+        print(f"    more specific matches, so 'oxxo hielo' still goes to Kitchen Supplies.)")
     return True
 
 def scan_today():

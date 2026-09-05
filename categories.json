@@ -1,6 +1,6 @@
 {
-  "1": "Ingredients - Vegetables",
   "alico": "Ingredients - Meat",
+  "avia": "Ingredients - Beverages",
   "basicos": "Supermarket/General",
   "cake": "Ingredients - Dairy",
   "coca cola": "Ingredients - Beverages",
@@ -9,6 +9,7 @@
   "lemon": "Ingredients - Vegetables",
   "lomo": "Ingredients - Meat",
   "mango": "Ingredients - Vegetables",
+  "mayonesa": "Ingredients - Other",
   "mole": "Ingredients - Pantry",
   "molino": "Supermarket/General",
   "office depot": "Office Supplies",
@@ -18,5 +19,6 @@
   "soft": "Software/Subscription",
   "tomato": "Ingredients - Vegetables",
   "vegetables": "Ingredients - Vegetables",
-  "vegetales": "Ingredients - Vegetables"
+  "vegetales": "Ingredients - Vegetables",
+  "vessels": "Kitchen Supplies"
 }

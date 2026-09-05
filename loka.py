@@ -139,8 +139,15 @@ def _inject_cache():
     zin.close(); zout.close(); shutil.move(tmp, P)
     return n
 
-def close_day(d, card=0, cash=0, transfer=0, soft=0, softcomm=0, bbva=0, bbvacomm=0, do_backup=True):
-    """Set revenue for date d in Daily Log; create row with auto-SUMIFS if missing."""
+def close_day(d, card=0, cash=0, transfer=0, soft=0, softcomm=0, bbva=0, bbvacomm=0,
+              do_backup=True, mode='set'):
+    """Set (or ADD to) revenue for date d in the Daily Log.
+
+    mode='set' (default) -> overwrite the day's figures. Use for a fresh day.
+    mode='add'           -> ADD to whatever is already there. Use when Reddy
+                            reports extra income later the same day. Without this
+                            a second entry would WIPE the morning's takings.
+    """
     d = pdate(d)
     if do_backup: backup('close_day')
     wb = openpyxl.load_workbook(P); dl = wb.worksheets[S_DAILY]
@@ -154,6 +161,7 @@ def close_day(d, card=0, cash=0, transfer=0, soft=0, softcomm=0, bbva=0, bbvacom
         dd = v.date() if isinstance(v, datetime) else v
         if isinstance(dd, date) and dd == d:
             target = r; break
+    was_existing = target is not None      # capture BEFORE the row may be created below
     if target is None:
         target = lastrow + 1
         dl.cell(target,2, d); dl.cell(target,2).number_format='dd-mmm-yyyy'
@@ -166,12 +174,23 @@ def close_day(d, card=0, cash=0, transfer=0, soft=0, softcomm=0, bbva=0, bbvacom
         _copyfmt(dl, lastrow, target, range(2,29))
         dl.cell(target,2).number_format='dd-mmm-yyyy'
         for cc in (18,21,22,25,26): dl.cell(target,cc).number_format='$#,##0.00'
-    dl.cell(target,4, float(card)); dl.cell(target,5, float(cash)); dl.cell(target,7, float(transfer))
-    dl.cell(target,21, float(soft)); dl.cell(target,22, float(softcomm))
-    dl.cell(target,25, float(bbva)); dl.cell(target,26, float(bbvacomm))
-    dl.cell(target,12,'Cierre via loka.py')
+    existed = was_existing and mode == 'add'
+    def _put(col, val):
+        val = float(val)
+        if existed:
+            val = float(dl.cell(target, col).value or 0) + val
+        dl.cell(target, col, val)
+    _put(4, card); _put(5, cash); _put(7, transfer)
+    _put(21, soft); _put(22, softcomm)
+    _put(25, bbva); _put(26, bbvacomm)
+    if existed:
+        prev = str(dl.cell(target,12).value or '')
+        dl.cell(target,12, (prev + ' | ' if prev else '') + f'updated {datetime.now():%H:%M}')
+    else:
+        dl.cell(target,12,'Cierre via loka.py')
     wb.save(P)
-    return target, float(card)+float(cash)+float(transfer)+float(soft)+float(bbva)
+    tot = sum(float(dl.cell(target,c).value or 0) for c in (4,5,7,21,25))
+    return target, tot
 
 def add_ledger(d, desc, spent=0, transferred=0, typ=None, status=None, notes='', do_backup=True):
     d = pdate(d)
@@ -339,7 +358,7 @@ WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
     cash_anchor_date=date(2026,7,26), cash_anchor_amount=15395.0,
-    cash_adjust=-38805.00,                   # RESET 26-Jul-2026: full physical count of all cash forms (till + bank/card balances) = $15,395 became the new anchor. The fresh count absorbs ALL prior drift, the Jun29 withdrawal, transfers-to-Lohith, owner-paid add-backs, and the $22,587 Capital repayments. Start clean from here: only add NEW adjustments dated AFTER 26-Jul (transfers-to-Lohith, owner-paid expenses, capital repayments). MP commission auto-deducted per day. | 27-Jul: +0.00 automation smoke test | 27-Jul: -700.00 transfer-to-me 27-Jul | 27-Jul: +0.00 selftest neutral | 28-Jul: -130.00 transfer-to-me 28-Jul | 28-Jul: +396.00 owner-paid 28-Jul | 29-Jul: -205.00 transfer-to-me 29-Jul | 29-Jul: +60.00 owner-paid 29-Jul | 30-Jul: +268.00 owner-paid 30-Jul | 31-Jul: -390.00 transfer-to-me 31-Jul | 31-Jul: +78.00 owner-paid 31-Jul | 03-Aug: -225.00 transfer-to-me 01-Aug | 03-Aug: +1,008.00 owner-paid 03-Aug | 05-Aug: +285.00 owner-paid 05-Aug | 05-Aug: -10,301.00 capital repayment 04-Aug | 06-Aug: -130.00 transfer-to-me 06-Aug | 06-Aug: +319.00 owner-paid 06-Aug | 07-Aug: -130.00 transfer-to-me 07-Aug | 10-Aug: -135.00 transfer-to-me 08-Aug | 10-Aug: +1,028.00 owner-paid 08-Aug | 10-Aug: -130.00 transfer-to-me 10-Aug | 10-Aug: +110.00 owner-paid 10-Aug | 11-Aug: -655.00 transfer-to-me 11-Aug | 13-Aug: -130.00 transfer-to-me 12-Aug | 13-Aug: +639.00 owner-paid 12-Aug | 13-Aug: -11,504.00 capital repayment 13-Aug | 13-Aug: -135.00 transfer-to-me 13-Aug | 16-Aug: +1,363.00 owner-paid 15-Aug | 17-Aug: -130.00 transfer-to-me 17-Aug | 17-Aug: +349.00 owner-paid 17-Aug | 17-Aug: -2,820.00 ledger settlement 17-Aug | 18-Aug: -210.00 transfer-to-me 18-Aug | 19-Aug: -120.00 transfer-to-me 19-Aug | 19-Aug: +418.00 owner-paid 19-Aug | 21-Aug: -6,000.00 capital repayment 21-Aug | 27-Aug: +1,429.00 owner-paid 24-Aug | 27-Aug: -250.00 transfer-to-me 25-Aug | 27-Aug: -260.00 transfer-to-me 27-Aug | 31-Aug: -235.00 transfer-to-me 28-Aug | 31-Aug: -1,500.00 capital repayment 29-Aug | 31-Aug: -10,000.00 capital repayment 31-Aug | 31-Aug: -130.00 transfer-to-me 31-Aug
+    cash_adjust=-47155.50,                   # RESET 26-Jul-2026: full physical count of all cash forms (till + bank/card balances) = $15,395 became the new anchor. The fresh count absorbs ALL prior drift, the Jun29 withdrawal, transfers-to-Lohith, owner-paid add-backs, and the $22,587 Capital repayments. Start clean from here: only add NEW adjustments dated AFTER 26-Jul (transfers-to-Lohith, owner-paid expenses, capital repayments). MP commission auto-deducted per day. | 27-Jul: +0.00 automation smoke test | 27-Jul: -700.00 transfer-to-me 27-Jul | 27-Jul: +0.00 selftest neutral | 28-Jul: -130.00 transfer-to-me 28-Jul | 28-Jul: +396.00 owner-paid 28-Jul | 29-Jul: -205.00 transfer-to-me 29-Jul | 29-Jul: +60.00 owner-paid 29-Jul | 30-Jul: +268.00 owner-paid 30-Jul | 31-Jul: -390.00 transfer-to-me 31-Jul | 31-Jul: +78.00 owner-paid 31-Jul | 03-Aug: -225.00 transfer-to-me 01-Aug | 03-Aug: +1,008.00 owner-paid 03-Aug | 05-Aug: +285.00 owner-paid 05-Aug | 05-Aug: -10,301.00 capital repayment 04-Aug | 06-Aug: -130.00 transfer-to-me 06-Aug | 06-Aug: +319.00 owner-paid 06-Aug | 07-Aug: -130.00 transfer-to-me 07-Aug | 10-Aug: -135.00 transfer-to-me 08-Aug | 10-Aug: +1,028.00 owner-paid 08-Aug | 10-Aug: -130.00 transfer-to-me 10-Aug | 10-Aug: +110.00 owner-paid 10-Aug | 11-Aug: -655.00 transfer-to-me 11-Aug | 13-Aug: -130.00 transfer-to-me 12-Aug | 13-Aug: +639.00 owner-paid 12-Aug | 13-Aug: -11,504.00 capital repayment 13-Aug | 13-Aug: -135.00 transfer-to-me 13-Aug | 16-Aug: +1,363.00 owner-paid 15-Aug | 17-Aug: -130.00 transfer-to-me 17-Aug | 17-Aug: +349.00 owner-paid 17-Aug | 17-Aug: -2,820.00 ledger settlement 17-Aug | 18-Aug: -210.00 transfer-to-me 18-Aug | 19-Aug: -120.00 transfer-to-me 19-Aug | 19-Aug: +418.00 owner-paid 19-Aug | 21-Aug: -6,000.00 capital repayment 21-Aug | 27-Aug: +1,429.00 owner-paid 24-Aug | 27-Aug: -250.00 transfer-to-me 25-Aug | 27-Aug: -260.00 transfer-to-me 27-Aug | 31-Aug: -235.00 transfer-to-me 28-Aug | 31-Aug: -1,500.00 capital repayment 29-Aug | 31-Aug: -10,000.00 capital repayment 31-Aug | 31-Aug: -130.00 transfer-to-me 31-Aug | 04-Sep: -650.50 ledger settlement 04-Sep | 04-Sep: -7,700.00 capital repayment 04-Sep
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
     soft_commission_rate=0.0205,        # Soft Restaurant terminal (reference only; actual value stored per-day in col V)
     bbva_commission_rate=0.0190,        # BBVA terminal (reference only; actual value stored per-day in col Z)

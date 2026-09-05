@@ -172,6 +172,8 @@ DEPLOYED + AVAILABLE == 600,000
 ```bash
 py eod.py today.txt              # PREVIEW a whole day from Reddy's plain-text format
 py eod.py today.txt --apply      # do it all: expenses + daily row + ledger + cash-adjust + refresh
+py eod.py extra.txt --add        # PREVIEW extra income/expenses for a day ALREADY entered
+py eod.py extra.txt --add --apply  # ADD them (revenue is added, not overwritten)
 py doctor.py                     # full health check, ALL_CLEAR or FAIL lines
 py teach.py                      # teach it a category it didn't recognise
 py teach.py --list               # show learned rules
@@ -383,6 +385,14 @@ that looks wrong. Those are listed in HOWTO.md §"THINGS ONLY YOU CAN DECIDE".
     **When adding a `sub()` rule, grep the dashboard for the VALUE as well as the label** to
     find every place it is displayed. A frozen card produces no warning: `sub()` only warns
     when a pattern matches nothing, and a stale card still matches its own old text.
+19. **Re-entering a day must ADD, never overwrite.** `close_day` finds an existing row by
+    date and *set* its values — so a second submission for the same day would have WIPED the
+    morning's takings, while expenses (which always append) would have DUPLICATED. Reddy hit
+    this needing to add extra income later in the day (01-Sep). `close_day(..., mode='add')`
+    now adds to the existing figures; `eod.py --add` exposes it, menu 20 drives it.
+    **`--apply` without `--add` on a day already in the books is now REFUSED**, so the
+    destructive path can't be taken by accident. `was_existing` must be captured BEFORE the
+    row-creation block or it is always true (I made exactly that slip).
 
 ---
 
