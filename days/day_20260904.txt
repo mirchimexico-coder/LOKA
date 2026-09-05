@@ -6,7 +6,8 @@ SOFT COMMISSION: 0
 NO-BILL: Pollo 117, Mayonesa 227, Abastos 125, Guimar 2333w, Basicos 346
 PAID BY ME:
 SALARY: NA
-NOTE: NA 
+NOTE: NA
+
 
 ------------------------------------------------------------------
 HOW TO FILL THIS IN  (delete nothing - just leave a line at 0/blank)

@@ -261,7 +261,15 @@ def build(d):
     return rows, plan
 
 def existing_day(d):
-    """Return (row, revenue, expenses) if this date is already in the books, else None."""
+    """Has this date already been CLOSED (a Daily Log row exists)?
+
+    Returns (row, revenue, expenses) or None.
+
+    Only a Daily Log row counts as 'already entered'. Expenses alone must NOT
+    trigger it: a Capital-paid bill (menu 5) or a Sunday shop writes expense rows
+    with no Daily Log row, and blocking on those stopped Reddy from entering the
+    day's actual takings afterwards.
+    """
     import openpyxl
     from datetime import datetime as _dt
     wb = openpyxl.load_workbook(loka.P)
@@ -273,11 +281,12 @@ def existing_day(d):
             row = r
             rev = sum(float(dl.cell(r,c).value or 0) for c in (4,5,7,21,25))
             break
+    if row is None:
+        return None                     # not closed yet -> normal entry is fine
     last = ex.max_row
     while last > 7 and ex.cell(last,3).value is None: last -= 1
     exp = sum(float(ex.cell(r,6).value or 0) for r in range(8,last+1)
               if _pd(ex.cell(r,2).value) == d)
-    if row is None and not exp: return None
     return row, rev or 0.0, exp
 
 def main():
