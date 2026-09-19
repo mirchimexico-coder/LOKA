@@ -107,7 +107,7 @@ def _inject_cache():
         wk = [d for d in _dates if wk_start <= d < wk_start+timedelta(days=7)]
         mo = [d for d in _dates if d.month==td.month and d.year==td.year]
         wk_rev = round(sum(_revbd.get(d,0.0) for d in wk),2)
-        wk_exp = round(sum(ebd.get(d,0.0) for d in wk),2)
+        wk_exp = round(sum(v for dd,v in ebd.items() if wk_start <= dd < wk_start+timedelta(days=7)),2)  # all expense dates incl. Sunday shop (matches P6 formula)
         vals['M6']=wk_rev; vals['N6']=wk_rev
         vals['O6']=round(sum(_revbd.get(d,0.0) for d in mo),2)
         vals['P6']=wk_exp; vals['Q6']=round(wk_rev-wk_exp,2)
@@ -446,9 +446,18 @@ def _gather():
         }
     except Exception:
         partners = {}
+    # acquisition progress (Capital sheet Section B: D13 total, D14:D30 payments) for the
+    # dashboard alert + card, which were hard-coded (alert read 2.1% left vs a true 0.6%)
+    try:
+        cp = wb.worksheets[0]
+        acq_total = float(cp.cell(13,4).value or 0)
+        acq_paid = sum(float(cp.cell(r,4).value) for r in range(14,31) if isinstance(cp.cell(r,4).value,(int,float)))
+        acq = dict(total=acq_total, paid=round(acq_paid,2), left=round(acq_total-acq_paid,2))
+    except Exception:
+        acq = {}
     return dict(days=days, ebd=ebd, capf_bd=capf_bd, soft_bd=soft_bd, softcomm_bd=softcomm_bd, bbva_bd=bbva_bd, bbvacomm_bd=bbvacomm_bd, cat_m=cat_m, inc_m=inc_m, dcount=dcount,
                 ol_spent=round(spent,2), ol_transferred=round(transferred,2), ol_balance=round(spent-transferred,2),
-                owe_capital=owe_capital, partners=partners, orphan_dates=orphan_dates)
+                owe_capital=owe_capital, partners=partners, orphan_dates=orphan_dates, acq=acq)
 
 
 def _build_bars(days, xbd=None):
@@ -628,7 +637,10 @@ def refresh_dashboard(do_backup=True):
     M=lambda x: _money(x).replace('$','\\$')  # not used; placeholder
     # --- scalars (label-anchored) ---
     sub(r'Updated: [^<]+', f'Updated: {datestr} (EOD)', 'header')
-    sub(r'(<div class="bval">)\$[\d,]+(</div>)', lambda m: m.group(1)+_money(cash)+m.group(2), 'cash')
+    # NOTE: cash CAN go negative (book value, not a physical count), so the pattern must
+    # allow a minus sign. Without it the rule stopped matching once cash went below zero
+    # and the card silently FROZE ("WARN cash: no match").
+    sub(r'(<div class="bval">)\$-?[\d,]+(</div>)', lambda m: m.group(1)+_money(cash)+m.group(2), 'cash')
     sub(r'(All-Time Revenue</div><div[^>]*>)\$[\d,]+', lambda m: m.group(1)+_money(rev), 'banner rev')
     sub(r'(All-Time Expenses</div><div[^>]*>)\$[\d,]+', lambda m: m.group(1)+_money(exp), 'banner exp')
     sub(r'(Commission</div><div[^>]*>)\$[\d,]+', lambda m: m.group(1)+_money(comm), 'banner comm')
@@ -682,6 +694,33 @@ def refresh_dashboard(do_backup=True):
                       lambda x: x.group(1)+next(it, x.group(0)[len(x.group(1)):-len(x.group(2))])+x.group(2), card)
         return card
     sub(r'<div class="own-card">.*?</div></div></div>', _owncard, 'partner cards', 3)
+    # ---- cards that used to be HARD-CODED and had gone stale (found in the 18-Sep review):
+    # header week label (said "Week 4 - Jun 2026"), acquisition alert/card, revenue mix.
+    _wk_now = (last_d - CFG['week1_start']).days // 7
+    sub(r'(Live Data &nbsp;\|&nbsp; )Week \d+ &mdash; [A-Z][a-z]{2} \d{4}',
+        lambda m: m.group(1)+f'Week {_wk_now+1} &mdash; {last_d:%b %Y}', 'header week', 1)
+    _a = g.get('acq') or {}
+    if _a.get('total'):
+        _pct = _a['paid']/_a['total']*100; _lpct = _a['left']/_a['total']*100
+        sub(r'(<div class="alabel">Acquisition</div><div class="aval">)[^<]*',
+            lambda m: m.group(1)+(f'{_money(_a["left"])} remaining ({_lpct:.1f}%)' if _a['left'] >= 1 else 'Fully paid &#10003;'), 'acq alert', 1)
+        sub(r'(<div style="font-size:2rem;font-weight:800;color:var\(--green\);">)[\d.]+%(</div><div style="font-size:.7rem;color:var\(--muted\);">)\$[\d,]+ of \$[\d,]+ settled',
+            lambda m: m.group(1)+f'{_pct:.1f}%'+m.group(2)+f'{_money(_a["paid"])} of {_money(_a["total"])} settled', 'acq headline', 1)
+        sub(r'(<div class="acq-fill" style="width:)[\d.]+%;">[\d.]+%',
+            lambda m: m.group(1)+f'{_pct:.1f}%;">{_pct:.1f}%', 'acq bar', 1)
+        sub(r'(<span class="slabel" style="color:var\(--accent\);">Remaining</span><span class="sval" style="color:var\(--accent\);">)\$[\d,]+',
+            lambda m: m.group(1)+_money(_a['left']), 'acq remaining', 1)
+    _card_all = sum(d[1] for d in days) + soft_total + bbva_total
+    _cash_all = sum(d[2] for d in days); _tf_all = sum(d[3] for d in days)
+    _tot_all = (_card_all + _cash_all + _tf_all) or 1
+    def _mixrow(lbl, v, col):
+        p = v/_tot_all*100
+        return (f'<div class="exp-row"><div class="exp-label">{lbl}</div><div class="exp-track"><div class="exp-fill" style="width:{max(1,round(p))}%;background:{col};"></div></div>'
+                f'<div class="exp-val">{_money(v)} ({p:.0f}%)</div></div>')
+    _mix = (_mixrow('Card (MP + Soft + BBVA)', _card_all, 'var(--blue)') + _mixrow('Cash', _cash_all, 'var(--green)')
+            + _mixrow('Transfer', _tf_all, 'var(--accent)'))
+    sub(r'(Revenue Mix \(all-time\)</h3>)(?:<div class="exp-row"><div class="exp-label">[^<]*</div><div class="exp-track"><div class="exp-fill" style="[^"]*"></div></div><div class="exp-val">[^<]*</div></div>){3}',
+        lambda m: m.group(1)+_mix, 'revenue mix', 1)
     # --- net CASH POSITION (balance-sheet view): cash held minus what operations owes ---
     net_cash_pos = round(cash - g['owe_capital'] - g['ol_balance'], 2)
     # This figure appears in TWO places with DIFFERENT wording. Both must update or one
@@ -696,11 +735,32 @@ def refresh_dashboard(do_backup=True):
     sub(r'(Net Cash Position</div>)<div[^>]*>(?:\+|&minus;)?\$[\d,]+</div>', _ncp, 'banner net-cash-pos')
     sub(r'(Net Cash Position[^<]*</span><span class="sval"[^>]*>)(?:\+|&minus;)?\$[\d,]+',
         lambda m: m.group(1)+_s3(net_cash_pos), 'ops net-cash-pos')
+    # the Section K item kept its RED colour after the figure turned positive (18-Sep review):
+    # rebuild it direction-aware, like the net-after-all item above.
+    def _ncpitem(m):
+        pos = net_cash_pos>=0; col='var(--green)' if pos else 'var(--red)'; bg='#0f2a12' if pos else '#2a0f0f'
+        return (f'<div class="stat-item" style="background:{bg};padding:6px 8px;border-radius:6px;margin-top:5px;">'
+                f'<span class="slabel" style="color:{col};">Net Cash Position (cash &minus; owed)</span>'
+                f'<span class="sval" style="color:{col};font-size:.9rem;">{_s3(net_cash_pos)}</span></div>')
+    sub(r'<div class="stat-item" style="background:#[0-9a-fA-F]{6};padding:6px 8px;border-radius:6px;margin-top:5px;"><span class="slabel" style="color:var\(--(?:red|green)\);">Net Cash Position \(cash &minus; owed\)</span><span class="sval" style="color:var\(--(?:red|green)\);font-size:.9rem;">(?:\+|&minus;)?\$[\d,]+</span></div>',
+        _ncpitem, 'ops net-cash-pos colour', 1)
     # --- block regens ---
     xbd={d: soft_bd.get(d,0.0)+bbva_bd.get(d,0.0) for d in set(soft_bd)|set(bbva_bd)}  # extra card revenue (Soft+BBVA) per day
     bars=_build_bars(days, xbd)
     s=re.sub(r'(<h3>Daily Revenue &mdash; Last 30 Days</h3>).*?(<div style="display:flex;gap:14px;margin-top:10px;)',
              lambda m: m.group(1)+bars+m.group(2), s, count=1, flags=re.DOTALL)
+    # colour legend under the bars: was frozen at "W1 18-24 May ... W4 8+ Jun" (18-Sep review)
+    _lg = {}
+    for _d, *_r in days[-30:]:
+        _i = (_d - CFG['week1_start']).days // 7
+        _lg.setdefault(_i, [_d, _d])[1] = _d
+    def _lgl(i):
+        lo, hi = _lg[i]
+        return f'{lo.day}-{hi.day} {lo:%b}' if lo.month == hi.month else f'{lo.day} {lo:%b}-{hi.day} {hi:%b}'
+    _leg = ''.join(f'<span><span style="display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:3px;'
+                   f'background:{WEEK_COLORS[i % len(WEEK_COLORS)]};"></span>W{i+1} {_lgl(i)}</span>' for i in sorted(_lg))
+    sub(r'(<div style="display:flex;gap:14px;margin-top:10px;font-size:\.61rem;color:var\(--muted\);(?:flex-wrap:wrap;)?">)(?:<span><span style="[^"]*"></span>[^<]*</span>)+(</div>)',
+        lambda m: m.group(1)+_leg+m.group(2), 'bar legend', 1)
     weeks=_build_weeks(days, xbd)
     s=re.sub(r'(<div class="week-grid">).*?(</div>\s*<p class="note")',
              lambda m: m.group(1)+weeks+m.group(2), s, count=1, flags=re.DOTALL)
@@ -809,9 +869,12 @@ def _write_pl(wb, pl, months, cats, label, ncol, DLN, EXN, rng, Ppath):
     r+=2
     hrow(r,'INCOME BY TYPE'); r+=1
     R_CARD=r
-    for col,name in [('D','Card'),('E','Cash'),('G','Transfer')]:
+    # Card = Mercado Pago (D) + Soft Restaurant (U) + BBVA (Y). Until 18-Sep this row read
+    # col D only, so Soft/BBVA sales ($67k all-time) were missing and this block's
+    # Total Income disagreed with the SUMMARY Total Income above it.
+    for cols,name in [(('D','U','Y'),'Card (MP + Soft + BBVA)'),(('E',),'Cash'),(('G',),'Transfer')]:
         cel(r,1,name)
-        for j,m in enumerate(months): cel(r,2+j,f'=SUMIFS({rng(DLN,col,m)})',fmt=MONEY)
+        for j,m in enumerate(months): cel(r,2+j,'='+'+'.join(f'SUMIFS({rng(DLN,c,m)})' for c in cols),fmt=MONEY)
         r+=1
     cel(r,1,'Total Income',font=BOLD)
     for j in range(len(months)): cel(r,2+j,f'={COL(j)}{R_CARD}+{COL(j)}{R_CARD+1}+{COL(j)}{R_CARD+2}',font=BOLD,fmt=MONEY)

@@ -172,14 +172,25 @@ def line_items(txt, label):
     m=re.search(rf'^{label}\s*:?(.*)$', txt, re.I|re.M)
     if not m: return []
     body=m.group(1).strip()
-    if not body or _norm(body) in ('none','no','0','n/a'): return []
-    out=[]
+    if not body or _norm(body) in ('none','no','0','n/a','na','-'): return []
+    out=[]; bad=[]
     for chunk in re.split(r'[,;]|\s+y\s+', body):
         chunk=chunk.strip()
-        if not chunk: continue
+        if not chunk or _norm(chunk) in ('none','no','0','n/a','na','-'): continue
         mm=re.match(rf'^(.*?)\s*\$?{NUM}\s*$', chunk)
         if mm and mm.group(1).strip():
             out.append((mm.group(1).strip(), _f(mm.group(2))))
+        else:
+            bad.append(chunk)
+    # Never drop an item silently: 'Guimar 2333w' (stray letter) vanished this way on
+    # 04-Sep, and '1,234' splits into '1' + '234'. Stop so the line gets fixed first.
+    if bad:
+        raise SystemExit(
+            f"\n  >> Could not read the amount in {len(bad)} item(s) on the {label} line:\n"
+            + ''.join(f"       '{_norm(b)}'\n" for b in bad) +
+            "     Each item must be  description amount  e.g.  Guimar 2333\n"
+            "     (no letters after the number, no thousands comma: write 1234 not 1,234).\n"
+            "     Fix the line and run the preview again. Nothing was written.\n")
     return out
 
 def parse(txt):

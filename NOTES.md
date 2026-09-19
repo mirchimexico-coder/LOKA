@@ -2,7 +2,7 @@
 
 > **Purpose:** everything an assistant needs to resume LOKA bookkeeping without
 > re-discovering it. Read this file FIRST at the start of a session.
-> Last full review: **27-Jul-2026**.
+> Last full review: **18-Sep-2026** (previous: 27-Jul-2026).
 
 ---
 
@@ -255,7 +255,7 @@ Staff - Salary              Staff - Advance           Staff - Propinas
 Supermarket/General         Supplies/Other            Kitchen Supplies
 Packaging/Disposables       Utilities/Internet        Utilities/Gas
 Software/Subscription       Rent                      Office Supplies
-Maintenance
+Maintenance                 Utilities/Electricity
 ```
 **Never invent a new spelling variant** (`Supermarket / General` vs `Supermarket/General`
 split the P&L into two lines — merged 55 cells on 27-Jul). `doctor.py` now detects this.
@@ -393,6 +393,28 @@ that looks wrong. Those are listed in HOWTO.md §"THINGS ONLY YOU CAN DECIDE".
     **`--apply` without `--add` on a day already in the books is now REFUSED**, so the
     destructive path can't be taken by accident. `was_existing` must be captured BEFORE the
     row-creation block or it is always true (I made exactly that slip).
+20. **Soft/BBVA were STILL missing from three Excel-side summaries (18-Sep review).** The
+    dashboard (via `_gather`) was right, but: Monthly P&L "Card" row read col D only (fixed in
+    the generator `_write_pl` too, per lesson 2b), Capital Section K C143/C145 ignored U/Y and
+    V/Z so C146 "Operating result" showed -$58,323 instead of +$7,753, and Daily Log F6 omitted
+    U/Y. Same root cause as lesson 17. Daily Log M6-P6 used `SUMPRODUCT(..*IF(ISNUMBER(..)))`,
+    which real Excel evaluates to **0** -> replaced with SUMIFS (P6 now reads the Expenses sheet
+    so a Sunday shop counts; `_inject_cache` wk_exp matches). **openpyxl cannot evaluate
+    formulas and injected caches can hide a broken formula: verify Excel-side sheets with a real
+    Excel recalculation of a COPY (PowerShell COM: Open read-only -> CalculateFull -> SaveAs).**
+21. **`eod.py` silently dropped any item it could not read.** `Guimar 2333w` (stray letter) on
+    04-Sep never reached the Expenses sheet; `1,234` would split into `1` + `234`. `line_items`
+    now STOPS with a message naming the item, before anything is written. `NA` is ignored.
+22. **More hard-coded dashboard cards had drifted (lesson 15 again):** header "Week 4 - Jun 2026",
+    acquisition alert "(2.1%)" (true 0.6%) and card missing 22-Jun $60k / 30-Jun $6k lines,
+    revenue mix frozen at June ($99.7k total), bar legend W1-W4, Section K Net Cash Position
+    stuck RED while positive, staff alert/roster still showing Samu + Cesar. Header week,
+    acquisition alert/card, revenue mix, bar legend and NCP colour now auto-refresh.
+    **Still manual: Staff Roster, Break-Even card + KPI, Pending Income alert.**
+23. **`tools.py settle` mislabelled hand-backs.** "Lohith returned restaurant money" rows got the
+    `add_ledger` defaults `Expense - Personal / Reimburse` (reads as money owed TO Lohith). Now
+    `Settlement / Settled`; ledger rows 72, 81, 93, 94 relabelled. Also Capital Section F C92 is
+    now `=D67-D56` (the $5k advance was counted twice in Total Cash Out) and G100/G101 are formulas.
 
 ---
 
@@ -405,8 +427,9 @@ that looks wrong. Those are listed in HOWTO.md §"THINGS ONLY YOU CAN DECIDE".
 breakdown, ledger card+alert, ops↔capital card, net-after-all-exp, **Ops owe capital**,
 **Net Cash Position** (added 27-Jul).
 
-**NOT auto-refreshed (edit by hand, rarely change):** Acquisition card, Staff Roster,
-Break-Even card, Pending Income alert.
+**NOT auto-refreshed (edit by hand, rarely change):** Staff Roster,
+Break-Even card + KPI, Pending Income alert. (Acquisition alert/card, header week, revenue mix
+and the bar legend auto-refresh since 18-Sep - lesson 22.)
 **Partner ownership cards ARE now auto-refreshed** (fixed 27-Jul — see lesson 15).
 
 ### Two different "net" figures — don't conflate (Reddy asked about this)
@@ -468,6 +491,26 @@ It exposed bugs 11–13. Verified by independent recompute from raw cells.
   independent source of truth for cash. That is what bug 12 hid behind.
 
 ---
+
+## 10b. STATE AS OF 18-SEP-2026 (full review, all figures independently recomputed)
+
+| Metric | Value |
+|---|---|
+| Cash anchor | 26-Jul-2026 = $15,395 (no physical recount since) |
+| `cash_adjust` | -63,464.50 = exactly the sum of its 58 logged entries |
+| All-time revenue / expenses | $448,118 / $432,828.05 |
+| Card commissions | $7,537.31 (MP est 6,252.52 + Soft 59.69 + BBVA 1,225.10) |
+| Net after all exp & comm | **+$7,752.64** (= Capital C146 now) |
+| Operating Net | +$15,289.95 |
+| **Cash on Hand** | **$8,422** |
+| Net Cash Position | +$9,952 |
+| Owed to Capital (C147) | **$0 - fully repaid** (funded $84,370.53 = repaid C149) |
+| Owner Ledger | Lohith holds $1,530.47 |
+| Acquisition unpaid (D31) / Kashi to transfer (F100) | $2,235 / $18,431.66 |
+| Last Daily Log row / Expenses row | 118 = 18-Sep / 781 |
+| Trading days | 107 (15-16 Sep no entries - holiday?) |
+| 17-Sep transfer-to-me $15,896 | confirmed by Reddy: real customer payment, used to repay Capital |
+| Resolved with Reddy (18-Sep evening) | Guimar 04-Sep = **$226** (added, row 782 -> cash $8,196, expenses $433,054); staff pay confirmed John $3,750 + Duvi $1,460 + Armando $2,200 = $7,410/wk; break-even now **$4,073/day** (Staff sheet rows 35-57 rebuilt as formulas); $3,500 Govt catering (21-May) **still owed**; Excel `📊 Dashboard` tab **retired = hidden** (NOT deleted - sheet indices must not shift); 15-16 Sep closed (holiday); 07-Sep "Electric Issue" $600 -> Maintenance |
 
 ## 11. WORKING STYLE WITH REDDY
 

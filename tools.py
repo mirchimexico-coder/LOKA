@@ -137,12 +137,16 @@ def settle():
     d   = askdate()
     if not confirm("   Apply?"): print("   cancelled."); return
     loka.backup(f'settle_ledger_{d:%b%d}'.lower())
+    # typ/status passed explicitly: the add_ledger defaults ('Expense - Personal' /
+    # 'Reimburse') made a hand-back read as money OWED to Lohith (fixed 18-Sep).
     if bal > 0:
         loka.add_ledger(d, 'Settlement - restaurant paid Lohith', transferred=amt,
+                        typ='Settlement', status='\u2705 Settled',
                         notes='Ledger settled from operating cash', do_backup=False)
         loka.cash_adjust_add(-amt, f'ledger settlement {d:%d-%b}')
     else:
         loka.add_ledger(d, 'Settlement - Lohith returned restaurant money', spent=amt,
+                        typ='Settlement', status='\u2705 Settled',
                         notes='Lohith handed back cash he was holding', do_backup=False)
         loka.cash_adjust_add(amt, f'ledger settlement {d:%d-%b}')
     print("   done.")

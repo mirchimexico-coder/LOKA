@@ -255,7 +255,7 @@ Staff - Salary             Staff - Advance          Staff - Propinas
 Supermarket/General        Supplies/Other           Kitchen Supplies
 Packaging/Disposables      Utilities/Internet       Utilities/Gas
 Software/Subscription      Rent                     Office Supplies
-Maintenance
+Maintenance                Utilities/Electricity
 ```
 
 Tip: click an existing row and drag its formatting down, so the date and money
