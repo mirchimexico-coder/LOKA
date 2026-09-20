@@ -36,7 +36,7 @@ def confirm(msg):
 # ---------------------------------------------------------------- recount
 def recount():
     print("\n== RE-ANCHOR CASH TO A PHYSICAL COUNT ==")
-    print(f"   The books currently think you have: {loka.compute()['cash_on_hand']}")
+    print(f"   The books currently think you have: ${loka.compute()['position']['cash_on_hand']:,.2f}")
     amt = money("Total cash you actually counted (all forms, incl bank)")
     d   = askdate("Date you counted it")
     print(f"\n   New anchor: {d:%d-%b-%Y} = ${amt:,.2f}")
@@ -51,7 +51,8 @@ def recount():
                  'Only add deltas dated AFTER that.', src)
     io.open(loka.__file__,'w',encoding='utf-8',newline='\n').write(src)
     print("   done - re-anchored.")
-    os.system(f'"{sys.executable}" "{os.path.join(os.path.dirname(loka.__file__),"loka.py")}" refresh-all')
+    import subprocess
+    subprocess.call([sys.executable, os.path.join(os.path.dirname(loka.__file__), 'loka.py'), 'refresh-all'])
 
 # ---------------------------------------------------------------- repay capital
 def repay():
