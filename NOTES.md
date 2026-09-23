@@ -102,8 +102,9 @@ Headers row 3, data row 4+. `A`date `B`desc `C`type `D`spent-by-Lohith `E`transf
 | **Owner-paid expense** (Lohith fronts cash) | Expenses row with `paid="Lohith"` (still a real P&L cost) **+** Owner Ledger `spent` entry **+** `cash-adjust +amount` |
 | **Partner/staff card purchase, reimbursed with restaurant money** | `paid="Restaurant"`, normal P&L, **NO ledger entry** |
 | **Capital expense** (one-off equipment, e.g. camera cloud) | `paid="Capital"` → carved out of the cash roll via `capf_bd` |
-| **Operating bill paid from partner capital** (rent, electricity) | `paid="Capital"` → real P&L cost, **cash UNCHANGED**, and **C147 goes UP** by the amount. Use `py tools.py capex` / menu 19 — it does both halves. Cash and Operating Net must NOT move; only the all-in net and Net Cash Position drop. |
+| **Operating bill paid from partner capital** (rent, electricity) | `paid="Capital"` → real P&L cost, **cash UNCHANGED**, and **C147 goes UP** by the amount. Use `py tools.py capex` / menu 5 — it does both halves. Cash and Operating Net must NOT move; only the all-in net and Net Cash Position drop. |
 | **Renovation / post-opening capex** | Capital sheet Section I |
+| **Capital reserve in company account** (from 22-Sep-2026: Lohith moved all $125,934 undeployed capital to the company account) | Capital sheet **Section M** (C169 moved in, C170 drawn, C171 balance). NOT operating cash: excluded from `cash_on_hand`, shown separately on dashboard. **Recount** (menu 13): count everything, tool subtracts the reserve. **Menu 5** asks "paid from reserve?" → draws C170. **Menu 6** asks "stayed in company account?" → adds to C169. Section J D141 = with Lohith = D140 − C171. |
 | **Propinas (tips)** | Staff & Payroll table rows 61–95. **Pass-through, NOT P&L.** Only restaurant top-up ABOVE collected tips is a real "Staff - Propinas" expense |
 | **Chef paid for working late** | real WAGE (Staff - Salary), not a tip |
 | **Capital repayment** (ops → capital) | reduce Capital `C147` **+** `cash-adjust −amount`. **NOT a P&L expense** |

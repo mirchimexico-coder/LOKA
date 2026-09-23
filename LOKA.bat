@@ -14,6 +14,8 @@ echo    1.  Enter today's numbers  (opens today.txt)
 echo    2.  PREVIEW  what will be recorded
 echo    3.  RECORD IT  (writes to the books)
 echo    4.  ADD MORE to a day already entered
+echo   21.  FIX a day - move money between payment types
+echo          (e.g. cash that was really a transfer to me)
 echo.
 echo   --- MONEY FROM / BACK TO CAPITAL -----------------------------
 echo    5.  Expense PAID WITH CAPITAL MONEY  (rent, electricity...)
@@ -63,6 +65,7 @@ if "%c%"=="17" %PY% teach.py --list  & pause & goto menu
 if "%c%"=="18" %PY% loka.py refresh-all & pause & goto menu
 if "%c%"=="19" %PY% tools.py restore & pause & goto menu
 if "%c%"=="20" powershell -NoProfile -ExecutionPolicy Bypass -File "C:\LOKA\add_spanish_ocr.ps1" & goto menu
+if "%c%"=="21" %PY% tools.py move    & pause & goto menu
 if "%c%"=="0"  exit
 goto menu
 

@@ -113,6 +113,9 @@ try:
     avail=withme+(180000-145000-s(43,51))+(120000-100000-s(72,81))
     tot=dep+avail
     (ok if abs(tot-600000)<1 else bad).append(f"Capital reconciles to 600,000: {tot:,.2f}")
+    reserve=float(cap['C169'].value or 0)+float(cap['C170'].value or 0)
+    (ok if -0.5 < reserve <= withme+0.5 else bad).append(
+        f"capital reserve in company acct {reserve:,.2f} (must be 0..{withme:,.2f} undeployed); with Lohith {withme-reserve:,.2f}")
 except Exception as e:
     warn.append("capital check failed: "+str(e))
 

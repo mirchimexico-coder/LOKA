@@ -290,6 +290,7 @@ def compute():
              'owed_to_capital': g['owe_capital'],
              'owner_ledger': g['ol_balance'],
              'net_cash_position': round(cash - g['owe_capital'] - g['ol_balance'], 2),
+             'capital_reserve': g.get('cap_reserve', 0.0),
              'cash_anchor': f"{CFG['cash_anchor_date']} = {CFG['cash_anchor_amount']:,.2f}"},
            'by_month': {},
            'last_days': [(str(d), round(c+k+t+g['soft_bd'].get(d,0)+g['bbva_bd'].get(d,0),2), e,
@@ -358,7 +359,7 @@ WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
     cash_anchor_date=date(2026,9,19), cash_anchor_amount=12272.0,
-    cash_adjust=0.00,                   # RESET at physical count 19-Sep-2026 = $12,272.00. Only add deltas dated AFTER that.
+    cash_adjust=144.00,                   # RESET at physical count 19-Sep-2026 = $12,272.00. Only add deltas dated AFTER that. | 21-Sep: +404.00 owner-paid 21-Sep | 21-Sep: -260.00 transfer-to-me 21-Sep (moved from Cash)
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
     soft_commission_rate=0.0205,        # Soft Restaurant terminal (reference only; actual value stored per-day in col V)
     bbva_commission_rate=0.0190,        # BBVA terminal (reference only; actual value stored per-day in col Z)
@@ -420,6 +421,14 @@ def _gather():
         owe_capital = round(float(wb.worksheets[0]['C147'].value or 0), 2)
     except Exception:
         owe_capital = 0.0
+    # capital reserve held in the company account (Capital sheet Section M, 22-Sep-2026).
+    # C171 is a formula (=C169+C170) that openpyxl cannot evaluate, so sum the raw inputs.
+    # It is capital, NOT operating cash: excluded from cash_on_hand, subtracted at recounts.
+    try:
+        _cp = wb.worksheets[0]
+        cap_reserve = round(float(_cp['C169'].value or 0) + float(_cp['C170'].value or 0), 2)
+    except Exception:
+        cap_reserve = 0.0
     # ---- partner capital positions (for the 3 ownership cards on the dashboard) ----
     # These were hard-coded and went stale (Shashi showed "owes $1,105" long after a
     # -$1,034 reimbursement had netted her to exactly her $120k budget).
@@ -439,8 +448,8 @@ def _gather():
         lo_remaining = funds_in - (_s(56,66) - float(cp.cell(56,4).value or 0)) \
                        - _s(14,30) - owe_capital
         partners = {
-            'Lohith Reddy':   dict(dep=round(funds_in-lo_remaining,2), other=round(lo_remaining,2),
-                                   base=funds_in),
+            'Lohith Reddy':   dict(dep=round(funds_in-lo_remaining,2), other=round(lo_remaining-cap_reserve,2),
+                                   base=funds_in, reserve=cap_reserve),
             'Kashigoud Patil':dict(dep=round(ka_dep,2), other=round(ka_b-ka_dep,2), base=ka_b),
             'Shashirekha B.': dict(dep=round(sh_dep,2), other=round(sh_b-sh_dep,2), base=sh_b),
         }
@@ -457,7 +466,7 @@ def _gather():
         acq = {}
     return dict(days=days, ebd=ebd, capf_bd=capf_bd, soft_bd=soft_bd, softcomm_bd=softcomm_bd, bbva_bd=bbva_bd, bbvacomm_bd=bbvacomm_bd, cat_m=cat_m, inc_m=inc_m, dcount=dcount,
                 ol_spent=round(spent,2), ol_transferred=round(transferred,2), ol_balance=round(spent-transferred,2),
-                owe_capital=owe_capital, partners=partners, orphan_dates=orphan_dates, acq=acq)
+                owe_capital=owe_capital, cap_reserve=cap_reserve, partners=partners, orphan_dates=orphan_dates, acq=acq)
 
 
 def _build_bars(days, xbd=None):
@@ -499,7 +508,7 @@ def _build_weeks(days, xbd=None):
                    f'<div class="wk-row"><span>Net</span><span class="{cls}">{_signed(net)}</span></div></div>')
     return ''.join(out)
 
-GROUP_ORDER = ['Salaries','Groceries','Supplies','Utilities','Rent','Maintenance','Software','Other']
+GROUP_ORDER = ['Salaries','Groceries','Supplies','Utilities','Rent','Maintenance','Software','Taxes & Fees','Other']
 def _cat_group(c):
     c=str(c or '')
     if c.startswith('Staff'): return 'Salaries'
@@ -508,6 +517,7 @@ def _cat_group(c):
     if c=='Rent': return 'Rent'
     if c=='Maintenance': return 'Maintenance'
     if c.startswith('Software'): return 'Software'
+    if c in ('Taxes', 'Professional Services'): return 'Taxes & Fees'
     if ('Supplies' in c) or ('Disposables' in c) or ('Packaging' in c): return 'Supplies'
     return 'Other'
 
@@ -550,7 +560,7 @@ def _build_monthly(inc_m, cat_m, dcount):
     gtot=lambda g: sum(grp_m[m].get(g,0) for m in ordered)
     groups=[g for g in GROUP_ORDER if gtot(g)>0]
     # current-month expense pie (donut)
-    GCOL={'Salaries':'#3b82f6','Groceries':'#22c55e','Supplies':'#f97316','Utilities':'#a855f7','Rent':'#ef4444','Maintenance':'#f59e0b','Software':'#06b6d4','Other':'#64748b'}
+    GCOL={'Salaries':'#3b82f6','Groceries':'#22c55e','Supplies':'#f97316','Utilities':'#a855f7','Rent':'#ef4444','Maintenance':'#f59e0b','Software':'#06b6d4','Taxes & Fees':'#ec4899','Other':'#64748b'}
     cm=ordered[0]; ctot=sum(grp_m[cm].values()); pie=''
     if ctot>0:
         segs=[]; leg=[]; off=0.0
@@ -641,6 +651,12 @@ def refresh_dashboard(do_backup=True):
     # allow a minus sign. Without it the rule stopped matching once cash went below zero
     # and the card silently FROZE ("WARN cash: no match").
     sub(r'(<div class="bval">)\$-?[\d,]+(</div>)', lambda m: m.group(1)+_money(cash)+m.group(2), 'cash')
+    # banner label named the 26-Jul count for weeks after later recounts: derive it from the anchor.
+    sub(r'Cash on Hand \(physical count [^)]*\)',
+        f"Cash on Hand (physical count {CFG['cash_anchor_date']:%d %b})", 'banner count date', 1)
+    # capital reserve sits in the same bank account but is NOT operating cash (22-Sep-2026)
+    sub(r'(Capital reserve in company acct \(not in cash above\): )\$[\d,]+',
+        lambda m: m.group(1)+_money(g.get('cap_reserve', 0.0)), 'banner capital reserve', 1)
     sub(r'(All-Time Revenue</div><div[^>]*>)\$[\d,]+', lambda m: m.group(1)+_money(rev), 'banner rev')
     sub(r'(All-Time Expenses</div><div[^>]*>)\$[\d,]+', lambda m: m.group(1)+_money(exp), 'banner exp')
     sub(r'(Commission</div><div[^>]*>)\$[\d,]+', lambda m: m.group(1)+_money(comm), 'banner comm')
@@ -689,7 +705,9 @@ def refresh_dashboard(do_backup=True):
         pct = max(0.0, min(100.0, (p['dep']/p['base']*100) if p['base'] else 0))
         card = re.sub(r'(<div class="own-bar" style="width:)[\d.]+(%)',
                       lambda x: x.group(1)+f'{pct:.1f}'+x.group(2), card)
-        it = iter([_money(p['dep']), _money(abs(p['other']))])   # row1 deployed, row2 owes/remaining
+        vals = [_money(p['dep']), _money(abs(p['other']))]              # row1 deployed, row2 owes/remaining
+        if 'reserve' in p: vals.append(_money(p['reserve']))            # row3 (Lohith): company-account reserve
+        it = iter(vals)
         card = re.sub(r'(<div class="ov"(?: style="[^"]*")?>)\$[\d,]+(</div>)',
                       lambda x: x.group(1)+next(it, x.group(0)[len(x.group(1)):-len(x.group(2))])+x.group(2), card)
         return card

@@ -315,3 +315,29 @@ reason to prefer it.
 
 Every write makes a backup. `Backup\` holds the last 30 workbooks with timestamps.
 Tell Claude what happened and it restores or corrects in seconds. Nothing is ever lost.
+
+## Fixing a day: money under the wrong payment type (menu 21)
+
+Use when a day is already recorded but an amount was typed under the wrong type,
+e.g. you wrote CASH 1940 but $260 of it was really a customer transfer to your account.
+
+`LOKA.bat` -> **21** -> date -> MOVE FROM (1 = Cash) -> MOVE TO (6 = Transfer to ME) -> amount -> y
+
+- The day's total revenue never changes; only the split between types.
+- Moving **to** "Transfer to ME" also adds an Owner Ledger `transferred` entry and cash-adjust -amount.
+- Moving **from** "Transfer to ME" reverses both.
+- BBVA / Soft moves ask for the commission change (default = the usual rate).
+- Backs up first, refreshes the dashboard after. Then push with VS Code.
+- Command line: `py tools.py move`
+
+## Capital reserve in the company account (from 22-Sep-2026)
+
+All remaining capital ($125,934) now sits in the company account, tracked separately from
+operating cash (Capital sheet, Section M). The dashboard shows it under the cash banner and
+on the Lohith card.
+
+- **Cash count (menu 13):** count EVERYTHING (till + bank). The tool subtracts the reserve for you.
+- **Bill paid with capital (menu 5):** answer **y** to "Paid from the CAPITAL RESERVE?" if it
+  left the company account; **n** if a partner paid it directly.
+- **Money paid back to Capital (menu 6):** answer **y** to "stayed in the COMPANY ACCOUNT?"
+  if the repayment stays there as reserve; **n** if it went to you.

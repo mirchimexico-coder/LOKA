@@ -75,7 +75,7 @@ CATEGORIES = [
  'Staff - Salary','Staff - Advance','Staff - Propinas',
  'Supermarket/General','Kitchen Supplies','Packaging/Disposables','Supplies/Other',
  'Utilities/Internet','Utilities/Gas','Utilities/Electricity','Software/Subscription',
- 'Rent','Office Supplies','Maintenance',
+ 'Rent','Office Supplies','Maintenance','Taxes','Professional Services',
 ]
 def load_rules():
     try:
