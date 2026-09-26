@@ -359,7 +359,7 @@ WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
     cash_anchor_date=date(2026,9,19), cash_anchor_amount=12272.0,
-    cash_adjust=144.00,                   # RESET at physical count 19-Sep-2026 = $12,272.00. Only add deltas dated AFTER that. | 21-Sep: +404.00 owner-paid 21-Sep | 21-Sep: -260.00 transfer-to-me 21-Sep (moved from Cash)
+    cash_adjust=1023.00,                   # RESET at physical count 19-Sep-2026 = $12,272.00. Only add deltas dated AFTER that. | 21-Sep: +404.00 owner-paid 21-Sep | 21-Sep: -260.00 transfer-to-me 21-Sep (moved from Cash) | 23-Sep: +879.00 owner-paid 23-Sep
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
     soft_commission_rate=0.0205,        # Soft Restaurant terminal (reference only; actual value stored per-day in col V)
     bbva_commission_rate=0.0190,        # BBVA terminal (reference only; actual value stored per-day in col Z)
