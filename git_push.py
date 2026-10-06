@@ -22,7 +22,8 @@ REASONS = {('eod.py', None): 'EOD', ('tools.py', 'recount'): 'cash count', ('too
            ('git_push.py', None): 'manual push'}
 
 def _clean(s):
-    return re.sub(r'https://[^@\s/]+@', 'https://', s or '').strip()
+    # rstrip only: porcelain lines start with a meaningful space (" M file")
+    return re.sub(r'https://[^@\s/]+@', 'https://', s or '').rstrip()
 
 def _git(*args, timeout=90):
     env = dict(os.environ, GIT_TERMINAL_PROMPT='0', GCM_INTERACTIVE='never')
