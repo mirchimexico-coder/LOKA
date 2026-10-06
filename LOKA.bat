@@ -18,8 +18,8 @@ echo   21.  FIX a day - move money between payment types
 echo          (e.g. cash that was really a transfer to me)
 echo.
 echo   --- MONEY FROM / BACK TO CAPITAL -----------------------------
-echo    5.  Expense PAID WITH CAPITAL MONEY  (rent, electricity...)
-echo    6.  Money PAID BACK to Capital
+echo    5.  Expense paid by a PARTNER directly (not company account)
+echo    6.  Pay back a partner who paid a bill directly
 echo    7.  Settle the owner ledger with me
 echo.
 echo   --- LOOK AT THINGS -------------------------------------------
@@ -30,7 +30,7 @@ echo   11.  Health check
 echo.
 echo   --- NOW AND THEN ---------------------------------------------
 echo   12.  Record propinas (tips to staff)
-echo   13.  Cash count - re-anchor to what you counted
+echo   13.  Cash count - company account + cash in hand
 echo   14.  Scan receipt photos  (reads them on this PC)
 echo   15.  Open the receipts drop folder
 echo.
@@ -39,6 +39,8 @@ echo   16.  Teach a category  (fix anything it didn't recognise)
 echo   17.  Show what I've taught it
 echo   18.  Refresh dashboard only
 echo   19.  UNDO - restore an earlier backup
+echo   22.  BACKUP workbook + dashboard to Google Drive
+echo   23.  COMMIT + PUSH everything to GitHub now
 echo   20.  Add Spanish to the receipt reader (one time, needs admin)
 echo.
 echo    0.  Exit
@@ -66,6 +68,8 @@ if "%c%"=="18" %PY% loka.py refresh-all & pause & goto menu
 if "%c%"=="19" %PY% tools.py restore & pause & goto menu
 if "%c%"=="20" powershell -NoProfile -ExecutionPolicy Bypass -File "C:\LOKA\add_spanish_ocr.ps1" & goto menu
 if "%c%"=="21" %PY% tools.py move    & pause & goto menu
+if "%c%"=="22" %PY% gdrive_backup.py & pause & goto menu
+if "%c%"=="23" %PY% git_push.py      & pause & goto menu
 if "%c%"=="0"  exit
 goto menu
 

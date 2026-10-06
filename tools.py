@@ -41,21 +41,22 @@ def recount():
     print("\n== RE-ANCHOR CASH TO A PHYSICAL COUNT ==")
     pos = loka.compute()['position']
     reserve = pos.get('capital_reserve', 0.0)
-    print(f"   The books currently think you have: ${pos['cash_on_hand']:,.2f}  (operating cash)")
-    if reserve:
-        print(f"   Capital reserve in the company account: ${reserve:,.2f}  (NOT operating cash)")
-        print(f"   -> expected total if you count everything: ${pos['cash_on_hand']+reserve:,.2f}")
-    counted = money("Total you actually counted (all forms, incl bank)")
+    print(f"   Capital (fixed, in company account):        ${reserve:,.2f}")
+    print(f"   Books expect company account + cash in hand: ${pos['pool_total']:,.2f}")
+    print(f"   -> Balance vs Capital now:                  ${pos['balance_vs_capital']:,.2f}"
+          + ("   (restaurant owes Capital)" if pos['balance_vs_capital'] < 0 else ""))
+    counted = money("Company account balance + restaurant cash in hand (leave out your Owner Ledger pocket money)")
     amt = round(counted - reserve, 2)
     d   = askdate("Date you counted it")
-    if reserve:
-        print(f"\n   Counted ${counted:,.2f}  -  capital reserve ${reserve:,.2f}  =  operating cash ${amt:,.2f}")
+    print(f"\n   Counted ${counted:,.2f}  -  Capital ${reserve:,.2f}  =  Balance vs Capital ${amt:,.2f}"
+          + ("  (owes Capital)" if amt < 0 else ""))
+    print(f"   Difference from the books: {counted - pos['pool_total']:+,.2f}")
     print(f"\n   New anchor: {d:%d-%b-%Y} = ${amt:,.2f}")
     print("   This also resets the running cash adjustment to 0 (the count absorbs all drift).")
     if not confirm("   Apply?"): print("   cancelled."); return
     loka.backup(f'recount_{d:%b%d}'.lower())
     src = io.open(loka.__file__, encoding='utf-8').read()
-    src = re.sub(r'cash_anchor_date=date\([^)]*\), cash_anchor_amount=[\d.]+',
+    src = re.sub(r'cash_anchor_date=date\([^)]*\), cash_anchor_amount=-?[\d.]+',
                  f'cash_anchor_date=date({d.year},{d.month},{d.day}), cash_anchor_amount={amt}', src)
     src = re.sub(r'(cash_adjust=)-?[\d.]+(,\s*#)[^\n]*',
                  rf'\g<1>0.00\g<2> RESET at physical count {d:%d-%b-%Y} = ${amt:,.2f}. '
@@ -68,21 +69,20 @@ def recount():
 # ---------------------------------------------------------------- repay capital
 def repay():
     print("\n== MONEY PAID BACK TO CAPITAL ==")
+    print("   From 05-Oct-2026: money that STAYS in the company account repays Capital")
+    print("   automatically (Balance vs Capital rises with every sale) - nothing to record.")
+    print("   Use this ONLY when money LEAVES the company account / cash to pay back a")
+    print("   partner who paid a bill directly (menu 5).\n")
     wb = openpyxl.load_workbook(P); cap = wb.worksheets[0]
     owed = float(cap.cell(147,3).value or 0)
-    print(f"   Operations currently owes Capital: ${owed:,.2f}")
+    print(f"   Owed to partners for bills they paid directly: ${owed:,.2f}")
     amt = money("How much was paid back")
     d   = askdate()
     if amt > owed and not confirm(f"   That is more than the ${owed:,.2f} owed. Continue?"): return
     new = round(owed-amt, 2)
-    to_reserve = ask("Did it stay in the COMPANY ACCOUNT as capital reserve? (y/n, n = it went to Lohith)", 'y').lower().startswith('y')
+    to_reserve = False
     print(f"\n   Advance owed:  ${owed:,.2f}  ->  ${new:,.2f}")
-    print(f"   Operating cash on hand will drop by ${amt:,.2f}.")
-    if to_reserve:
-        r0 = round(float(cap['C169'].value or 0) + float(cap['C170'].value or 0), 2)
-        print(f"   Capital reserve (company acct): ${r0:,.2f}  ->  ${r0+amt:,.2f}")
-    else:
-        print(f"   The money is now capital held by Lohith.")
+    print(f"   Balance vs Capital (company acct + cash) will drop by ${amt:,.2f}.")
     print("   This is NOT a P&L expense - it is a balance-sheet movement.")
     if not confirm("   Apply?"): print("   cancelled."); return
     loka.backup(f'repay_capital_{d:%b%d}'.lower())
@@ -199,7 +199,10 @@ def report():
     print(f"  owner ledger      {'restaurant owes you' if s['owner_ledger']>0 else 'you hold'} ${abs(s['owner_ledger']):,.2f}")
     print(f"  net cash position ${s['net_cash_position']:,.2f}")
     if s.get('capital_reserve'):
-        print(f"  capital reserve   ${s['capital_reserve']:,.2f}   (company acct, not operating cash)")
+        print(f"  capital (fixed)   ${s['capital_reserve']:,.2f}   in company account")
+        print(f"  acct + cash       ${s['pool_total']:,.2f}")
+        print(f"  BALANCE vs CAPITAL ${s['balance_vs_capital']:,.2f}"
+              + ("   <- restaurant owes Capital" if s['balance_vs_capital'] < 0 else "   surplus"))
     print()
 
 # ---------------------------------------------------------------- restore
@@ -224,11 +227,14 @@ def restore():
 # ---------------------------------------------------------------- capital-paid expense
 def capex():
     """An operating cost paid with PARTNER CAPITAL rather than restaurant money."""
-    print("\n== EXPENSE PAID FROM CAPITAL ==")
-    print("   Use this when partner capital paid an operating bill (rent, electricity...)")
-    print("   rather than the restaurant's own money.")
-    print("   It stays a real cost in the P&L, does NOT touch cash on hand, and")
-    print("   INCREASES what Operations owes Capital.\n")
+    print("\n== EXPENSE PAID BY A PARTNER DIRECTLY (outside the company account) ==")
+    print("   From 05-Oct-2026 bills paid FROM THE COMPANY ACCOUNT (rent, light, taxes,")
+    print("   contador...) are NORMAL expenses: enter them in the daily EOD, NOT here.")
+    print("   Use this ONLY when a partner paid a restaurant bill from their own money")
+    print("   as extra capital. It stays a real cost in the P&L, does NOT touch the")
+    print("   company account, and INCREASES what Operations owes Capital.\n")
+    if not confirm("   Was it paid by a partner OUTSIDE the company account?"):
+        print("   Then record it as a normal expense in the EOD (menu 1 / 4)."); return
     import eod
     wb = openpyxl.load_workbook(P); cap = wb.worksheets[0]
     owed = float(cap.cell(147,3).value or 0)
@@ -253,19 +259,9 @@ def capex():
     print("\n   " + "-"*54)
     for i in items: print(f"     {i['amount']:>11,.2f}  {i['desc'][:26]:<26} {i['cat']}")
     print(f"     {tot:>11,.2f}  TOTAL")
-    print(f"\n   These will be recorded as paid by CAPITAL.")
-    print(f"   Operating cash on hand: UNCHANGED (restaurant money did not pay).")
+    print(f"\n   These will be recorded as paid by CAPITAL (partner directly).")
+    print(f"   Company account / Balance vs Capital: UNCHANGED.")
     print(f"   Owed to Capital: ${owed:,.2f}  ->  ${owed+tot:,.2f}")
-    reserve = round(float(cap['C169'].value or 0) + float(cap['C170'].value or 0), 2)
-    from_reserve = False
-    if reserve > 0:
-        from_reserve = ask(f"Paid from the CAPITAL RESERVE in the company account (${reserve:,.2f})? "
-                           "(y/n, n = a partner paid directly)", 'y').lower().startswith('y')
-        if from_reserve:
-            if tot > reserve + 0.005:
-                print(f"   The reserve only has ${reserve:,.2f}. Split it: record the reserve part here,"
-                      " the rest as a separate entry with 'n'."); return
-            print(f"   Capital reserve: ${reserve:,.2f}  ->  ${reserve-tot:,.2f}")
     if not confirm("\n   Apply?"): print("   cancelled."); return
     loka.backup(f'capex_{d:%b%d}'.lower())
     n,a0,a1 = loka.add_expenses(items, do_backup=False)
@@ -273,11 +269,8 @@ def capex():
     wb2 = openpyxl.load_workbook(P); c2 = wb2.worksheets[0]
     new = round(float(c2.cell(147,3).value or 0) + tot, 2)
     c2.cell(147,3, new)
-    c2.cell(147,5, f'Operating costs funded from partner capital, net of repayments. '
+    c2.cell(147,5, f'Operating costs paid directly by partners (outside company account), net of repayments. '
                    f'Latest addition {d:%d-%b-%Y} ${tot:,.2f}. Still owed by Operations: ${new:,.2f}.')
-    if from_reserve:
-        c2['C170'] = round(float(c2['C170'].value or 0) - tot, 2)
-        c2['E170'] = str(c2['E170'].value or '') + f' | {d:%d-%b-%Y}: -${tot:,.2f} ' + ', '.join(i['desc'] for i in items)[:80]
     wb2.calculation.calcMode='auto'; wb2.calculation.fullCalcOnLoad=True
     wb2.save(P)
     print(f"   owed to Capital is now ${new:,.2f}")

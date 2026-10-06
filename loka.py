@@ -244,11 +244,38 @@ def cash_adjust_add(delta, reason):
     CFG['cash_adjust'] = new
     return old, new
 
+def _write_capital_balance():
+    """Capital sheet rows 172/173 (from 05-Oct-2026): capital is FIXED at the Section M
+    balance; Balance vs Capital = (company account + cash in hand) - capital.
+    Negative = the restaurant owes Capital. Static values (openpyxl cannot evaluate)."""
+    pos = compute()['position']
+    wb = openpyxl.load_workbook(P); c = wb.worksheets[0]
+    if c['B172'].value is None: return None
+    c['C172'] = pos['balance_vs_capital']; c['C173'] = pos['pool_total']
+    wb.calculation.calcMode = 'auto'; wb.calculation.fullCalcOnLoad = True
+    wb.save(P)
+    return pos
+
 def refresh_all(do_backup=True):
-    """One-shot: P&L sync + dashboard + formula-cache injection."""
+    """One-shot: P&L sync + dashboard + capital balance + formula-cache injection."""
     refresh_dashboard(do_backup=do_backup)
+    pos = _write_capital_balance()
+    if pos:
+        print(f"  capital: pool ${pos['pool_total']:,.2f} - capital ${pos['capital_reserve']:,.2f}"
+              f" = balance vs capital ${pos['balance_vs_capital']:,.2f}")
     n = _inject_cache()
     print(f'  cache injected into {n} cells')
+    # auto-backup to Google Drive (H:\My Drive\Loka Tracker) AFTER the cache injection,
+    # so the copy is the finished file. Never allowed to break a write.
+    try:
+        import gdrive_backup; gdrive_backup.auto()
+    except Exception as e:
+        print(f'  google drive: backup skipped ({e}) - use menu 22 later')
+    # then commit (today's date + day figures) and push to GitHub. Never breaks a write.
+    try:
+        import git_push; git_push.auto()
+    except Exception as e:
+        print(f'  github: skipped ({e}) - use menu 23 later')
 
 def compute():
     """Summary for the `status` command.
@@ -291,6 +318,10 @@ def compute():
              'owner_ledger': g['ol_balance'],
              'net_cash_position': round(cash - g['owe_capital'] - g['ol_balance'], 2),
              'capital_reserve': g.get('cap_reserve', 0.0),
+             # from 05-Oct-2026: capital is fixed; cash_on_hand IS the balance vs capital
+             'balance_vs_capital': round(cash, 2),
+             'owes_capital': round(max(0.0, -cash), 2),
+             'pool_total': round(cash + g.get('cap_reserve', 0.0), 2),
              'cash_anchor': f"{CFG['cash_anchor_date']} = {CFG['cash_anchor_amount']:,.2f}"},
            'by_month': {},
            'last_days': [(str(d), round(c+k+t+g['soft_bd'].get(d,0)+g['bbva_bd'].get(d,0),2), e,
@@ -359,7 +390,7 @@ WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
     cash_anchor_date=date(2026,9,19), cash_anchor_amount=12272.0,
-    cash_adjust=61.00,                   # RESET at physical count 19-Sep-2026 = $12,272.00. Only add deltas dated AFTER that. | 21-Sep: +404.00 owner-paid 21-Sep | 21-Sep: -260.00 transfer-to-me 21-Sep (moved from Cash) | 23-Sep: +879.00 owner-paid 23-Sep | 29-Sep: -432.00 transfer-to-me 29-Sep | 30-Sep: -530.00 transfer-to-me 30-Sep
+    cash_adjust=1477.47,                   # RESET at physical count 19-Sep-2026 = $12,272.00. Only add deltas dated AFTER that. | 21-Sep: +404.00 owner-paid 21-Sep | 21-Sep: -260.00 transfer-to-me 21-Sep (moved from Cash) | 23-Sep: +879.00 owner-paid 23-Sep | 29-Sep: -432.00 transfer-to-me 29-Sep | 30-Sep: -530.00 transfer-to-me 30-Sep | 01-Oct: -130.00 transfer-to-me 01-Oct | 02-Oct: +1,599.47 ledger settlement 02-Oct | 05-Oct: -965.00 transfer-to-me 05-Oct | 05-Oct: +912.00 owner-paid 05-Oct
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
     soft_commission_rate=0.0205,        # Soft Restaurant terminal (reference only; actual value stored per-day in col V)
     bbva_commission_rate=0.0190,        # BBVA terminal (reference only; actual value stored per-day in col Z)
@@ -651,12 +682,15 @@ def refresh_dashboard(do_backup=True):
     # allow a minus sign. Without it the rule stopped matching once cash went below zero
     # and the card silently FROZE ("WARN cash: no match").
     sub(r'(<div class="bval">)\$-?[\d,]+(</div>)', lambda m: m.group(1)+_money(cash)+m.group(2), 'cash')
-    # banner label named the 26-Jul count for weeks after later recounts: derive it from the anchor.
-    sub(r'Cash on Hand \(physical count [^)]*\)',
-        f"Cash on Hand (physical count {CFG['cash_anchor_date']:%d %b})", 'banner count date', 1)
-    # capital reserve sits in the same bank account but is NOT operating cash (22-Sep-2026)
-    sub(r'(Capital reserve in company acct \(not in cash above\): )\$[\d,]+',
-        lambda m: m.group(1)+_money(g.get('cap_reserve', 0.0)), 'banner capital reserve', 1)
+    # banner label: from 05-Oct-2026 the big number is BALANCE vs CAPITAL
+    # (company account + cash in hand - fixed capital); count date comes from the anchor.
+    sub(r'(?:Cash on Hand|Balance vs Capital) \((?:physical )?count [^)]*\)',
+        f"Balance vs Capital (count {CFG['cash_anchor_date']:%d %b})", 'banner count date', 1)
+    _cr = g.get('cap_reserve', 0.0)
+    sub(r'(?:Capital reserve in company acct \(not in cash above\): \$[\d,]+|Company acct \+ cash in hand [^<]*)',
+        f"Company acct + cash in hand {_money(cash + _cr)} &minus; Capital {_money(_cr)}"
+        + (f" &rarr; owes Capital {_money(-cash)}" if cash < 0 else f" &rarr; surplus {_money(cash)}"),
+        'banner capital line', 1)
     sub(r'(All-Time Revenue</div><div[^>]*>)\$[\d,]+', lambda m: m.group(1)+_money(rev), 'banner rev')
     sub(r'(All-Time Expenses</div><div[^>]*>)\$[\d,]+', lambda m: m.group(1)+_money(exp), 'banner exp')
     sub(r'(Commission</div><div[^>]*>)\$[\d,]+', lambda m: m.group(1)+_money(comm), 'banner comm')
@@ -744,9 +778,12 @@ def refresh_dashboard(do_backup=True):
     # This figure appears in TWO places with DIFFERENT wording. Both must update or one
     # silently freezes (the Section K card sat at $16,728 from 22-Jul to 05-Aug because
     # only the banner's "Ops owe capital" phrasing was covered).
-    sub(r'Ops owe capital \$[\d,]+', lambda m: 'Ops owe capital '+_money(g['owe_capital']), 'banner ops-owe')
+    # From 05-Oct-2026 capital is fixed at $125,934 in the company account; a negative
+    # balance vs capital (cash) IS what ops owes Capital. owe_capital (C147) is legacy, now 0.
+    owe_all = round(g['owe_capital'] + max(0.0, -cash), 2)
+    sub(r'Ops owe capital \$[\d,]+', lambda m: 'Ops owe capital '+_money(owe_all), 'banner ops-owe')
     sub(r'(Owed by ops to capital</span><span class="sval"[^>]*>)\$[\d,]+',
-        lambda m: m.group(1)+_money(g['owe_capital']), 'section-K ops-owe')
+        lambda m: m.group(1)+_money(owe_all), 'section-K ops-owe')
     def _ncp(m):
         pos = net_cash_pos>=0; col='var(--green)' if pos else 'var(--red)'
         return m.group(1)+f'<div style="font-size:.85rem;font-weight:700;color:{col}">'+_s3(net_cash_pos)+'</div>'

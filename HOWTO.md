@@ -341,3 +341,45 @@ on the Lohith card.
   left the company account; **n** if a partner paid it directly.
 - **Money paid back to Capital (menu 6):** answer **y** to "stayed in the COMPANY ACCOUNT?"
   if the repayment stays there as reserve; **n** if it went to you.
+
+## Balance vs Capital (from 05-Oct-2026 — replaces the "capital reserve" steps above)
+
+Capital is FIXED at $125,934 in the company account. Pay everything (rent, light, taxes,
+contador, suppliers) from the company account and enter it in the EOD as a normal expense.
+Never mark it "paid from Capital".
+
+    Balance vs Capital = company account + restaurant cash in hand - 125,934
+
+- Negative = what the restaurant still owes Capital. It goes up with every sale.
+- Shown as the big number on the dashboard and in Capital sheet row 172 (updated on every refresh).
+- **Cash count (menu 13):** enter company account balance + restaurant cash in hand
+  (leave out the Owner Ledger money in your pocket). It shows the difference from the books.
+- **Menu 5 / 6:** only when a partner pays a bill from their OWN money, outside the company account.
+
+## Backup to Google Drive (menu 22)
+
+`LOKA.bat` -> **22** copies `LOKA_Restaurant_Manager.xlsx` and `dashboard.html` to
+`H:\My Drive\Loka Tracker` (Google Drive for desktop syncs it to the cloud).
+
+**Runs AUTOMATICALLY** after every write (EOD record, add-more, fixes, cash count, menu 18...):
+the last line of the output says `google drive: workbook + dashboard backed up`. If drive H:
+isn't available it just says "skipped" and the write still completes. Menu 22 = run it by hand.
+
+- The two files in `Loka Tracker` are always the latest version.
+- Dated copies go to `Loka Tracker\History`: ONE per day (the latest of that day), last 60 days.
+- If Excel has the workbook open, it warns you: unsaved changes would not be included.
+- If drive H: is not there, Google Drive for desktop isn't running; nothing is copied.
+- Command line: `py gdrive_backup.py`
+
+## Auto commit + push to GitHub (menu 23)
+
+**Runs AUTOMATICALLY** after every write, right after the Google Drive backup. The last line says
+`github: pushed to GitHub (N file(s) changed)`. No more pushing from VS Code.
+
+- Commit message: `LOKA 05-Oct-2026 | EOD | day 2026-10-05: rev $X exp $Y net $Z | bal vs capital $W`
+  plus a list of the changed files.
+- It never asks for a password and never stops a write. If the push fails (no internet), the commit
+  stays on this PC and the next run (or menu 23) pushes it.
+- "push FAILED ... pull in VS Code first": GitHub has a change this PC doesn't (e.g. edited on the
+  website). Pull in VS Code, then menu 23.
+- Command line: `py git_push.py`
