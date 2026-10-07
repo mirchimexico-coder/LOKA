@@ -390,7 +390,7 @@ WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
     cash_anchor_date=date(2026,9,19), cash_anchor_amount=12272.0,
-    cash_adjust=1477.47,                   # RESET at physical count 19-Sep-2026 = $12,272.00. Only add deltas dated AFTER that. | 21-Sep: +404.00 owner-paid 21-Sep | 21-Sep: -260.00 transfer-to-me 21-Sep (moved from Cash) | 23-Sep: +879.00 owner-paid 23-Sep | 29-Sep: -432.00 transfer-to-me 29-Sep | 30-Sep: -530.00 transfer-to-me 30-Sep | 01-Oct: -130.00 transfer-to-me 01-Oct | 02-Oct: +1,599.47 ledger settlement 02-Oct | 05-Oct: -965.00 transfer-to-me 05-Oct | 05-Oct: +912.00 owner-paid 05-Oct
+    cash_adjust=637.47,                   # RESET at physical count 19-Sep-2026 = $12,272.00. Only add deltas dated AFTER that. | 21-Sep: +404.00 owner-paid 21-Sep | 21-Sep: -260.00 transfer-to-me 21-Sep (moved from Cash) | 23-Sep: +879.00 owner-paid 23-Sep | 29-Sep: -432.00 transfer-to-me 29-Sep | 30-Sep: -530.00 transfer-to-me 30-Sep | 01-Oct: -130.00 transfer-to-me 01-Oct | 02-Oct: +1,599.47 ledger settlement 02-Oct | 05-Oct: -965.00 transfer-to-me 05-Oct | 05-Oct: +912.00 owner-paid 05-Oct | 06-Oct: -840.00 transfer-to-me 06-Oct
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
     soft_commission_rate=0.0205,        # Soft Restaurant terminal (reference only; actual value stored per-day in col V)
     bbva_commission_rate=0.0190,        # BBVA terminal (reference only; actual value stored per-day in col Z)
