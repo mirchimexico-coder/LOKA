@@ -1,12 +1,13 @@
-DATE: 06-Oct
-MP: 1285     BBVA: 0     SOFT: 0     CASH: 2200
-TRANSFER-TO-ME: 840     TRANSFER-TO-BANK: 0
+DATE: 07-Oct
+MP: 360     BBVA: 0     SOFT: 0     CASH: 1095
+TRANSFER-TO-ME: 0     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL: Chedraui 49, Oxxo panela 45, Pan 25, Carne 1056, Sams club 1909, guimar 604, Carne 583, soft app 810
+NO-BILL: Carne 189,Guimar 146, Avia Reca 750
 PAID BY ME:
 SALARY: NA
 NOTE: NA
+
 
 ------------------------------------------------------------------
 HOW TO FILL THIS IN  (delete nothing - just leave a line at 0/blank)
