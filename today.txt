@@ -1,12 +1,13 @@
-DATE: 09-Oct
-MP: 2871     BBVA: 0     SOFT: 0     CASH: 1479
-TRANSFER-TO-ME: 130     TRANSFER-TO-BANK: 0
+DATE: 10-Oct
+MP: 1140     BBVA: 0     SOFT: 0     CASH: 1900
+TRANSFER-TO-ME: 220     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL:
-PAID BY ME:
-SALARY: Duvi 1460
+NO-BILL: Vegetables 2000, Molino 72, Carne 297, 3B 938, Gas 1500, Queso Bodega 570, Queso Panela 687
+PAID BY ME: Pollo 1055
+SALARY: Josias 2200, Jhon 3750
 NOTE: NA
+
 
 
 ------------------------------------------------------------------
