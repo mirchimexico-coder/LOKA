@@ -1,13 +1,12 @@
-DATE: 20-Oct
-MP: 2565     BBVA: 0     SOFT: 0     CASH: 1830
+DATE: 21-Oct
+MP: 2665     BBVA: 0     SOFT: 0     CASH: 2285
 TRANSFER-TO-ME: 0     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL: Oxxo Arroz 260, Oxxo Arroz 26, Carne 570, Pan Real 1576, Sams Club 1154, Chedraui 104, Julio Contador 1800, Taxes 4756
-PAID BY ME: Pollo 1334
+NO-BILL: Pescado 325, Carne 570, Etrusca 1796, Soft App 810
+PAID BY ME:
 SALARY: NA
 NOTE: NA
-
 
 ------------------------------------------------------------------
 HOW TO FILL THIS IN  (delete nothing - just leave a line at 0/blank)
