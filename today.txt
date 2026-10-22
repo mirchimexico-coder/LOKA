@@ -1,11 +1,11 @@
-DATE: 17-Oct
-MP: 2425     BBVA: 0     SOFT: 0     CASH: 2090
+DATE: 19-Oct
+MP: 3035     BBVA: 0     SOFT: 0     CASH: 2650
 TRANSFER-TO-ME: 0     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL: Hielo 125, Vegetables 1662
-PAID BY ME:
-SALARY: Jhon 3750, Rodrigo 1500
+NO-BILL: Pan Dulce 80, Tortillas 27, Carne 771, Guimar 108, Oxxo Arroz 67
+PAID BY ME: Telmex 349
+SALARY: NA
 NOTE: NA
 
 
