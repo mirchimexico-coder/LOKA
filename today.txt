@@ -1,12 +1,12 @@
-DATE: 24-Oct
-MP: 1425     BBVA: 0     SOFT: 0     CASH: 1120
-TRANSFER-TO-ME: 355     TRANSFER-TO-BANK: 0
+DATE: 26-Oct
+MP: 2210     BBVA: 0     SOFT: 0     CASH: 1760
+TRANSFER-TO-ME: 209     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL: Walmart 363, 3B 879, Decoration 180, Vegetables 1500
-PAID BY ME:
-SALARY: Rodrigo 1500, Josias 1850, Jhon 3750
-NOTE: NA
+NO-BILL: Carne 1081, Jamon 181, Chedraui 280, Tortillas 70
+PAID BY ME: Pollo 667
+SALARY: NA
+NOTE: 209 Uber transferred to me
 
 
 ------------------------------------------------------------------
