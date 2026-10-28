@@ -207,6 +207,12 @@ def parse(txt):
     parts=raw.split('-')
     if len(parts)==2: raw=f'{parts[0]}-{parts[1]}-{date.today().year}'
     d['date']=loka.pdate(raw)
+    # guard (28-Oct-2026): a typo once saved 23-Oct as year 7170 and froze the dashboard
+    _d = d['date'].date() if hasattr(d['date'], 'date') else d['date']
+    if abs((_d - date.today()).days) > 60:
+        raise SystemExit(
+            f"\n  >> DATE reads as {_d:%d-%b-%Y} - more than 60 days from today.\n"
+            "     Check the DATE line (e.g.  DATE: 23-Oct ), then run the preview again.\n")
     d['mp']    = field(txt,'CARD MERCADO PAGO','MERCADO PAGO','MP CARD',r'\bMP\b') or 0
     d['bbva']  = field(txt,'BBVA CARD',r'\bBBVA\b') or 0
     d['soft']  = field(txt,'CARD SOFT RESTAURANT','SOFT RESTAURANT','SOFT CARD',r'\bSOFT\b') or 0

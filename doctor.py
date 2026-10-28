@@ -84,6 +84,13 @@ for r in range(8,dl.max_row+1):
         if d in seen: dup+=1
         seen[d]=r
 (ok if dup==0 else bad).append(f"duplicate Daily Log dates: {dup}")
+# 5b impossible years (a typo saved 23-Oct-2026 as 7170 and froze the dashboard)
+_odd=[]
+for _ws in (dl, wb[[w for w in wb.sheetnames if 'Expenses' in w][0]]):
+    for r in range(8,_ws.max_row+1):
+        d=_pd(_ws.cell(r,2).value)
+        if isinstance(d,date) and not (2025 <= d.year <= date.today().year+1): _odd.append(f'{_ws.title[-10:]}!B{r}={d}')
+(ok if not _odd else bad).append(f"dates with an impossible year: {len(_odd)}" + ("" if not _odd else '  <-- '+', '.join(_odd[:5])))
 
 # 6 expenses data quality
 q=[]
