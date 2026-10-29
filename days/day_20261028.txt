@@ -1,9 +1,9 @@
-DATE: 27-Oct
-MP: 260     BBVA: 1580     SOFT: 0     CASH: 1295
+DATE: 28-Oct
+MP: 490     BBVA: 1535     SOFT: 0     CASH: 2340
 TRANSFER-TO-ME: 0     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL: Agua Natural 45
+NO-BILL: Queso Panela 592, Chedraui 188, Coca 1314, Vessel 277, Guimar 600, Carne 605, Pescado 303
 PAID BY ME: 
 SALARY: NA
 NOTE: NA
