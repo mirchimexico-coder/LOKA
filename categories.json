@@ -5,6 +5,7 @@
   "boneless": "Ingredients - Meat",
   "cake": "Ingredients - Dairy",
   "caramelo": "Ingredients - Other",
+  "coca": "Ingredients - Beverages",
   "coca cola": "Ingredients - Beverages",
   "contador": "Professional Services",
   "duplicate keys": "Office Supplies",
@@ -29,7 +30,9 @@
   "soft": "Software/Subscription",
   "taxes": "Taxes",
   "tomato": "Ingredients - Vegetables",
+  "utensils": "Kitchen Supplies",
   "vegetables": "Ingredients - Vegetables",
   "vegetales": "Ingredients - Vegetables",
+  "vessel": "Kitchen Supplies",
   "vessels": "Kitchen Supplies"
 }
