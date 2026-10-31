@@ -1,11 +1,11 @@
-DATE: 29-Oct
-MP: 120     BBVA: 1395     SOFT: 0     CASH: 2115
-TRANSFER-TO-ME: 100     TRANSFER-TO-BANK: 0
+DATE: 30-Oct
+MP: 255     BBVA: 1690     SOFT: 0     CASH: 2290
+TRANSFER-TO-ME: 990     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL: Vegetables 157, Pan Real 1465
+NO-BILL: Vegetables 64, Carne 292, Chedraui 540
 PAID BY ME:
-SALARY: NA
+SALARY: Josias 740
 NOTE: NA
 
 ------------------------------------------------------------------
