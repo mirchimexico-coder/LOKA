@@ -1,11 +1,11 @@
-DATE: 31-Oct
-MP: 0     BBVA: 835     SOFT: 0     CASH: 1015
-TRANSFER-TO-ME: 130     TRANSFER-TO-BANK: 0
+DATE: 03-Nov
+MP: 100     BBVA: 750     SOFT: 0     CASH: 1285
+TRANSFER-TO-ME: 145     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL:
+NO-BILL: Vegetables 1873, Carne 510, Chedraui 177, molino 56, Carne 585, Sams Club 1424, Pan Reales 636, Extermidor de Cucaracha 1787
 PAID BY ME:
-SALARY: Jhon 3750, Duvi 1460, Rodrigo 2000
+SALARY: NA
 NOTE: NA
 
 
