@@ -1,12 +1,12 @@
-DATE: 05-Nov
-MP: 805     BBVA: 3684     SOFT: 0     CASH: 820
-TRANSFER-TO-ME: 0     TRANSFER-TO-BANK: 0
+DATE: 06-Nov
+MP: 4985     BBVA: 0     SOFT: 0     CASH: 1815
+TRANSFER-TO-ME: 130     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL: Pescado 320, Papas 120
+NO-BILL: Chedraui 106, Oxxo 126, Rent 19066.68
 PAID BY ME:
 SALARY: NA
-NOTE: NA
+NOTE: 2015 order they paid only 1870 because papas were sold for 50 pesos
 
 
 ------------------------------------------------------------------

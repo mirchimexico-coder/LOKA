@@ -1,12 +1,12 @@
-DATE: 06-Nov
-MP: 4985     BBVA: 0     SOFT: 0     CASH: 1815
-TRANSFER-TO-ME: 130     TRANSFER-TO-BANK: 0
+DATE: 07-Nov
+MP: 1475     BBVA: 0     SOFT: 0     CASH: 885
+TRANSFER-TO-ME: 335     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL: Chedraui 106, Oxxo 126, Rent 19066.68
+NO-BILL: Carne 181, Jamon 181, Guimar 800, Vegetables 72
 PAID BY ME:
-SALARY: NA
-NOTE: 2015 order they paid only 1870 because papas were sold for 50 pesos
+SALARY: Jhon 3750, Duvi 1750, Rodrigo 2000
+NOTE: NA
 
 
 ------------------------------------------------------------------
