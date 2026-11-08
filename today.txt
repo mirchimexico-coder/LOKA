@@ -1,10 +1,10 @@
-DATE: 04-Nov
-MP: 965     BBVA: 1355     SOFT: 0     CASH: 895
+DATE: 05-Nov
+MP: 805     BBVA: 3684     SOFT: 0     CASH: 820
 TRANSFER-TO-ME: 0     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL: Avia Reca 300, Chedraui 62, Carne Hamburguesa 380, Queso Panela 621, Queso Bodega 571
-PAID BY ME: Pollo 1102
+NO-BILL: Pescado 320, Papas 120
+PAID BY ME:
 SALARY: NA
 NOTE: NA
 
