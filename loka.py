@@ -390,7 +390,7 @@ WEEK_COLORS = ['#3b82f6','#22c55e','#f97316','#a855f7','#f59e0b','#ef4444','#06b
 # Manual anchors that change rarely — update here when the situation changes.
 CFG = dict(
     cash_anchor_date=date(2026,10,29), cash_anchor_amount=-5934.0,
-    cash_adjust=366.00,                   # RESET at physical count 29-Oct-2026 = $-5,934.00. Only add deltas dated AFTER that. | 30-Oct: -100.00 transfer-to-me 29-Oct | 30-Oct: -990.00 transfer-to-me 30-Oct | 05-Nov: -130.00 transfer-to-me 31-Oct | 05-Nov: -145.00 transfer-to-me 03-Nov | 08-Nov: +1,102.00 owner-paid 04-Nov | 08-Nov: -130.00 transfer-to-me 06-Nov | 08-Nov: -335.00 transfer-to-me 07-Nov | 09-Nov: -250.00 transfer-to-me 09-Nov | 09-Nov: +1,344.00 owner-paid 09-Nov
+    cash_adjust=281.00,                   # RESET at physical count 29-Oct-2026 = $-5,934.00. Only add deltas dated AFTER that. | 30-Oct: -100.00 transfer-to-me 29-Oct | 30-Oct: -990.00 transfer-to-me 30-Oct | 05-Nov: -130.00 transfer-to-me 31-Oct | 05-Nov: -145.00 transfer-to-me 03-Nov | 08-Nov: +1,102.00 owner-paid 04-Nov | 08-Nov: -130.00 transfer-to-me 06-Nov | 08-Nov: -335.00 transfer-to-me 07-Nov | 09-Nov: -250.00 transfer-to-me 09-Nov | 09-Nov: +1,344.00 owner-paid 09-Nov | 12-Nov: -85.00 transfer-to-me 12-Nov
     commission_rate=0.0406,             # Mercado Pago est. on card revenue
     soft_commission_rate=0.0205,        # Soft Restaurant terminal (reference only; actual value stored per-day in col V)
     bbva_commission_rate=0.0190,        # BBVA terminal (reference only; actual value stored per-day in col Z)
