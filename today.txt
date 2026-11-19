@@ -1,11 +1,11 @@
-DATE: 14-Nov
-MP: 1305     BBVA: 0     SOFT: 0     CASH: 2180
-TRANSFER-TO-ME: 110     TRANSFER-TO-BANK: 0
+DATE: 17-Nov
+MP: 2465   BBVA: 0     SOFT: 0     CASH: 2890
+TRANSFER-TO-ME: 0     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL:
-PAID BY ME:
-SALARY: Jhon 3750, Duvi 1425, Rodrigo 2000
+NO-BILL: Carne 605, Vegetables 1668
+PAID BY ME: Pollo 928, Chedraui 166, 
+SALARY: NA
 NOTE: NA
 
 ------------------------------------------------------------------
