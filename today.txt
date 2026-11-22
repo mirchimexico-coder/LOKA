@@ -1,13 +1,12 @@
-DATE: 19-Nov
-MP: 1640     BBVA: 0     SOFT: 0     CASH: 2675
-TRANSFER-TO-ME: 435     TRANSFER-TO-BANK: 0
+DATE: 20-Nov
+MP: 4385     BBVA: 0     SOFT: 0     CASH: 1440
+TRANSFER-TO-ME: 0     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL: Refrigerator Fix 1800, Gas 1500, Chedraui 205, Carne 293, Taxes 4523, Contador 1800
-PAID BY ME:
-SALARY: NA
+NO-BILL: Batteries 166, Cake 259, Carne Hamburguesa 380, Queso Panela 592
+PAID BY ME: 
+SALARY: Rodrigo 1575, Jhon 3200, Duvi 1230
 NOTE: NA
-
 
 ------------------------------------------------------------------
 HOW TO FILL THIS IN  (delete nothing - just leave a line at 0/blank)
