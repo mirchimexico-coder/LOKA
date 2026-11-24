@@ -1,11 +1,11 @@
-DATE: 20-Nov
-MP: 4385     BBVA: 0     SOFT: 0     CASH: 1440
+DATE: 23-Nov
+MP: 2695     BBVA: 0     SOFT: 0     CASH: 2590
 TRANSFER-TO-ME: 0     TRANSFER-TO-BANK: 0
 BBVA COMMISSION: 1.9%
 SOFT COMMISSION: 0
-NO-BILL: Batteries 166, Cake 259, Carne Hamburguesa 380, Queso Panela 592
-PAID BY ME: 
-SALARY: Rodrigo 1575, Jhon 3200, Duvi 1230
+NO-BILL: Queso Bodega 605, Basicos 989, Jamon 180, Vegetables 1121, Chedraui 160
+PAID BY ME: Pollo 999
+SALARY: NA
 NOTE: NA
 
 ------------------------------------------------------------------
